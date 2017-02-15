@@ -251,10 +251,10 @@ static char* emunit_display_replace(char * p_start, size_t len, const char __mem
 	if(s_len != len)
 	{
 		EMUNIT_IASSERT((s_len <= len) ||
-			(emunit_display_wptr + s_len - len <= emunit_display_buffer_end));
-		memmove(p_start + s_len, p_start + len, emunit_display_wptr - p_start - len);
+			(emunit_display_wptr + s_len - len < emunit_display_buffer_end));
+		/* Move with trailing zero */
+		memmove(p_start + s_len, p_start + len, emunit_display_wptr - p_start - len + 1);
 		emunit_display_wptr = emunit_display_wptr + s_len - len;
-		*emunit_display_wptr = '\0'; /* 0 required if we are moving to the left */
 	}
 	emunit_memcpy(p_start, s, s_len);
 
