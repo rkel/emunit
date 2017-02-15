@@ -127,7 +127,7 @@ static inline char * emunit_strncpy(
 	return ret;
 }
 
-static inline int emunit_snprintf(
+static inline int emunit_vsnprintf(
 	char * s,
 	size_t n,
 	char const __memx * fmt,

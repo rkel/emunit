@@ -23,7 +23,7 @@ void test1(void)
 
 void test2(void)
 {
-
+	UT_ASSERT_MSG(false, "Test entities: <&> may be failed");
 }
 
 static const __flash emunit_assert_head_t emunit_assert_head_global = {

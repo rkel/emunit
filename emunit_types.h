@@ -163,42 +163,6 @@ typedef struct
 }emunit_assert_head_t;
 
 /**
- * @brief Init assertion header with message
- *
- * Macro for assertion header initialisation.
- *
- * @param[in] nt  Numeric type @ref emunit_numtypes_t enumerator value
- * @param[in] msg Message string
- *
- * @return Assertion header initialisation
- */
-#define EMUNIT_ASSERT_HEAD_MSG(nt, msg)         \
-{                                               \
-	.p_file = (const __flash char[]){__FILE__}, \
-	.p_msg  = (const __flash char[]){msg},      \
-	.line   = __LINE__,                         \
-	.numtype = nt                               \
-}
-
-/**
- * @brief Init assertion header
- *
- * Macro for assertion header initialisation.
- *
- * @param[in] file_name The persistant variable (global or static) with file name.
- * @param[in] nt        Numeric type @ref emunit_numtypes_t enumerator value
- *
- * @return Assertion header initialisation
- */
-#define EMUNIT_ASSERT_HEAD(file_name, nt) \
-{                                         \
-	.p_file = file_name,                  \
-	.p_msg  = NULL,                       \
-	.line   = __LINE__,                   \
-	.numtype = nt                         \
-}
-
-/**
  * @brief The auxiliary macro to call assertion function
  *
  * This macro creates assertion header, and passes it as a first
@@ -212,8 +176,12 @@ typedef struct
 	do{                                                                      \
 		static const __flash char emunit_assert_head_file_name[] = __FILE__; \
 		static const __flash emunit_assert_head_t                            \
-			emunit_assert_head_internal =                                    \
-			EMUNIT_ASSERT_HEAD(emunit_assert_head_file_name, nt);            \
+			emunit_assert_head_internal = {                                  \
+				.p_file = emunit_assert_head_file_name,                      \
+				.p_msg  = NULL,                                              \
+				.line   = __LINE__,                                          \
+				.numtype = nt                                                \
+			};                                                               \
 		func(&emunit_assert_head_internal, __VA_ARGS__);                     \
 	}while(0)
 
@@ -228,12 +196,18 @@ typedef struct
  * @param[in] func Assertion function
  * @param     ...  Arguments for the assertion function
  */
-#define EMUNITY_CALL_ASSERT_MSG(nt, msg, func, ...)      \
-	do{                                                  \
-		static const __flash emunit_assert_head_t        \
-			emunit_assert_head_internal =                \
-			EMUNIT_ASSERT_HEAD_MSG(nt, msg);             \
-		func(&emunit_assert_head_internal, __VA_ARGS__); \
+#define EMUNIT_CALL_ASSERT_MSG(nt, msg, func, ...)       \
+	do{                                                                      \
+		static const __flash char emunit_assert_head_file_name[] = __FILE__; \
+		static const __flash char emunit_assert_head_msg[] = msg;            \
+		static const __flash emunit_assert_head_t                            \
+			emunit_assert_head_internal = {                                  \
+				.p_file = emunit_assert_head_file_name,                      \
+				.p_msg  = emunit_assert_head_msg,                            \
+				.line   = __LINE__,                                          \
+				.numtype = nt                                                \
+			};                                                               \
+		func(&emunit_assert_head_internal, __VA_ARGS__);                     \
 	}while(0)
 
 /**

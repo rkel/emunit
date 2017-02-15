@@ -26,6 +26,8 @@
  * @brief Output data buffer
  *
  * Block of data that holds all printed data during single test.
+ * There is always at least one character left for null character
+ * that may be used by the display port.
  */
 EMUNIT_NOINIT_VAR(char, emunit_display_buffer[EMUNIT_CONF_BUFFER_SIZE]);
 
@@ -50,10 +52,33 @@ static const char * emunit_display_buffer_end =
  * Presentation module internals to be used in porting files
  * @ingroup emunit_display_group
  *
- * Group of special kind of internal functions that would be used in the
+ * Group of special kind of internal functions and types that would be used in the
  * @em emunit_display_MODE.c files.
  * @{
  */
+
+/**
+ * @brief Function used to clean up the buffer after printing
+ *
+ * This function, used in one of following functions:
+ *
+ * - @ref emunit_display_puts
+ * - @ref emunit_display_printf
+ *
+ * It would be called after the message has been successfully placed in output
+ * display buffer.
+ * Now operating directly on the display buffer some parts can be replaced.
+ *
+ * Use @ref emunit_display_replace to make the replacement safetly.
+ *
+ * @note Clean up functionality is not implemented in @ref emunit_display_putc.
+ *       Any single character access can be solved simply without calling
+ *       after clean up function.
+ *
+ * @param p_start Start of the string just pushed into output buffer
+ * @param len     Length of the string just pushed into output buffer
+ */
+typedef void (*emunit_display_cleanup_fn_t)(char * p_start, size_t len);
 
 /**
  * @brief Get the buffer size left
@@ -77,23 +102,57 @@ static inline size_t emunit_display_max_size(void)
  */
 static void emunit_display_putc(char c)
 {
-	EMUNIT_IASSERT(emunit_display_max_size() >= 1);
+	EMUNIT_IASSERT(emunit_display_max_size() > 1);
 	*emunit_display_wptr++ = c;
 }
 
 /**
  * @brief Put string
  *
+ * @param[in]  cleanup Cleanup function to be called after data is sent to the buffer
  * @param s Source string to be copied into buffer.
  */
-static void emunit_display_puts(char const __memx * s)
+static void emunit_display_puts(emunit_display_cleanup_fn_t cleanup, char const __memx * s)
 {
 	const size_t max_size = emunit_display_max_size();
 	const size_t size = emunit_strlen(s);
-	EMUNIT_IASSERT(size <= max_size);
+	char * ptr_start;
+	EMUNIT_IASSERT(size < max_size);
 
 	emunit_strncpy(emunit_display_wptr, s, size);
+	ptr_start = emunit_display_wptr;
 	emunit_display_wptr += size;
+	if(NULL != cleanup)
+		cleanup(ptr_start, size);
+}
+
+/**
+ * @brief Variant of @ref emunit_display_printf but takes variable argument list
+ *
+ *
+ * @param[in]  cleanup  Cleanup function to be called after data is printed into the buffer.
+ * @param[in]  fmt      Format string.
+ * @param[in]  args     Variable argument list.
+ *
+ * @sa emunit_display_printf
+ */
+static void emunit_display_vprintf(emunit_display_cleanup_fn_t cleanup, char const __memx * fmt, va_list args)
+{
+	const size_t max_size = emunit_display_max_size();
+	size_t printed_size;
+	char * ptr_start;
+
+	printed_size = emunit_vsnprintf(
+		emunit_display_wptr,
+		max_size,
+		fmt,
+		args);
+
+	EMUNIT_IASSERT(printed_size < max_size);
+	ptr_start = emunit_display_wptr;
+	emunit_display_wptr += printed_size;
+	if(NULL != cleanup)
+		cleanup(ptr_start, printed_size);
 }
 
 /**
@@ -105,25 +164,18 @@ static void emunit_display_puts(char const __memx * s)
  * @note
  * This function would generate assertion failure if internal buffer overruns.
  *
- * @param[in]  fmt Format string.
- * @param[in]  ... Parameters.
+ * @param[in]  cleanup Cleanup function to be called after data is printed into the buffer
+ * @param[in]  fmt     Format string.
+ * @param[in]  ...     Parameters.
+ *
+ * @sa emunit_display_vprintf
  */
-static void emunit_display_printf(char const __memx * fmt,	...)
+static void emunit_display_printf(emunit_display_cleanup_fn_t cleanup, char const __memx * fmt,	...)
 {
-	va_list args_ptr;
-	const size_t max_size = emunit_display_max_size();
-	size_t printed_size;
-
-	va_start(args_ptr, fmt);
-	printed_size = emunit_snprintf(
-		emunit_display_wptr,
-		max_size,
-		fmt,
-		args_ptr);
-	va_end(args_ptr);
-
-	EMUNIT_IASSERT(printed_size < max_size);
-	emunit_display_wptr += printed_size;
+	va_list args;
+	va_start(args, fmt);
+	emunit_display_vprintf(cleanup, fmt, args);
+	va_end(args);
 }
 
 /**
@@ -141,7 +193,7 @@ static void emunit_display_printf(char const __memx * fmt,	...)
  */
 static void emunit_display_panic_putc(char c)
 {
-	if(emunit_display_max_size() >= 1)
+	if(emunit_display_max_size() > 1)
 	{
 		*emunit_display_wptr++ = c;
 	}
@@ -164,12 +216,49 @@ static void emunit_display_panic_puts(char const __memx * s)
 {
 	const size_t max_size = emunit_display_max_size();
 	size_t size = emunit_strlen(s);
-	if(size > max_size)
+	if(size >= max_size)
 	{
-		size = max_size;
+		size = max_size - 1;
 	}
 	emunit_strncpy(emunit_display_wptr, s, size);
 	emunit_display_wptr += size;
+}
+
+/**
+ * @brief Replace string in the output buffer
+ *
+ * This function may be used to safely replace part of the output buffer.
+ * It is meant to be used inside @ref emunit_display_cleanup_fn_t.
+ *
+ * If the len of the new string is different than @c len,
+ * buffer contents would be safely moved.
+ *
+ * If the buffer after movement would overflow this function would fail
+ * calling internal assert.
+ *
+ * @param p_start Start of the part to be replaced.
+ *                This address has to be located inside display output buffer.
+ * @param len     Length of the string to replace
+ * @param s
+ *
+ * @return Pointer to the buffer string just after replacement.
+ */
+static char* emunit_display_replace(char * p_start, size_t len, const char __memx * s)
+{
+	EMUNIT_IASSERT((emunit_display_buffer <= p_start) &&
+		(p_start < emunit_display_buffer_end));
+	size_t s_len = emunit_strlen(s);
+	if(s_len != len)
+	{
+		EMUNIT_IASSERT((s_len <= len) ||
+			(emunit_display_wptr + s_len - len <= emunit_display_buffer_end));
+		memmove(p_start + s_len, p_start + len, emunit_display_wptr - p_start - len);
+		emunit_display_wptr = emunit_display_wptr + s_len - len;
+		*emunit_display_wptr = '\0'; /* 0 required if we are moving to the left */
+	}
+	emunit_memcpy(p_start, s, s_len);
+
+	return p_start + s_len;
 }
 
 /** @} */

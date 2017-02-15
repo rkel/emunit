@@ -74,11 +74,35 @@ static void emunit_display_xml_puts_ent(void (*fn_putc)(char c), const __memx ch
 	}
 }
 
+static void emunit_display_xml_cleanup_entities(char * p_start, size_t len)
+{
+	char c;
+	while('\0' != (c = *p_start))
+	{
+		switch(c)
+		{
+		case '<':
+			p_start = emunit_display_replace(p_start, 1, EMUNIT_FLASHSTR("&lt;"));
+			break;
+		case '>':
+			p_start = emunit_display_replace(p_start, 1, EMUNIT_FLASHSTR("&gt;"));
+			break;
+		case '&':
+			p_start = emunit_display_replace(p_start, 1, EMUNIT_FLASHSTR("&amp;"));
+			break;
+		default:
+			++p_start;
+			break;
+		}
+	}
+}
+
 static void emunit_display_xml_failed_header(
 	const __flash emunit_assert_head_t * p_head,
 	const __flash char * p_str_type)
 {
 	emunit_display_printf(
+		NULL,
 		EMUNIT_FLASHSTR(
 			"\t\t\t<failure type=\%"PRIsPGM" id=\"%u\">" NEWLINE
 			"\t\t\t\t<file>%"PRIsPGM"</file>"            NEWLINE
@@ -91,18 +115,18 @@ static void emunit_display_xml_failed_header(
 	);
 	if(NULL != p_head->p_msg)
 	{
-		emunit_display_printf(
-			EMUNIT_FLASHSTR("\t\t\t\t<msg>%"PRIsPGM"</msg>" NEWLINE),
-			p_head->p_msg
-		);
+		emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t<msg>"));
+		emunit_display_puts(emunit_display_xml_cleanup_entities, p_head->p_msg);
+		emunit_display_puts(NULL, EMUNIT_FLASHSTR("</msg>" NEWLINE));
 	}
-	emunit_display_puts(EMUNIT_FLASHSTR("\t\t\t\t<details>" NEWLINE));
+	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t<details>" NEWLINE));
 }
 
 static void emunit_display_xml_failed_footer(const __flash emunit_assert_head_t * p_head)
 {
 	(void)p_head;
 	emunit_display_puts(
+		NULL,
 		EMUNIT_FLASHSTR(
 			"\t\t\t\t</details>" NEWLINE
 			"\t\t\t</failure>" NEWLINE
@@ -125,25 +149,36 @@ static void emunit_display_xml_value(
 	emunit_num_t val)
 {
 	emunit_display_printf(
+		NULL,
 		EMUNIT_FLASHSTR("\t\t\t\t\t<%"PRIsPGM">"),
 		p_name
 	);
 
 #define EMUNIT_DISPLAY_XML_CASES(size)                                                             \
 	case EMUNIT_CN2(EMUNIT_NUMTYPE_U, size):                                                       \
-		emunit_display_printf(EMUNIT_FLASHSTR("%"EMUNIT_CN2(PRIu, size)), (EMUNIT_CN3(uint, size, _t))val.u); \
+		emunit_display_printf(                                                                     \
+			NULL,                                                                                  \
+			EMUNIT_FLASHSTR("%"EMUNIT_CN2(PRIu, size)),                                            \
+			(EMUNIT_CN3(uint, size, _t))val.u);                                                    \
 		break;                                                                                     \
 	case EMUNIT_CN2(EMUNIT_NUMTYPE_S, size):                                                       \
-		emunit_display_printf(EMUNIT_FLASHSTR("%"EMUNIT_CN2(PRId, size)), (EMUNIT_CN3(int, size, _t))val.s);  \
+		emunit_display_printf(                                                                     \
+			NULL,                                                                                  \
+			EMUNIT_FLASHSTR("%"EMUNIT_CN2(PRId, size)),                                            \
+			(EMUNIT_CN3(int, size, _t))val.s);                                                     \
 		break;                                                                                     \
 	case EMUNIT_CN2(EMUNIT_NUMTYPE_X, size):                                                       \
-		emunit_display_printf(EMUNIT_FLASHSTR("%"EMUNIT_CN2(PRIx, size)), (EMUNIT_CN3(uint, size, _t))val.u); \
+		emunit_display_printf(                                                                     \
+			NULL,                                                                                  \
+			EMUNIT_FLASHSTR("%"EMUNIT_CN2(PRIx, size)),                                            \
+			(EMUNIT_CN3(uint, size, _t))val.u);                                                    \
 		break
 
 	switch(type)
 	{
 	case EMUNIT_NUMTYPE_BOOL:
 		emunit_display_puts(
+			NULL,
 			((bool)val.u) ? EMUNIT_FLASHSTR("true") : EMUNIT_FLASHSTR("false")
 		);
 		break;
@@ -162,6 +197,7 @@ static void emunit_display_xml_value(
 	}
 
 	emunit_display_printf(
+		NULL,
 		EMUNIT_FLASHSTR("</%"PRIsPGM">" NEWLINE),
 		p_name
 	);
@@ -190,6 +226,7 @@ void emunit_display_xml_show_panic(
 void emunit_display_xml_test_start(void)
 {
 	emunit_display_printf(
+		NULL,
 		EMUNIT_FLASHSTR(
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>" NEWLINE
 			"<test name=\"%"PRIsPGM"\">"                 NEWLINE
@@ -201,6 +238,7 @@ void emunit_display_xml_test_start(void)
 void emunit_display_xml_test_end(void)
 {
 	emunit_display_printf(
+		NULL,
 		EMUNIT_FLASHSTR(
 			"\t<testsumary>"            NEWLINE
 			"\t\t<testsute-stat>"       NEWLINE
@@ -228,6 +266,7 @@ void emunit_display_xml_test_end(void)
 void emunit_display_xml_ts_start(void)
 {
 	emunit_display_printf(
+		NULL,
 		EMUNIT_FLASHSTR(
 			"\t<testsuite name=\"%"PRIsPGM"\">" NEWLINE
 		),
@@ -238,6 +277,7 @@ void emunit_display_xml_ts_start(void)
 void emunit_display_xml_ts_end(void)
 {
 	emunit_display_puts(
+		NULL,
 		EMUNIT_FLASHSTR("\t</testsuite>" NEWLINE)
 	);
 }
@@ -245,6 +285,7 @@ void emunit_display_xml_ts_end(void)
 void emunit_display_xml_tc_start(void)
 {
 	emunit_display_printf(
+		NULL,
 		EMUNIT_FLASHSTR("\t\t<testcase name=\"%"PRIsPGM"\">" NEWLINE),
 		emunit_tc_name_get(emunit_ts_current_index_get(), emunit_tc_current_index_get())
 	);
@@ -253,6 +294,7 @@ void emunit_display_xml_tc_start(void)
 void emunit_display_xml_tc_end(void)
 {
 	emunit_display_puts(
+		NULL,
 		EMUNIT_FLASHSTR("\t\t</testcase>" NEWLINE)
 	);
 }
@@ -264,6 +306,7 @@ void emunit_display_xml_failed_assert(
 	emunit_display_xml_failed_header(p_head, EMUNIT_FLASHSTR("ASSERT"));
 
 	emunit_display_printf(
+		NULL,
 		EMUNIT_FLASHSTR("\t\t\t\t\t<expression>%"PRIsPGM"</expression>" NEWLINE),
 		str_expr
 	);
