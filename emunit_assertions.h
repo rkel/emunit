@@ -26,8 +26,8 @@
  * @{
  */
 
-#define UT_ASSERT(exp)            EMUNIT_CALL_ASSERT(EMUNIT_NUMTYPE_BOOL, ut_assert, (EMUNIT_STR(exp), (exp)))
-#define UT_ASSERT_MSG(exp, ...)   EMUNIT_CALL_ASSERT_MSG(EMUNIT_NUMTYPE_BOOL, ut_assert, (EMUNIT_FLASHSTR(EMUNIT_STR(exp)), (exp)), __VA_ARGS__)
+#define UT_ASSERT(exp)            EMUNIT_CALL_ASSERT    (EMUNIT_NUMTYPE_BOOL, ut_assert, (EMUNIT_FLASHSTR(#exp), (exp)))
+#define UT_ASSERT_MSG(exp, ...)   EMUNIT_CALL_ASSERT_MSG(EMUNIT_NUMTYPE_BOOL, ut_assert, (EMUNIT_FLASHSTR(#exp), (exp)), __VA_ARGS__)
 
 #define UT_ASSERT_TRUE(exp)
 #define UT_ASSERT_TRUE_MSG(exp, msg)
