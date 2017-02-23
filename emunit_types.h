@@ -207,7 +207,7 @@ typedef struct
 			};                                                                \
 		EMUNIT_IF_ARGCNT1((__VA_ARGS__),                                      \
 			func ## _msg(                                                     \
-				&emunit_assert_head_internal,                                 \
+				&emunit_ca_head,                                              \
 				EMUNIT_DEBRACKET(params),                                     \
 				emunit_ca_msg                                                 \
 			)                                                                 \
