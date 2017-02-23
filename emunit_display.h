@@ -55,12 +55,10 @@ void emunit_display_present(void);
  *
  * @param[in] str_file The file name where the problem occurs.
  * @param[in] str_line The string with decimal line number where the problem occurs.
- * @param[in] str_msg  The message to be displayed.
  */
 void emunit_display_panic(
 	const __flash char * str_file,
-	const __flash char * str_line,
-	const __flash char * str_msg);
+	const __flash char * str_line);
 
 /**
  * @name Displaying functions
@@ -79,18 +77,15 @@ void emunit_display_panic(
  *
  * @param[in] str_file File name.
  * @param[in] str_line Line number as a string.
- * @param[in] str_msg  Message to be displayed.
  */
 EMUNIT_DISPLAY_MAP_VFUNC(show_panic,
 		(
 			const __flash char * str_file,
-			const __flash char * str_line,
-			const __flash char * str_msg
+			const __flash char * str_line
 		),
 		(
 			str_file,
-			str_line,
-			str_msg
+			str_line
 		)
 	)
 

@@ -14,65 +14,6 @@
 
 #define NEWLINE EMUNIT_CONF_DISPLAY_NL
 
-/**
- * @brief Internal display types
- *
- * This enumerator expands the @ref emunit_numtypes_t adding some
- * displaying types used internally.
- */
-typedef enum
-{
-	EMUNIT_DISPLAY_TYPE_PSTR = EMUNIT_NUMTYPE_LAST, /**< String in program memory */
-
-}emunit_display_types_t;
-
-/**
- * @brief Internal value display
- *
- * Union that connects numeric types and internal types to for displaying
- */
-typedef union
-{
-	emunit_num_t num;
-
-}emunit_display_val_t;
-
-static void emunit_display_xml_putc_puts_P(void (*fn_putc)(char c), char const __flash * p_str)
-{
-	char c;
-	while('\0' != (c = *p_str++))
-	{
-		fn_putc(c);
-	}
-}
-
-static void emunit_display_xml_putc_ent(void (*fn_putc)(char c), char c)
-{
-	switch(c)
-	{
-	case '<':
-		emunit_display_xml_putc_puts_P(fn_putc, EMUNIT_FLASHSTR("&lt;"));
-		break;
-	case '>':
-		emunit_display_xml_putc_puts_P(fn_putc, EMUNIT_FLASHSTR("&gt;"));
-		break;
-	case '&':
-		emunit_display_xml_putc_puts_P(fn_putc, EMUNIT_FLASHSTR("&amp;"));
-		break;
-	default:
-		fn_putc(c);
-		break;
-	}
-}
-
-static void emunit_display_xml_puts_ent(void (*fn_putc)(char c), const __memx char * p_str)
-{
-	char c;
-	while('\0' != (c = *p_str++))
-	{
-		emunit_display_xml_putc_ent(fn_putc, c);
-	}
-}
 
 static void emunit_display_xml_cleanup_entities(char * p_start, size_t len)
 {
@@ -304,8 +245,7 @@ static void emunit_display_xml_failed_delta_details(
 
 void emunit_display_xml_show_panic(
 	const __flash char * str_file,
-	const __flash char * str_line,
-	const __flash char * str_msg)
+	const __flash char * str_line)
 {
 	emunit_display_panic_puts(NEWLINE"<panic>"NEWLINE);
 	emunit_display_panic_puts("\t<file>");
@@ -314,11 +254,7 @@ void emunit_display_xml_show_panic(
 
 	emunit_display_panic_puts("\t<line>");
 	emunit_display_panic_puts(str_line);
-	emunit_display_panic_puts("</line>"NEWLINE);
-
-	emunit_display_panic_puts("\t<msg>");
-	emunit_display_xml_puts_ent(emunit_display_panic_putc, str_msg);
-	emunit_display_panic_puts("</msg>"NEWLINE);
+	emunit_display_panic_puts("</line>"NEWLINE"</panic>"NEWLINE);
 }
 
 void emunit_display_xml_test_start(void)

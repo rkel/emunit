@@ -45,14 +45,14 @@
  *
  * @param exp The expression to be evaluated
  */
-#define EMUNIT_IASSERT(exp)                         \
-	if(!(exp)) {                                    \
-		emunit_display_panic(                       \
-			EMUNIT_FLASHSTR(__FILE__),              \
-			EMUNIT_FLASHSTR(EMUNIT_STR(__LINE__)),  \
-			EMUNIT_FLASHSTR(#exp));                 \
-		emunit_restart(EMUNIT_RR_PANIC);            \
-	}
+#define EMUNIT_IASSERT(exp) do{                         \
+		if(!(exp)) {                                    \
+			emunit_display_panic(                       \
+				EMUNIT_FLASHSTR(__FILE__),              \
+				EMUNIT_FLASHSTR(EMUNIT_STR(__LINE__))); \
+			emunit_restart(EMUNIT_RR_PANIC);            \
+		}                                               \
+	}while(0)
 
 /**
  * @brief Internal assertion with message
@@ -61,15 +61,13 @@
  *
  * @param exp The expression to be evaluated
  * @param msg Message string
+ *
+ * @note Current implementation does not use given message string
+ *       in any way.
+ *       This message is here for the reader that looks in the code
+ *       to search more detail about the failure.
  */
-#define EMUNIT_IASSERT_MGS(exp, msg)                \
-	if(!(exp)) {                                    \
-		emunit_display_panic(                       \
-			EMUNIT_FLASHSTR(__FILE__),              \
-			EMUNIT_FLASHSTR(EMUNIT_STR(__LINE__)),  \
-			EMUNIT_FLASHSTR(msg));                  \
-		emunit_restart(EMUNIT_RR_PANIC);            \
-	}
+#define EMUNIT_IASSERT_MGS(exp, msg)  EMUNIT_IASSERT(exp)
 /** @} */
 
 /**

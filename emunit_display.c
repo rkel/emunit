@@ -284,11 +284,10 @@ void emunit_display_present(void)
 
 void emunit_display_panic(
 	const __flash char * str_file,
-	const __flash char * str_line,
-	const __flash char * str_msg)
+	const __flash char * str_line)
 {
 	emunit_display_clear();
-	EMUNIT_DISPLAY_NAME(show_panic)(str_file, str_line, str_msg);
+	EMUNIT_DISPLAY_NAME(show_panic)(str_file, str_line);
 }
 
 /* Include the source file for selected display */
