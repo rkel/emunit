@@ -142,7 +142,7 @@ EMUNIT_DISPLAY_MAP_VFUNC(tc_end, (void), ())
  * @param[in] p_head   Assertion header.
  * @param[in] str_expr String representing the expression.
  */
-EMUNIT_DISPLAY_MAP_VFUNC(failed_assert,
+EMUNIT_DISPLAY_MAP_ASSERT(failed_assert,
 		(
 			const __flash emunit_assert_head_t * p_head,
 			const __flash char * str_expr
@@ -160,7 +160,7 @@ EMUNIT_DISPLAY_MAP_VFUNC(failed_assert,
  * @param expected Expected value.
  * @param actual   Actual value.
  */
-EMUNIT_DISPLAY_MAP_VFUNC(failed_equal,
+EMUNIT_DISPLAY_MAP_ASSERT(failed_equal,
 		(
 			const __flash emunit_assert_head_t * p_head,
 			emunit_num_t expected,
@@ -181,7 +181,7 @@ EMUNIT_DISPLAY_MAP_VFUNC(failed_equal,
  * @param max    Maximal expected value.
  * @param actual Actual value.
  */
-EMUNIT_DISPLAY_MAP_VFUNC(failed_range,
+EMUNIT_DISPLAY_MAP_ASSERT(failed_range,
 		(
 			const __flash emunit_assert_head_t * p_head,
 			emunit_num_t min,
@@ -204,7 +204,7 @@ EMUNIT_DISPLAY_MAP_VFUNC(failed_range,
  * @param expected The middle of the expected range.
  * @param actual   Actual value.
  */
-EMUNIT_DISPLAY_MAP_VFUNC(failed_delta,
+EMUNIT_DISPLAY_MAP_ASSERT(failed_delta,
 		(
 			const __flash emunit_assert_head_t * p_head,
 			emunit_num_t delta,
@@ -227,7 +227,7 @@ EMUNIT_DISPLAY_MAP_VFUNC(failed_delta,
  * @param str_actual   Actual string.
  * @param err_pos      Index of the first mismatched character.
  */
-EMUNIT_DISPLAY_MAP_VFUNC(failed_str,
+EMUNIT_DISPLAY_MAP_ASSERT(failed_str,
 		(
 			const __flash emunit_assert_head_t * p_head,
 			const __memx char * str_expected,

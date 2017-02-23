@@ -157,7 +157,6 @@ typedef enum
 typedef struct
 {
 	char const __flash *p_file;  //!< File name
-	char const __flash *p_msg;   //!< Message to show, none if NULL
 	unsigned int        line;    //!< Line number
 	emunit_numtypes_t   numtype; //!< Numeric type
 }emunit_assert_head_t;
@@ -168,21 +167,20 @@ typedef struct
  * This macro creates assertion header, and passes it as a first
  * argument to called assertion function.
  *
- * @param[in] nt   Numeric type
- * @param[in] func Assertion function
- * @param     ...  Arguments for the assertion function
+ * @param[in] nt      Numeric type
+ * @param[in] func    Assertion function
+ * @param[in] params  Arguments for the assertion function in brackets
  */
-#define EMUNIT_CALL_ASSERT(nt, func, ...)                                    \
-	do{                                                                      \
-		static const __flash char emunit_assert_head_file_name[] = __FILE__; \
-		static const __flash emunit_assert_head_t                            \
-			emunit_assert_head_internal = {                                  \
-				.p_file = emunit_assert_head_file_name,                      \
-				.p_msg  = NULL,                                              \
-				.line   = __LINE__,                                          \
-				.numtype = nt                                                \
-			};                                                               \
-		func(&emunit_assert_head_internal, __VA_ARGS__);                     \
+#define EMUNIT_CALL_ASSERT(nt, func, params)                          \
+	do{                                                               \
+		static const __flash char emunit_ca_file[] = __FILE__;        \
+		static const __flash emunit_assert_head_t                     \
+			emunit_ca_head = {                                        \
+				.p_file = emunit_ca_file,                             \
+				.line   = __LINE__,                                   \
+				.numtype = nt                                         \
+			};                                                        \
+		func(&emunit_ca_head, EMUNIT_DEBRACKET(params));              \
 	}while(0)
 
 /**
@@ -191,23 +189,36 @@ typedef struct
  * This macro creates assertion header, and passes it as a first
  * argument to called assertion function.
  *
- * @param[in] nt   Numeric type
- * @param[in] msg  Message string
- * @param[in] func Assertion function
- * @param     ...  Arguments for the assertion function
+ * @param[in] nt      Numeric type
+ * @param[in] func    Assertion function
+ * @param[in] params  Arguments for the assertion function in brackets
+ * @param[in] fmt
+ * @param[in] ...     Message format string followed by message parameters
  */
-#define EMUNIT_CALL_ASSERT_MSG(nt, msg, func, ...)       \
-	do{                                                                      \
-		static const __flash char emunit_assert_head_file_name[] = __FILE__; \
-		static const __flash char emunit_assert_head_msg[] = msg;            \
-		static const __flash emunit_assert_head_t                            \
-			emunit_assert_head_internal = {                                  \
-				.p_file = emunit_assert_head_file_name,                      \
-				.p_msg  = emunit_assert_head_msg,                            \
-				.line   = __LINE__,                                          \
-				.numtype = nt                                                \
-			};                                                               \
-		func(&emunit_assert_head_internal, __VA_ARGS__);                     \
+#define EMUNIT_CALL_ASSERT_MSG(nt, func, params, ...)                         \
+	do{                                                                       \
+		static const __flash char emunit_ca_file[] = __FILE__;                \
+		static const __flash char emunit_ca_msg[] = EMUNIT_ARG1(__VA_ARGS__); \
+		static const __flash emunit_assert_head_t                             \
+			emunit_ca_head = {                                                \
+				.p_file = emunit_ca_file,                                     \
+				.line   = __LINE__,                                           \
+				.numtype = nt                                                 \
+			};                                                                \
+		EMUNIT_IF_ARGCNT1((__VA_ARGS__),                                      \
+			func ## _msg(                                                     \
+				&emunit_assert_head_internal,                                 \
+				EMUNIT_DEBRACKET(params),                                     \
+				emunit_ca_msg                                                 \
+			)                                                                 \
+			,                                                                 \
+			func ## _msg(                                                     \
+				&emunit_ca_head,                                              \
+				EMUNIT_DEBRACKET(params),                                     \
+				emunit_ca_msg,                                                \
+				EMUNIT_ARG_AFTER1(__VA_ARGS__)                                \
+			)                                                                 \
+		);                                                                    \
 	}while(0)
 
 /**

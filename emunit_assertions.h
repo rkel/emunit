@@ -2,6 +2,7 @@
 #define EMUNIT_ASSERTIONS_H_INCLUDED
 #include "emunit_macros.h"
 #include "emunit_types.h"
+#include "emunit_port.h"
 /**
  * @file
  * @brief EMUnit header
@@ -25,8 +26,8 @@
  * @{
  */
 
-#define UT_ASSERT(exp)            EMUNIT_CALL_ASSERT(EMUNIT_NUMTYPE_BOOL, ut_assert, EMUNIT_STR(exp), (exp))
-#define UT_ASSERT_MSG(exp, msg)   EMUNIT_CALL_ASSERT_MSG(EMUNIT_NUMTYPE_BOOL, msg, ut_assert, EMUNIT_STR(exp), (exp))
+#define UT_ASSERT(exp)            EMUNIT_CALL_ASSERT(EMUNIT_NUMTYPE_BOOL, ut_assert, (EMUNIT_STR(exp), (exp)))
+#define UT_ASSERT_MSG(exp, ...)   EMUNIT_CALL_ASSERT_MSG(EMUNIT_NUMTYPE_BOOL, ut_assert, (EMUNIT_FLASHSTR(EMUNIT_STR(exp)), (exp)), __VA_ARGS__)
 
 #define UT_ASSERT_TRUE(exp)
 #define UT_ASSERT_TRUE_MSG(exp, msg)
@@ -59,8 +60,11 @@
  */
 #define UT_ASSERT_EQUAL_x(su, cast_op, nt, expected, actual) \
 	EMUNIT_CALL_ASSERT(nt, ut_assert_equal,                  \
-		(emunit_num_t){.su = cast_op (expected)},            \
-		(emunit_num_t){.su = cast_op (actual)})
+		(                                                    \
+			(emunit_num_t){.su = cast_op (expected)},        \
+			(emunit_num_t){.su = cast_op (actual)}           \
+		)                                                    \
+	)
 
 #define UT_ASSERT_EQUAL(expected, actual) UT_ASSERT_EQUAL_x(s, (emunit_snum_t), EMUNIT_NUMTYPE_INT, expected, actual)
 

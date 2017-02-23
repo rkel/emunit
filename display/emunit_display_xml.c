@@ -97,6 +97,32 @@ static void emunit_display_xml_cleanup_entities(char * p_start, size_t len)
 	}
 }
 
+/**
+ * @brief Display selected number of tabulators
+ *
+ * @param tabs Number to tabulators to display
+ */
+static void emunit_display_xml_tabs(size_t tabs)
+{
+	while(0 != tabs--)
+	{
+		emunit_display_putc('\t');
+	}
+}
+
+/**
+ * @brief Display assertion failed header
+ *
+ * Function that generates the header for every failed assertion.
+ * Header contains informations common to all the types of assertion failures, like:
+ * - File name
+ * - Line number
+ * - Assertion type
+ * - The index of the failure
+ *
+ * @param p_head     Assertion header
+ * @param p_str_type String that describes the assertion
+ */
 static void emunit_display_xml_failed_header(
 	const __flash emunit_assert_head_t * p_head,
 	const __flash char * p_str_type)
@@ -113,25 +139,49 @@ static void emunit_display_xml_failed_header(
 		p_head->p_file,
 		p_head->line
 	);
-	if(NULL != p_head->p_msg)
-	{
-		emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t<msg>"));
-		emunit_display_puts(emunit_display_xml_cleanup_entities, p_head->p_msg);
-		emunit_display_puts(NULL, EMUNIT_FLASHSTR("</msg>" NEWLINE));
-	}
-	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t<details>" NEWLINE));
 }
 
+/**
+ * @brief Display assertion failed footer
+ *
+ * Displays the footer of the any assertion type.
+ *
+ * @param p_head Assertion header
+ */
 static void emunit_display_xml_failed_footer(const __flash emunit_assert_head_t * p_head)
 {
 	(void)p_head;
 	emunit_display_puts(
 		NULL,
 		EMUNIT_FLASHSTR(
-			"\t\t\t\t</details>" NEWLINE
 			"\t\t\t</failure>" NEWLINE
 		)
 	);
+}
+
+/**
+ * @brief Print the message included in assertion
+ *
+ * Auxiliary function used to print the message for the assertion.
+ * It takes and process arguments line vprintf.
+ *
+ * @param tabs  Number of tabulators before the element
+ * @param p_fmt Format strings.
+ *              Can be NULL - then whole msg element would not be generated.
+ * @param args  Arguments list
+ */
+static void emunit_display_xml_msg(size_t tabs, const __flash char * p_fmt, va_list args)
+{
+	if(NULL != p_fmt)
+	{
+		emunit_display_xml_tabs(tabs);
+		emunit_display_puts(NULL, EMUNIT_FLASHSTR("<msg>"));
+		emunit_display_vprintf(
+			emunit_display_xml_cleanup_entities,
+			p_fmt,
+			args);
+		emunit_display_puts(NULL, EMUNIT_FLASHSTR("</msg>" NEWLINE));
+	}
 }
 
 /**
@@ -203,6 +253,54 @@ static void emunit_display_xml_value(
 	);
 }
 
+static void emunit_display_xml_failed_assert_details(
+	const __flash emunit_assert_head_t * p_head,
+	const __flash char * str_expr)
+{
+	(void)p_head;
+	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t<details>"  NEWLINE));
+	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t\t<expression>"));
+	emunit_display_puts(emunit_display_xml_cleanup_entities, str_expr);
+	emunit_display_puts(NULL, EMUNIT_FLASHSTR("</expression>"      NEWLINE));
+	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t</details>" NEWLINE));
+}
+
+static void emunit_display_xml_failed_equal_details(
+	const __flash emunit_assert_head_t * p_head,
+	emunit_num_t expected,
+	emunit_num_t actual)
+{
+	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t<details>" NEWLINE));
+	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("expected"), expected);
+	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("actual"),   actual);
+	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t</details>" NEWLINE));
+}
+
+static void emunit_display_xml_failed_range_details(
+	const __flash emunit_assert_head_t * p_head,
+	emunit_num_t min,
+	emunit_num_t max,
+	emunit_num_t actual)
+{
+	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t<details>" NEWLINE));
+	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("min"),    min);
+	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("max"),    max);
+	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("actual"), actual);
+	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t</details>" NEWLINE));
+}
+
+static void emunit_display_xml_failed_delta_details(
+	const __flash emunit_assert_head_t * p_head,
+	emunit_num_t delta,
+	emunit_num_t expected,
+	emunit_num_t actual)
+{
+	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t<details>" NEWLINE));
+	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("expected"), expected);
+	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("delta"),    delta);
+	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("actual"),   actual);
+	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t</details>" NEWLINE));
+}
 
 void emunit_display_xml_show_panic(
 	const __flash char * str_file,
@@ -304,12 +402,19 @@ void emunit_display_xml_failed_assert(
 	const __flash char * str_expr)
 {
 	emunit_display_xml_failed_header(p_head, EMUNIT_FLASHSTR("ASSERT"));
+	emunit_display_xml_failed_assert_details(p_head, str_expr);
+	emunit_display_xml_failed_footer(p_head);
+}
 
-	emunit_display_printf(
-		NULL,
-		EMUNIT_FLASHSTR("\t\t\t\t\t<expression>%"PRIsPGM"</expression>" NEWLINE),
-		str_expr
-	);
+void emunit_display_xml_failed_assert_msg(
+	const __flash emunit_assert_head_t * p_head,
+	const __flash char * str_expr,
+	const __flash char * fmt,
+	va_list va_args)
+{
+	emunit_display_xml_failed_header(p_head, EMUNIT_FLASHSTR("ASSERT"));
+	emunit_display_xml_msg(4, fmt, va_args);
+	emunit_display_xml_failed_assert_details(p_head, str_expr);
 	emunit_display_xml_failed_footer(p_head);
 }
 
@@ -319,8 +424,20 @@ void emunit_display_xml_failed_equal(
 	emunit_num_t actual)
 {
 	emunit_display_xml_failed_header(p_head, EMUNIT_FLASHSTR("EQUAL"));
-	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("expected"), expected);
-	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("actual"),   actual);
+	emunit_display_xml_failed_equal_details(p_head, expected, actual);
+	emunit_display_xml_failed_footer(p_head);
+}
+
+void emunit_display_xml_failed_equal_msg(
+	const __flash emunit_assert_head_t * p_head,
+	emunit_num_t expected,
+	emunit_num_t actual,
+	const __flash char * fmt,
+	va_list va_args)
+{
+	emunit_display_xml_failed_header(p_head, EMUNIT_FLASHSTR("EQUAL"));
+	emunit_display_xml_msg(4, fmt, va_args);
+	emunit_display_xml_failed_equal_details(p_head, expected, actual);
 	emunit_display_xml_failed_footer(p_head);
 }
 
@@ -331,9 +448,21 @@ void emunit_display_xml_failed_range(
 	emunit_num_t actual)
 {
 	emunit_display_xml_failed_header(p_head, EMUNIT_FLASHSTR("RANGE"));
-	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("min"),    min);
-	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("max"),    max);
-	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("actual"), actual);
+	emunit_display_xml_failed_range_details(p_head, min, max, actual);
+	emunit_display_xml_failed_footer(p_head);
+}
+
+void emunit_display_xml_failed_range_msg(
+	const __flash emunit_assert_head_t * p_head,
+	emunit_num_t min,
+	emunit_num_t max,
+	emunit_num_t actual,
+	const __flash char * fmt,
+	va_list va_args)
+{
+	emunit_display_xml_failed_header(p_head, EMUNIT_FLASHSTR("RANGE"));
+	emunit_display_xml_msg(4, fmt, va_args);
+	emunit_display_xml_failed_range_details(p_head, min, max, actual);
 	emunit_display_xml_failed_footer(p_head);
 }
 
@@ -344,9 +473,21 @@ void emunit_display_xml_failed_delta(
 	emunit_num_t actual)
 {
 	emunit_display_xml_failed_header(p_head, EMUNIT_FLASHSTR("DELTA"));
-	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("expected"), expected);
-	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("delta"),    delta);
-	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("actual"),   actual);
+	emunit_display_xml_failed_delta_details(p_head, delta, expected, actual);
+	emunit_display_xml_failed_footer(p_head);
+}
+
+void emunit_display_xml_failed_delta_msg(
+	const __flash emunit_assert_head_t * p_head,
+	emunit_num_t delta,
+	emunit_num_t expected,
+	emunit_num_t actual,
+	const __flash char * fmt,
+	va_list va_args)
+{
+	emunit_display_xml_failed_header(p_head, EMUNIT_FLASHSTR("DELTA"));
+	emunit_display_xml_msg(4, fmt, va_args);
+	emunit_display_xml_failed_delta_details(p_head, delta, expected, actual);
 	emunit_display_xml_failed_footer(p_head);
 }
 
@@ -357,6 +498,20 @@ void emunit_display_xml_failed_str(
 	size_t err_pos)
 {
 	emunit_display_xml_failed_header(p_head, EMUNIT_FLASHSTR("STRING"));
+	/** @todo Display details of a string */
+	emunit_display_xml_failed_footer(p_head);
+}
+
+void emunit_display_xml_failed_str_msg(
+	const __flash emunit_assert_head_t * p_head,
+	const __memx char * str_expected,
+	const __memx char * str_actual,
+	size_t err_pos,
+	const __flash char * fmt,
+	va_list va_args)
+{
+	emunit_display_xml_failed_header(p_head, EMUNIT_FLASHSTR("STRING"));
+	emunit_display_xml_msg(4, fmt, va_args);
 	/** @todo Display details of a string */
 	emunit_display_xml_failed_footer(p_head);
 }

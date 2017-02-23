@@ -12,8 +12,11 @@ void test1(void)
 
 void test2(void)
 {
-	UT_ASSERT_MSG(false, "Test entities: <&> may be failed");
+	UT_ASSERT_MSG(false, "Test entities: <&> may be failed %u times", 10u);
 }
+
+
+
 
 
 UT_DESC_TS_BEGIN(my_suite, NULL, NULL, NULL)

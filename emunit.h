@@ -57,6 +57,22 @@ void ut_assert(
 	bool condition);
 
 /**
+ * @brief Boolean type assertion function
+ *
+ * @param p_head    Assertion header
+ * @param p_exp     String representation of the expression
+ * @param condition Boolean value to be validated
+ * @param fmt       Message format string
+ * @param ...       Message parameters
+ */
+void ut_assert_msg(
+	const __flash emunit_assert_head_t * p_head,
+	const __flash char * p_exp,
+	bool condition,
+	const __flash char * fmt,
+	...);
+
+/**
  * @brief Numeric type comparison
  *
  * @param p_head   Assertion header
@@ -67,6 +83,22 @@ void ut_assert_equal(
 	const __flash emunit_assert_head_t * p_head,
 	emunit_num_t expected,
 	emunit_num_t actual);
+
+/**
+ * @brief Numeric type comparison
+ *
+ * @param p_head   Assertion header
+ * @param expected Expected value
+ * @param actual   Actual value
+ * @param fmt      Message format string
+ * @param ...      Message parameters
+ */
+void ut_assert_equal_msg(
+	const __flash emunit_assert_head_t * p_head,
+	emunit_num_t expected,
+	emunit_num_t actual,
+	const __flash char * fmt,
+	...);
 
 /**
  * @brief Check if specified value is in defined delta
@@ -83,6 +115,26 @@ void ut_assert_delta(
 	emunit_unum_t delta,
 	emunit_num_t  expected,
 	emunit_num_t  actual);
+
+/**
+ * @brief Check if specified value is in defined delta
+ *
+ * Checks if (expected - delta) <= actual <= (expected + delta).
+ *
+ * @param p_head   Assertion header
+ * @param delta    Specified delta
+ * @param expected Expected value
+ * @param actual   Actual value
+ * @param fmt      Message format string
+ * @param ...      Message parameters
+ */
+void ut_assert_delta_msg(
+	const __flash emunit_assert_head_t * p_head,
+	emunit_unum_t delta,
+	emunit_num_t  expected,
+	emunit_num_t  actual,
+	const __flash char * fmt,
+	...);
 
 /**
  * @brief Check if given value is in selected range
@@ -105,6 +157,30 @@ void ut_assert_range(
 	emunit_num_t actual);
 
 /**
+ * @brief Check if given value is in selected range
+ *
+ * Function checks if:
+ * (min <= actual <= max)
+ *
+ * If min > max the actual value is checked to be outside selected range:
+ * (min <= actual <= RANGE_MAX) || (RANGE_MIN <= actual <= max)
+ *
+ * @param p_head Assertion header
+ * @param min    Minimal value
+ * @param max    Maximal value
+ * @param actual Actual value
+ * @param fmt    Message format string
+ * @param ...    Message parameters
+ */
+void ut_assert_range_msg(
+	const __flash emunit_assert_head_t * p_head,
+	emunit_num_t min,
+	emunit_num_t max,
+	emunit_num_t actual,
+	const __flash char * fmt,
+	...);
+
+/**
  * @brief Check if given strings are the same
  *
  * Function checks if selected strings equals.
@@ -117,6 +193,24 @@ void ut_assert_str(
 	const __flash emunit_assert_head_t * p_head,
 	const __memx char * expected,
 	const __memx char * actual);
+
+/**
+ * @brief Check if given strings are the same
+ *
+ * Function checks if selected strings equals.
+ *
+ * @param p_head   Assertion header
+ * @param expected Expected string
+ * @param actual   Actual string
+ * @param fmt      Message format string
+ * @param ...      Message parameters
+ */
+void ut_assert_str_msg(
+	const __flash emunit_assert_head_t * p_head,
+	const __memx char * expected,
+	const __memx char * actual,
+	const __flash char * fmt,
+	...);
 
 /**
  * @brief Assert arrays
