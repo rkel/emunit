@@ -13,7 +13,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include <config_emunit.h>
+#include "config_emunit.h"
 #include "emunit_macros.h"
 
 /**
@@ -23,21 +23,6 @@
  *
  * EMUnit variable types in separate file to help out with cross file inclusion.
  */
-
-/**
- * @brief Number of characters in the translation buffers
- *
- * Numeric representation:
- * - 2^32 = 4 294 967 296 (10 characters + 1 for sign + 1 for NULL)
- * - 2^64 = 18 446 744 073 709 551 616 (20 characters + 1 for sign + 1 for NULL)
- */
-#if EMUNIT_CONF_NUMBER_SIZE <= 32
-#define EUNIT_NUMBUFF_SIZE 12
-#elif EMUNIT_CONF_NUMBER_SIZE <= 64
-#define EUNIT_NUMBUFF_SIZE 22
-#else
-#error Unsupported number size
-#endif
 
 /**
  * @brief The biggest unsigned variable type used for comparison
@@ -129,24 +114,24 @@ typedef enum
 }emunit_numtypes_t;
 
 /**
- * @brief numeric type used for pointers
+ * @brief The size of the pointer
  *
- *
+ * Number of bits in the pointer
  */
 #if UINTPTR_MAX == UINT16_MAX
-#define EMUNIT_NUMTYPE_PTR EMUNIT_NUMTYPE_X16
+#define EMUNIT_PTR_SIZE 16
 #elif UINTPTR_MAX == UINT32_MAX
-#define EMUNIT_NUMTYPE_PTR EMUNIT_NUMTYPE_X32
+#define EMUNIT_PTR_SIZE 32
 #elif UINTPTR_MAX == UINT64_MAX
-#define EMUNIT_NUMTYPE_PTR EMUNIT_NUMTYPE_X64
+#define EMUNIT_PTR_SIZE 64
 #else
 #error Unsupported pointer type
 #endif
 
 /**
- * @brief Maximal supported signed type
+ * @brief Unsigned value with the size of the pointer
  */
-#define EMUNIT_NUMTYPE_INT EMUNIT_CN2(EMUNIT_NUMTYPE_S, EMUNIT_CONF_NUMBER_SIZE)
+typedef EMUNIT_CN3(uint, EMUNIT_PTR_SIZE, _t) emunit_uintptr_t;
 
 /**
  * @brief Assertion header
