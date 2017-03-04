@@ -46,7 +46,7 @@
 /** @} */
 
 /**
- * @brief Default numberic assertions mapping
+ * @brief Default numeric assertions mapping
  *
  *
  * @{
@@ -219,19 +219,19 @@
  * @copydetails UT_ASSERT_EQUAL_INT64
  */
 
-#define UT_ASSERT_EQUAL_BOOL(  e, a)  UT_ASSERT_EQUAL_x(u, bool,          EMUNIT_NUMTYPE_BOOL,(e), (a))
-#define UT_ASSERT_EQUAL_INT8(  e, a)  UT_ASSERT_EQUAL_x(s, int8_t,        EMUNIT_NUMTYPE_S8,  (e), (a))
-#define UT_ASSERT_EQUAL_INT16( e, a)  UT_ASSERT_EQUAL_x(s, int16_t,       EMUNIT_NUMTYPE_S16, (e), (a))
-#define UT_ASSERT_EQUAL_INT32( e, a)  UT_ASSERT_EQUAL_x(s, int32_t,       EMUNIT_NUMTYPE_S32, (e), (a))
-#define UT_ASSERT_EQUAL_INT64( e, a)  UT_ASSERT_EQUAL_x(s, int64_t,       EMUNIT_NUMTYPE_S64, (e), (a))
-#define UT_ASSERT_EQUAL_UINT8( e, a)  UT_ASSERT_EQUAL_x(u, uint8_t,       EMUNIT_NUMTYPE_U8,  (e), (a))
-#define UT_ASSERT_EQUAL_UINT16(e, a)  UT_ASSERT_EQUAL_x(u, uint16_t,      EMUNIT_NUMTYPE_U16, (e), (a))
-#define UT_ASSERT_EQUAL_UINT32(e, a)  UT_ASSERT_EQUAL_x(u, uint32_t,      EMUNIT_NUMTYPE_U32, (e), (a))
-#define UT_ASSERT_EQUAL_UINT64(e, a)  UT_ASSERT_EQUAL_x(u, uint64_t,      EMUNIT_NUMTYPE_U64, (e), (a))
-#define UT_ASSERT_EQUAL_HEX8(  e, a)  UT_ASSERT_EQUAL_x(u, uint8_t,       EMUNIT_NUMTYPE_X8,  (e), (a))
-#define UT_ASSERT_EQUAL_HEX16( e, a)  UT_ASSERT_EQUAL_x(u, uint16_t,      EMUNIT_NUMTYPE_X16, (e), (a))
-#define UT_ASSERT_EQUAL_HEX32( e, a)  UT_ASSERT_EQUAL_x(u, uint32_t,      EMUNIT_NUMTYPE_X32, (e), (a))
-#define UT_ASSERT_EQUAL_HEX64( e, a)  UT_ASSERT_EQUAL_x(u, uint64_t,      EMUNIT_NUMTYPE_X64, (e), (a))
+#define UT_ASSERT_EQUAL_BOOL(  e, a)  UT_ASSERT_EQUAL_x(u, bool,     EMUNIT_NUMTYPE_BOOL,(e), (a))
+#define UT_ASSERT_EQUAL_INT8(  e, a)  UT_ASSERT_EQUAL_x(s, int8_t,   EMUNIT_NUMTYPE_S8,  (e), (a))
+#define UT_ASSERT_EQUAL_INT16( e, a)  UT_ASSERT_EQUAL_x(s, int16_t,  EMUNIT_NUMTYPE_S16, (e), (a))
+#define UT_ASSERT_EQUAL_INT32( e, a)  UT_ASSERT_EQUAL_x(s, int32_t,  EMUNIT_NUMTYPE_S32, (e), (a))
+#define UT_ASSERT_EQUAL_INT64( e, a)  UT_ASSERT_EQUAL_x(s, int64_t,  EMUNIT_NUMTYPE_S64, (e), (a))
+#define UT_ASSERT_EQUAL_UINT8( e, a)  UT_ASSERT_EQUAL_x(u, uint8_t,  EMUNIT_NUMTYPE_U8,  (e), (a))
+#define UT_ASSERT_EQUAL_UINT16(e, a)  UT_ASSERT_EQUAL_x(u, uint16_t, EMUNIT_NUMTYPE_U16, (e), (a))
+#define UT_ASSERT_EQUAL_UINT32(e, a)  UT_ASSERT_EQUAL_x(u, uint32_t, EMUNIT_NUMTYPE_U32, (e), (a))
+#define UT_ASSERT_EQUAL_UINT64(e, a)  UT_ASSERT_EQUAL_x(u, uint64_t, EMUNIT_NUMTYPE_U64, (e), (a))
+#define UT_ASSERT_EQUAL_HEX8(  e, a)  UT_ASSERT_EQUAL_x(u, uint8_t,  EMUNIT_NUMTYPE_X8,  (e), (a))
+#define UT_ASSERT_EQUAL_HEX16( e, a)  UT_ASSERT_EQUAL_x(u, uint16_t, EMUNIT_NUMTYPE_X16, (e), (a))
+#define UT_ASSERT_EQUAL_HEX32( e, a)  UT_ASSERT_EQUAL_x(u, uint32_t, EMUNIT_NUMTYPE_X32, (e), (a))
+#define UT_ASSERT_EQUAL_HEX64( e, a)  UT_ASSERT_EQUAL_x(u, uint64_t, EMUNIT_NUMTYPE_X64, (e), (a))
 /** @} */
 
 
