@@ -9,7 +9,7 @@
  * Auxiliary macros used internally.
  * @sa emunit_macros_group
  */
-#include <config_emunit.h>
+#include "config_emunit.h"
 
 /**
  * @defgroup emunit_macros_group <emunit_macros> EMUnit auxiliary macros
@@ -301,7 +301,38 @@
 #define _EMUNIT_IF_ARGCNT1(args, if_body, el_body) \
 	EMUNIT_IF_SELECT(EMUNIT_ARGCNT1_CHECK args, if_body, el_body)
 
+/**
+ * @brief Minimal value
+ *
+ * Macro selecting mnimal value
+ *
+ * @param[in] a First value to select
+ * @param[in] b Second value to select
+ *
+ * @return Lower of two input values
+ * @sa EMUNIT_MIN
+ *
+ * @attention This macro is not secured against arguments that modifies its value.
+ * For example following code:
+ * @code
+ * EMUNIT_MIN(i++, j++)
+ * @endcode
+ * may give unexpected result.
+ */
+#define EMUNIT_MIN(a, b) ( (a) < (b) ? (a) : (b) )
 
+/**
+ * @brief Maximal value
+ *
+ * Macro selecting maximal value
+ *
+ * @param[in] a First value to select
+ * @param[in] b Second value to select
+ *
+ * @return Higher of two input values
+ * @sa EMUNIT_MIN
+ */
+#define EMUNIT_MAX(a, b) ( (a) > (b) ? (a) : (b) )
 
 /**
  * @brief Universal static assertion

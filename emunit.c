@@ -331,7 +331,7 @@ static int emunit_run(void)
 		}
 	}
 
-	static bool  ut_assert_range_check(
+	static bool ut_assert_range_check(
 		const __flash emunit_assert_head_t * p_head,
 		emunit_num_t min,
 		emunit_num_t max,
@@ -347,6 +347,26 @@ static int emunit_run(void)
 		}
 	}
 
+	static bool ut_assert_str_check(
+		const __memx char * expected,
+		const __memx char * actual,
+		size_t * p_index)
+	{
+		bool result = true;
+		size_t i = 0;
+		char ce, ca;
+		while(0 != ((ce = *expected++) | (ca = *actual++)))
+		{
+			if(ce != ca)
+			{
+				*p_index = i;
+				result = false;
+				break;
+			}
+			++i;
+		}
+		return result;
+	}
 
 /** @} */
 
@@ -638,8 +658,16 @@ void ut_assert_str(
 	const __memx char * expected,
 	const __memx char * actual)
 {
-	/** @todo Implement */
-	EMUNIT_IASSERT_MGS(0, "Not implemented yet.");
+	size_t err_pos;
+	if(!ut_assert_str_check(expected, actual, &err_pos))
+	{
+		emunit_display_failed_str(p_head, expected, actual, err_pos);
+		emunit_assert_failed();
+	}
+	else
+	{
+		emunit_assert_passed();
+	}
 }
 
 void ut_assert_str_msg(

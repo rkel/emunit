@@ -235,5 +235,17 @@
 /** @} */
 
 
+/**
+ * @name String assertions
+ *
+ * @{
+ */
+
+/**
+ * @brief
+ */
+#define UT_ASSERT_EQUAL_STR(   e, a)  EMUNIT_CALL_ASSERT(EMUNIT_NUMTYPE_STR, ut_assert_str, (e, a))
+/** @} */
+
 /** @} */
 #endif /* EMUNIT_ASSERTIONS_H_INCLUDED */

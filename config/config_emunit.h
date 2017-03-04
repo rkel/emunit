@@ -68,14 +68,14 @@
 #define EMUNIT_CONF_NUMBER_SIZE 32
 #endif
 
-#ifndef EMUNIT_CONF_STR_DISPLAY_LIMIT
+#ifndef EMUNIT_CONF_STRLEN_LIMIT
 /**
  * @brief Maximum displayed string limitation
  *
  * Maximum number of string characters that would be presented when comparing
  * strings.
  */
-#define EMUNIT_CONF_STR_DISPLAY_LIMIT 32
+#define EMUNIT_CONF_STRLEN_LIMIT 32
 #endif
 
 /** @} */

@@ -10,8 +10,9 @@
  * the selected port functions.
  * @sa emunit_port_group
  */
-#include <stdbool.h>
 #include "emunit_macros.h"
+#include <stdbool.h>
+#include <stdarg.h>
 #include EMUNIT_PORT_FILE( , h)
 
 /**
@@ -79,7 +80,6 @@
 #include <string.h>
 #include <avr/pgmspace.h>
 #include <stdio.h>
-#include <stdarg.h>
 
 static inline void * emunit_memcpy(
 	void * p_dst,
@@ -108,23 +108,6 @@ static inline size_t emunit_strlen(char const __memx * s)
 	{
 		return strlen_P(s);
 	}
-}
-
-static inline char * emunit_strncpy(
-	char * p_dst,
-	char const __memx * p_src,
-	size_t n)
-{
-	char * ret;
-	if(0 > (signed char)__builtin_avr_flash_segment(p_src))
-	{
-		ret = strncpy(p_dst, p_src, n);
-	}
-	else
-	{
-		ret = strncpy_P(p_dst, p_src, n);
-	}
-	return ret;
 }
 
 static inline int emunit_vsnprintf(
@@ -158,6 +141,25 @@ static inline int emunit_vsnprintf(
 #else /* Architecture selection */
 #error "Unsupported architecture"
 #endif
+
+
+/**
+ * @brief Auxiliary function that replaces standard C library function
+ *
+ * Syntax sweetener for @ref emunit_vsnprintf
+ *
+ * @param[out] s   See documentation for @ref emunit_vsnprintf
+ * @param[in]  n   See documentation for @ref emunit_vsnprintf
+ * @param[in]  fmt See documentation for @ref emunit_vsnprintf
+ * @param[in]  ... Arguments for format string
+ *
+ * @return See documentation for @ref emunit_vsnprintf
+ */
+int emunit_snprintf(
+	char * s,
+	size_t n,
+	char const __memx * fmt,
+	...);
 
 /**
  * @defgroup emunit_port_out_group Output stream functions

@@ -107,23 +107,55 @@ static void emunit_display_putc(char c)
 }
 
 /**
- * @brief Put string
+ * @brief Copy exactl number of characters to the output buffer
  *
- * @param[in]  cleanup Cleanup function to be called after data is sent to the buffer
- * @param s Source string to be copied into buffer.
+ * Function copies exact number of bytes to the output.
+ *
+ * @note
+ * The given buffer cannot have null characters inside included.
+ * Any null character inside given character range can break the rest of the conversion.
+ *
+ * @param[in] cleanup Cleanup function to be called after data is sent to the buffer
+ * @param[in] s       Source string to be copied into buffer.
+ * @param[in] size    Size of the string to be copied into buffer.
  */
-static void emunit_display_puts(emunit_display_cleanup_fn_t cleanup, char const __memx * s)
+static void emunit_display_write(emunit_display_cleanup_fn_t cleanup, char const __memx * s, size_t size)
 {
 	const size_t max_size = emunit_display_max_size();
-	const size_t size = emunit_strlen(s);
 	char * ptr_start;
 	EMUNIT_IASSERT(size < max_size);
 
-	emunit_strncpy(emunit_display_wptr, s, size);
+	emunit_memcpy(emunit_display_wptr, s, size);
 	ptr_start = emunit_display_wptr;
 	emunit_display_wptr += size;
 	if(NULL != cleanup)
 		cleanup(ptr_start, size);
+}
+
+/**
+ * @brief Put string up to selected number of characters
+ *
+ * @param[in] cleanup Cleanup function to be called after data is sent to the buffer.
+ * @param[in] s       Source string to be copied into buffer.
+ * @param[in] n       Maximum number of characters to copy.
+ */
+static void emunit_display_nputs(emunit_display_cleanup_fn_t cleanup, char const __memx * s, size_t n)
+{
+	const size_t slen = emunit_strlen(s);
+	const size_t size = EMUNIT_MIN(slen, n);
+	emunit_display_write(cleanup, s, size);
+}
+
+/**
+ * @brief Put string
+ *
+ * @param[in] cleanup Cleanup function to be called after data is sent to the buffer
+ * @param[in] s       Source string to be copied into buffer.
+ */
+static void emunit_display_puts(emunit_display_cleanup_fn_t cleanup, char const __memx * s)
+{
+	const size_t size = emunit_strlen(s);
+	emunit_display_write(cleanup, s, size);
 }
 
 /**
@@ -179,27 +211,6 @@ static void emunit_display_printf(emunit_display_cleanup_fn_t cleanup, char cons
 }
 
 /**
- * @brief Put character in panic message printing
- *
- * Specialised function to be used in panic display.
- * It never asserts the fact if string fits the buffer.
- * It just limit the size of copied data.
- *
- * @note
- * Use @ref emunit_display_putc in any other displaying function
- * than @ref emunit_display_panic.
- *
- * @param c
- */
-static void emunit_display_panic_putc(char c)
-{
-	if(emunit_display_max_size() > 1)
-	{
-		*emunit_display_wptr++ = c;
-	}
-}
-
-/**
  * @brief Put string in panic message printing
  *
  * Specialised function to be used in panic display.
@@ -220,7 +231,7 @@ static void emunit_display_panic_puts(char const __memx * s)
 	{
 		size = max_size - 1;
 	}
-	emunit_strncpy(emunit_display_wptr, s, size);
+	emunit_memcpy(emunit_display_wptr, s, size);
 	emunit_display_wptr += size;
 }
 
@@ -247,13 +258,18 @@ static char* emunit_display_replace(char * p_start, size_t len, const char __mem
 {
 	EMUNIT_IASSERT((emunit_display_buffer <= p_start) &&
 		(p_start < emunit_display_buffer_end));
+	EMUNIT_IASSERT(p_start + len <= emunit_display_wptr);
 	size_t s_len = emunit_strlen(s);
 	if(s_len != len)
 	{
 		EMUNIT_IASSERT((s_len <= len) ||
 			(emunit_display_wptr + s_len - len < emunit_display_buffer_end));
 		/* Move with trailing zero */
-		memmove(p_start + s_len, p_start + len, emunit_display_wptr - p_start - len + 1);
+		char * p_to = p_start + s_len;
+		char * p_from = p_start + len;
+		size_t moved_size = emunit_display_wptr - p_start - len + 1;
+//		memmove(p_start + s_len, p_start + len, emunit_display_wptr - p_start - len + 1);
+		memmove(p_to, p_from, moved_size);
 		emunit_display_wptr = emunit_display_wptr + s_len - len;
 	}
 	emunit_memcpy(p_start, s, s_len);
