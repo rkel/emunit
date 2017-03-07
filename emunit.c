@@ -163,13 +163,6 @@ static inline void emunit_early_init(void)
  */
 static int emunit_run(void)
 {
-#if 0
-	static char buffer[64];
-	snprintf(buffer, sizeof(buffer), "Started, key: %x\n", emunit_status.key_valid);
-	emunit_port_out_init();
-	emunit_port_out_write(buffer, strlen(buffer));
-	emunit_port_out_deinit();
-#endif
 	if(EMUNIT_STATUS_KEY_VALID != emunit_status.key_valid)
 	{
 		emunit_status_clear();
@@ -702,23 +695,6 @@ void ut_assert_array(
 #include <avr/wdt.h>
 int main(void)
 {
-#if 0
-	MCUCSR = 0U;
-	wdt_disable();
-	static char buffer[64];
-	sprintf(buffer, "Reset %.2x\n", MCUCSR);
-	emunit_port_out_init();
-	emunit_port_out_write(buffer, strlen(buffer));
-	emunit_port_out_deinit();
-#endif
-#if 0
-	emunit_port_out_init();
-	while(true)
-	{
-		static const char text[] = "Hello\n";
-		emunit_port_out_write(text, strlen(text));
-	}
-#endif
 	emunit_run();
 }
 
