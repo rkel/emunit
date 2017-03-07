@@ -71,6 +71,35 @@ void test_all_passed(void)
 	UT_ASSERT_EQUAL_STR(EMUNIT_FLASHSTR("Test string that should pass"), some_buffer);
 }
 
+void test_delta_passed(void)
+{
+	UT_ASSERT_DELTA(8, 12, 4);
+	UT_ASSERT_DELTA(8, 12, 20);
+}
+
+void test_delta_failed(void)
+{
+	UT_ASSERT_DELTA(8, 300, 309);
+}
+
+void test_range_passed(void)
+{
+	UT_ASSERT_RANGE(100, 200, 150);
+	UT_ASSERT_RANGE(100, 200, 100);
+	UT_ASSERT_RANGE(100, 200, 200);
+	UT_ASSERT_RANGE(200, 100, 0);
+	UT_ASSERT_RANGE(200, 100, 6000);
+}
+
+void test_range_failed1(void)
+{
+	UT_ASSERT_RANGE(100, 200, 201);
+}
+
+void test_range_failed2(void)
+{
+	UT_ASSERT_RANGE(200, 100, 150);
+}
 
 
 UT_DESC_TS_BEGIN(my_suite, NULL, NULL, NULL)
@@ -82,6 +111,11 @@ UT_DESC_TS_BEGIN(my_suite, NULL, NULL, NULL)
 	UT_DESC_TC(test_very_long_string)
 	UT_DESC_TC(test_very_bad_string)
 	UT_DESC_TC(test_all_passed)
+	UT_DESC_TC(test_delta_passed)
+	UT_DESC_TC(test_delta_failed)
+	UT_DESC_TC(test_range_passed)
+	UT_DESC_TC(test_range_failed1)
+	UT_DESC_TC(test_range_failed2)
 UT_DESC_TS_END();
 
 
