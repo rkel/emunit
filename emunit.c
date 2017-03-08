@@ -141,113 +141,6 @@ static void emunit_ts_next_switch(void)
 }
 
 /**
- * @brief Early test initialisation
- *
- * Function that has to be called at the very beginning of the program.
- * In some ports there may be time limit to run this function because of
- * WDT constants.
- *
- * Run it at least just before @ref emunit_run.
- */
-static inline void emunit_early_init(void)
-{
-	emunit_port_early_init(&emunit_status.key_valid);
-}
-
-/**
- * @brief Run the EMUnit
- *
- * This function should be called when program is started.
- * It could be written directly in main, but separated function
- * created for code cleanes.
- */
-static int emunit_run(void)
-{
-	if(EMUNIT_STATUS_KEY_VALID != emunit_status.key_valid)
-	{
-		emunit_status_clear();
-		emunit_display_clear();
-
-	}
-	else
-	{
-		emunit_display_present();
-		emunit_display_clear();
-	}
-
-	switch(emunit_status.rr)
-	{
-		case EMUNIT_RR_INIT:
-			emunit_display_test_start();
-			emunit_restart(EMUNIT_RR_RUN);
-			break;
-
-		case EMUNIT_RR_FINISH:
-			return 0;
-
-		case EMUNIT_RR_PANIC:
-			return -1;
-
-		case EMUNIT_RR_TIMEOUT:
-			/** @todo Show timeout message */
-			// if()
-
-			break;
-		case EMUNIT_RR_RUN:
-			/* It test suite points to NULL the whole test has been finished */
-			if(emunit_ts_eol_check(emunit_ts_current_index_get()))
-			{
-				emunit_display_test_end();
-				emunit_restart(EMUNIT_RR_FINISH);
-			}
-
-			if(0 == emunit_status.tc_n_current)
-			{
-				/* If tc_n_current is 0, the test suite header should be generated */
-				emunit_display_ts_start();
-				/* First test index */
-				emunit_status.tc_n_current = EMUNIT_TS_IDX_FIRST;
-				emunit_restart(EMUNIT_RR_RUN);
-			}
-			const __flash emunit_test_desc_t * p_tc;
-			p_tc = emunit_tc_current_get();
-			if(emunit_tc_eol_check(p_tc))
-			{
-				/* If tc_n_current points to NULL function, suite should be changed */
-				if(emunit_status.ts_current_failed)
-				{
-					++emunit_status.ts_n_failed;
-				}
-				else
-				{
-					++emunit_status.ts_n_passed;
-				}
-				emunit_display_ts_end();
-				emunit_ts_next_switch();
-				emunit_restart(EMUNIT_RR_RUN);
-			}
-			else
-			{
-				/* Normal test run */
-				emunit_display_tc_start();
-				p_tc->p_fnc();
-				++(emunit_status.tc_n_passed);
-				emunit_display_tc_end();
-				emunit_tc_next_switch();
-				emunit_restart(EMUNIT_RR_RUN);
-			}
-
-			break;
-		default:
-			/* Should never happen */
-			EMUNIT_IASSERT_MGS(false, "Unexpected reset reason.");
-			break;
-	}
-
-	return -1;
-}
-
-/**
  * @name Condition checks
  *
  * Functions that checks if asserts of named type should fail or not.
@@ -374,6 +267,97 @@ static int emunit_run(void)
 /* ----------------------------------------------------------------------------
  * Private functions
  */
+void emunit_early_init(void)
+{
+	emunit_port_early_init(&emunit_status.key_valid);
+}
+
+int emunit_run(void)
+{
+	if(EMUNIT_STATUS_KEY_VALID != emunit_status.key_valid)
+	{
+		emunit_status_clear();
+		emunit_display_clear();
+
+	}
+	else
+	{
+		emunit_display_present();
+		emunit_display_clear();
+	}
+
+	switch(emunit_status.rr)
+	{
+		case EMUNIT_RR_INIT:
+			emunit_display_test_start();
+			emunit_restart(EMUNIT_RR_RUN);
+			break;
+
+		case EMUNIT_RR_FINISH:
+			return 0;
+
+		case EMUNIT_RR_PANIC:
+			return -1;
+
+		case EMUNIT_RR_TIMEOUT:
+			/** @todo Show timeout message */
+			// if()
+
+			break;
+		case EMUNIT_RR_RUN:
+			/* It test suite points to NULL the whole test has been finished */
+			if(emunit_ts_eol_check(emunit_ts_current_index_get()))
+			{
+				emunit_display_test_end();
+				emunit_restart(EMUNIT_RR_FINISH);
+			}
+
+			if(0 == emunit_status.tc_n_current)
+			{
+				/* If tc_n_current is 0, the test suite header should be generated */
+				emunit_display_ts_start();
+				/* First test index */
+				emunit_status.tc_n_current = EMUNIT_TS_IDX_FIRST;
+				emunit_restart(EMUNIT_RR_RUN);
+			}
+			const __flash emunit_test_desc_t * p_tc;
+			p_tc = emunit_tc_current_get();
+			if(emunit_tc_eol_check(p_tc))
+			{
+				/* If tc_n_current points to NULL function, suite should be changed */
+				if(emunit_status.ts_current_failed)
+				{
+					++emunit_status.ts_n_failed;
+				}
+				else
+				{
+					++emunit_status.ts_n_passed;
+				}
+				emunit_display_ts_end();
+				emunit_ts_next_switch();
+				emunit_restart(EMUNIT_RR_RUN);
+			}
+			else
+			{
+				/* Normal test run */
+				emunit_display_tc_start();
+				p_tc->p_fnc();
+				++(emunit_status.tc_n_passed);
+				emunit_display_tc_end();
+				emunit_tc_next_switch();
+				emunit_restart(EMUNIT_RR_RUN);
+			}
+
+			break;
+		default:
+			/* Should never happen */
+			EMUNIT_IASSERT_MGS(false, "Unexpected reset reason.");
+			break;
+	}
+
+	return -1;
+}
+
 void emunit_restart(emunit_rr_t rr)
 {
 	emunit_status.rr = rr;
@@ -686,21 +670,4 @@ void ut_assert_array(
 {
 	/** @todo Implement */
 	EMUNIT_IASSERT_MGS(0, "Not implemented yet.");
-}
-
-/**
- * @brief The main function that starts the whole test
- */
-#include <avr/io.h>
-#include <avr/wdt.h>
-int main(void)
-{
-	emunit_run();
-}
-
-void before_main(void) __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
-
-void before_main(void)
-{
-	emunit_early_init();
 }

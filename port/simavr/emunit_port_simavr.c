@@ -9,6 +9,7 @@
  */
 #include "config_emunit_simavr.h"
 #include "emunit_port_simavr.h"
+#include "emunit_private.h"
 #include <avr/io.h>
 #include <avr/wdt.h>
 #include "emunit_port_simavr_mmcu.c"
@@ -104,4 +105,17 @@ void emunit_port_simavr_tc_begin(void)
 void emunit_port_simavr_tc_end(void)
 {
 
+}
+
+
+int main(void)
+{
+	emunit_run();
+}
+
+void before_main(void) __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
+
+void before_main(void)
+{
+	emunit_early_init();
 }

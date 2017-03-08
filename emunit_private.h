@@ -97,6 +97,25 @@ static inline bool emunit_numtype_signed_check(emunit_numtypes_t type)
 }
 
 /**
+ * @brief Early test initialisation
+ *
+ * Function that has to be called at the very beginning of the program.
+ * In some ports there may be time limit to run this function because of
+ * WDT constants.
+ *
+ * Run it at least just before @ref emunit_run.
+ */
+void emunit_early_init(void);
+
+/**
+ * @brief Run the EMUnit
+ *
+ * This function should be called when program is started.
+ * Should be called from main, directly after @ref emunit_early_init.
+ */
+int emunit_run(void);
+
+/**
  * @brief Restart test now
  *
  * Function called when test has to be restarted.
