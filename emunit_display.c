@@ -23,20 +23,16 @@
  */
 
 /**
- * @brief Output data buffer
+ * @var emunit_display_status
+ * @brief Display status variable
  *
- * Block of data that holds all printed data during single test.
- * There is always at least one character left for null character
- * that may be used by the display port.
- */
-EMUNIT_NOINIT_VAR(char, emunit_display_buffer[EMUNIT_CONF_BUFFER_SIZE]);
-
-/**
- * @brief Write pointer
+ * The variable that stores current display status.
+ * It has to be placed in port file in a way that it does not lost the value
+ * when test is restarted.
  *
- * The write pointer to the buffer
+ * @sa emunit_status
  */
-EMUNIT_NOINIT_VAR(char *, emunit_display_wptr);
+extern emunit_display_status_t emunit_display_status;
 
 /**
  * @brief Buffer end pointer
@@ -44,7 +40,7 @@ EMUNIT_NOINIT_VAR(char *, emunit_display_wptr);
  * Used for internal calculations
  */
 static const char * emunit_display_buffer_end =
-	&(emunit_display_buffer[EMUNIT_CONF_BUFFER_SIZE]);
+	&(emunit_display_status.buffer[EMUNIT_CONF_BUFFER_SIZE]);
 /** @} */
 
 /**
@@ -89,7 +85,7 @@ typedef void (*emunit_display_cleanup_fn_t)(char * p_start, size_t len);
  */
 static inline size_t emunit_display_max_size(void)
 {
-	return (emunit_display_buffer_end - emunit_display_wptr);
+	return (emunit_display_buffer_end - emunit_display_status.w_ptr);
 }
 
 /**
@@ -103,7 +99,7 @@ static inline size_t emunit_display_max_size(void)
 static void emunit_display_putc(char c)
 {
 	EMUNIT_IASSERT(emunit_display_max_size() > 1);
-	*emunit_display_wptr++ = c;
+	*(emunit_display_status.w_ptr++)= c;
 }
 
 /**
@@ -125,9 +121,9 @@ static void emunit_display_write(emunit_display_cleanup_fn_t cleanup, char const
 	char * ptr_start;
 	EMUNIT_IASSERT(size < max_size);
 
-	emunit_memcpy(emunit_display_wptr, s, size);
-	ptr_start = emunit_display_wptr;
-	emunit_display_wptr += size;
+	emunit_memcpy(emunit_display_status.w_ptr, s, size);
+	ptr_start = emunit_display_status.w_ptr;
+	emunit_display_status.w_ptr += size;
 	if(NULL != cleanup)
 		cleanup(ptr_start, size);
 }
@@ -175,14 +171,14 @@ static void emunit_display_vprintf(emunit_display_cleanup_fn_t cleanup, char con
 	char * ptr_start;
 
 	printed_size = emunit_vsnprintf(
-		emunit_display_wptr,
+		emunit_display_status.w_ptr,
 		max_size,
 		fmt,
 		args);
 
 	EMUNIT_IASSERT(printed_size < max_size);
-	ptr_start = emunit_display_wptr;
-	emunit_display_wptr += printed_size;
+	ptr_start = emunit_display_status.w_ptr;
+	emunit_display_status.w_ptr += printed_size;
 	if(NULL != cleanup)
 		cleanup(ptr_start, printed_size);
 }
@@ -231,8 +227,8 @@ static void emunit_display_panic_puts(char const __memx * s)
 	{
 		size = max_size - 1;
 	}
-	emunit_memcpy(emunit_display_wptr, s, size);
-	emunit_display_wptr += size;
+	emunit_memcpy(emunit_display_status.w_ptr, s, size);
+	emunit_display_status.w_ptr += size;
 }
 
 /**
@@ -256,21 +252,22 @@ static void emunit_display_panic_puts(char const __memx * s)
  */
 static char* emunit_display_replace(char * p_start, size_t len, const char __memx * s)
 {
-	EMUNIT_IASSERT((emunit_display_buffer <= p_start) &&
+	EMUNIT_IASSERT((emunit_display_status.buffer <= p_start) &&
 		(p_start < emunit_display_buffer_end));
-	EMUNIT_IASSERT(p_start + len <= emunit_display_wptr);
+	EMUNIT_IASSERT(p_start + len <= emunit_display_status.w_ptr);
 	size_t s_len = emunit_strlen(s);
 	if(s_len != len)
 	{
 		EMUNIT_IASSERT((s_len <= len) ||
-			(emunit_display_wptr + s_len - len < emunit_display_buffer_end));
+			(emunit_display_status.w_ptr + s_len - len < emunit_display_buffer_end));
 		/* Move with trailing zero */
 		char * p_to = p_start + s_len;
 		char * p_from = p_start + len;
-		size_t moved_size = emunit_display_wptr - p_start - len + 1;
-//		memmove(p_start + s_len, p_start + len, emunit_display_wptr - p_start - len + 1);
+		size_t moved_size = emunit_display_status.w_ptr - p_start - len + 1;
+		/** @todo Clean this up */
+//		memmove(p_start + s_len, p_start + len, emunit_display_status.w_ptr - p_start - len + 1);
 		memmove(p_to, p_from, moved_size);
-		emunit_display_wptr = emunit_display_wptr + s_len - len;
+		emunit_display_status.w_ptr = emunit_display_status.w_ptr + s_len - len;
 	}
 	emunit_memcpy(p_start, s, s_len);
 
@@ -281,19 +278,19 @@ static char* emunit_display_replace(char * p_start, size_t len, const char __mem
 
 void emunit_display_clear(void)
 {
-	emunit_display_wptr = emunit_display_buffer;
-	memset(emunit_display_buffer, 0, sizeof(emunit_display_buffer));
+	emunit_display_status.w_ptr = emunit_display_status.buffer;
+	memset(emunit_display_status.buffer, 0, sizeof(emunit_display_status.buffer));
 }
 
 
 void emunit_display_present(void)
 {
-	EMUNIT_IASSERT(emunit_display_wptr >= emunit_display_buffer);
-	EMUNIT_IASSERT((emunit_display_wptr - emunit_display_buffer) <= EMUNIT_CONF_BUFFER_SIZE);
+	EMUNIT_IASSERT(emunit_display_status.w_ptr >= emunit_display_status.buffer);
+	EMUNIT_IASSERT((emunit_display_status.w_ptr - emunit_display_status.buffer) <= EMUNIT_CONF_BUFFER_SIZE);
 	emunit_port_out_init();
 	emunit_port_out_write(
-		emunit_display_buffer,
-		emunit_display_wptr - emunit_display_buffer);
+		emunit_display_status.buffer,
+		emunit_display_status.w_ptr - emunit_display_status.buffer);
 	emunit_port_out_deinit();
 }
 

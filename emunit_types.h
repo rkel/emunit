@@ -430,6 +430,19 @@ typedef struct
 	#define UT_MAIN_TS_ENTRY(ts_name) (UT_DESC_TS_VARNAME(ts_name)),
 /** @} */
 
+/**
+ * @brief Display status
+ *
+ * The structure that holds current display status that cannot change
+ * between test calls.
+ *
+ * @sa emunit_status_t
+ */
+typedef struct
+{
+	char buffer[EMUNIT_CONF_BUFFER_SIZE]; /**< Display buffer        */
+	char * w_ptr;                         /**< Current write pointer */
+}emunit_display_status_t;
 
 /**
  * @brief Valid configuration key
@@ -458,10 +471,11 @@ typedef uint16_t emunit_status_key_t;
  * @brief Status structure
  *
  * The status information for the whole test.
- * This variable would be placed into section that is not cleared during restart.
  *
- * How tests are organised:
- *
+ * @note
+ * This variable cannot be cleared between test main function rerun.
+ * For the bare-metal it means that it would be placed in some speciall
+ * memory section.
  */
 typedef struct
 {

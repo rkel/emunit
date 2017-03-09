@@ -15,6 +15,10 @@
 #include "emunit_port_simavr_mmcu.c"
 
 
+/* Variables required by the emunit engine */
+EMUNIT_PORT_REQUIRED_VARIABLES();
+
+
 /**
  * @brief Put single character to out register
  *

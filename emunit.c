@@ -27,8 +27,11 @@
  *
  * The variable with the status of all the tests.
  * It has to be retained during system restart.
+ *
+ * This variable has to be declared in a port file this way
+ * that it holds its value between test restarts.
  */
-EMUNIT_NOINIT_VAR(emunit_status_t, emunit_status);
+extern emunit_status_t emunit_status;
 
 /* The externally defined array of the suites */
 extern emunit_test_desc_t const __flash * const __flash emunit_main_ts[];

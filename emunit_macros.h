@@ -354,18 +354,6 @@
 #endif
 
 /**
- * @brief Declare variable not to be cleared at program start
- *
- * Variable created by this macro have to retain its value during system restart.
- * Variable of such type cannot have any initialisation value.
- *
- * @note
- * Currently only GCC implementation using ".noinit" section.
- */
-#define EMUNIT_NOINIT_VAR(type, name) \
-	type name __attribute__((section(".noinit")))
-
-/**
  * @name  Macros used for EMUnit porting.
  *
  * Normally all the functions in port files could be named the same and just selected

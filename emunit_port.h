@@ -25,6 +25,12 @@
  */
 
 /**
+ * @defgroup emunit_arch_group <emunit_arch> EMUnit architecture port
+ *
+ * Functions and macros that are specyfic for the selected architecture
+ * @{
+ */
+/**
  * @fn emunit_memcpy
  * @brief Copy data from any kind of supported memory
  *
@@ -51,6 +57,25 @@
  */
 
 /**
+ * @def EMUNIT_FLASHSTR(s)
+ * @brief Place string in FLASH memory
+ *
+ * This macro is used for every internal string that may be placed in
+ * FLASH.
+ * In the architectures where FLASH and RAM are treated the same it may be
+ * macro that just returns @c s.
+ */
+
+/**
+ * @def PRIsPGM
+ * String printf from program memory
+ */
+
+/** @} <!-- emunit_arch_group -->*/
+
+
+
+/**
  * @fn emunit_snprintf
  * @brief Standard C printf function
  *
@@ -69,78 +94,6 @@
  *         Notice that only when this returned value is non-negative
  *         and less than n, the string has been completely written.
  */
-
-/**
- * @def PRIsPGM
- * String printf from program memory
- */
-
-#if defined(__AVR__) /* Select architecture */
-#if defined(__GNUC__) && (__GNUC__ >= 4) /* Select compiler */
-#include <string.h>
-#include <avr/pgmspace.h>
-#include <stdio.h>
-
-static inline void * emunit_memcpy(
-	void * p_dst,
-	void const __memx * p_src,
-	size_t size)
-{
-	void * ret;
-	if(0 > (signed char)__builtin_avr_flash_segment(p_src))
-	{
-		ret = memcpy(p_dst, p_src, size);
-	}
-	else
-	{
-		ret = memcpy_P(p_dst, p_src, size);
-	}
-	return ret;
-}
-
-static inline size_t emunit_strlen(char const __memx * s)
-{
-	if(0 > (signed char)__builtin_avr_flash_segment(s))
-	{
-		return strlen(s);
-	}
-	else
-	{
-		return strlen_P(s);
-	}
-}
-
-static inline int emunit_vsnprintf(
-	char * s,
-	size_t n,
-	char const __memx * fmt,
-	va_list va)
-{
-	int ret;
-
-	if(0 > (signed char)__builtin_avr_flash_segment(fmt))
-	{
-		ret = vsnprintf(s, n, fmt, va);
-	}
-	else
-	{
-		ret = vsnprintf_P(s, n, fmt, va);
-	}
-	return ret;
-}
-
-#define EMUNIT_FLASHSTR(s) \
-	(__extension__({static const __flash char __c[] = (s); &__c[0];}))
-
-#define PRIsPGM "S"
-
-#else /* Compiler selection */
-#error "Unsupported compiler"
-#endif
-
-#else /* Architecture selection */
-#error "Unsupported architecture"
-#endif
 
 
 /**
