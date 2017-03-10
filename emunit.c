@@ -306,6 +306,9 @@ int emunit_run(void)
 			// if()
 
 			break;
+		case EMUNIT_RR_RUNNEXT:
+			emunit_tc_next_switch();
+			/* Intentional fallthrough */
 		case EMUNIT_RR_RUN:
 			/* It test suite points to NULL the whole test has been finished */
 			if(emunit_ts_eol_check(emunit_ts_current_index_get()))
@@ -346,8 +349,7 @@ int emunit_run(void)
 				p_tc->p_fnc();
 				++(emunit_status.tc_n_passed);
 				emunit_display_tc_end();
-				emunit_tc_next_switch();
-				emunit_restart(EMUNIT_RR_RUN);
+				emunit_restart(EMUNIT_RR_RUNNEXT);
 			}
 
 			break;
@@ -471,8 +473,7 @@ void emunit_assert_failed(void)
 	/* Count failed test, switch to next and restart */
 	++(emunit_status.tc_n_failed);
 	emunit_display_tc_end();
-	emunit_tc_next_switch();
-	emunit_restart(EMUNIT_RR_RUN);
+	emunit_restart(EMUNIT_RR_RUNNEXT);
 }
 
 void ut_assert(

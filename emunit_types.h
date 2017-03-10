@@ -77,6 +77,7 @@ typedef enum
 	EMUNIT_RR_FINISH,  /**< The summarise and finish whole test */
 	EMUNIT_RR_PANIC,   /**< Reset because of some unrecoverable internal assert. Buffer should be filled with the message. */
 	EMUNIT_RR_TIMEOUT, /**< Timeout during test - normally WDT would realize reset in the middle of the test. */
+	EMUNIT_RR_RUNNEXT, /**< Switch selected test case and run it */
 	EMUNIT_RR_RUN,     /**< Run currently selected test case. */
 }emunit_rr_t;
 
