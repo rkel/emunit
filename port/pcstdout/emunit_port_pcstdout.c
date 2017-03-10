@@ -52,10 +52,6 @@ static inline void pcstdout_putc(char c)
 {
 	switch(c)
 	{
-	case '\n':
-		pcstdout_putc_raw('\r');
-		pcstdout_putc_raw('\n');
-		break;
 	case '\t':
 		pcstdout_putc_raw(' ');
 		pcstdout_putc_raw(' ');
