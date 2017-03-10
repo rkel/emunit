@@ -9,8 +9,8 @@
  * File with EMUnit port for simavr simulator.
  * @sa emunit_port_simavr_group
  */
-#include "emunit_types.h"
-#include "../arch/emunit_arch_avr.h"
+#include <emunit_types.h>
+#include "emunit_port_simavr_arch.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>

@@ -363,7 +363,7 @@
  * and this macros are used to select the right one.
  * @{
  */
-/*
+/**
  * @brief Port source selector
  *
  * The macro used in preprocessor inclusions to select
@@ -378,6 +378,12 @@
  */
 #define EMUNIT_PORT_FILE(file_name, file_ext) \
 	EMUNIT_STR(port/EMUNIT_CONF_PORT/EMUNIT_CN3(emunit_port_, EMUNIT_CONF_PORT, file_name).file_ext)
+
+/**
+ * @brief Select the port architecture file
+ */
+#define EMUNIT_PORT_ARCH_FILE() \
+	EMUNIT_PORT_FILE(_arch, h)
 
 /**
  * @brief Create port base name

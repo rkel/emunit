@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include EMUNIT_PORT_ARCH_FILE()
 #include "config_emunit.h"
 #include "emunit_macros.h"
 
