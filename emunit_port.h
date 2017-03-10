@@ -30,31 +30,6 @@
  * Functions and macros that are specyfic for the selected architecture
  * @{
  */
-/**
- * @fn emunit_memcpy
- * @brief Copy data from any kind of supported memory
- *
- * Function that copies the data from any kind of supported memory.
- *
- * @param[out] p_dst Pointer to the target memory in RAM space
- * @param[in]  p_src Pointer to the source memory in any kind of memory space
- * @param[in]  size  The size of the block to copy
- *
- * @return Destination pointer is returned.
- */
-
-/**
- * @fn emunit_strcpy
- * @brief Copy string from any kind of supported memory
- *
- * Function that copies string from any kind of supported memory.
- *
- * @param[out] p_dst Destination string pointer in RAM space.
- * @param[in]  p_src Source string pointer in any kind of memory space.
- * @param[in]  n     Maximum number of characters to copy.
- *
- * @return Destination pointer is returned.
- */
 
 /**
  * @def EMUNIT_FLASHSTR(s)
@@ -71,9 +46,42 @@
  * String printf from program memory
  */
 
-/** @} <!-- emunit_arch_group -->*/
+/**
+ * @fn emunit_memcpy
+ * @brief Copy data from any kind of supported memory
+ *
+ * Function that copies the data from any kind of supported memory.
+ *
+ * @param[out] p_dst Pointer to the target memory in RAM space
+ * @param[in]  p_src Pointer to the source memory in any kind of memory space
+ * @param[in]  size  The size of the block to copy
+ *
+ * @return Destination pointer is returned.
+ */
 
+/**
+ * @fn emunit_strlen
+ * @brief Checks string length
+ *
+ * Function that returns the length of the string that may be placed in any kind
+ * of memory.
+ *
+ * @param[in] s String
+ * @return The length of the given string
+ */
 
+/**
+ * @fn emunit_strstr
+ * @brief Search the string
+ *
+ * Searches first occurrence of the @c str2 in @c str1,
+ * where str2 can be placed in any kind of memory.
+ *
+ * @param[in] str1 String where to search in RAM
+ * @param[in] str2 String witch to search in any kind of memory
+ *
+ * @return Pointer to the string or NULL.
+ */
 
 /**
  * @fn emunit_snprintf
@@ -95,6 +103,7 @@
  *         and less than n, the string has been completely written.
  */
 
+/** @} <!-- emunit_arch_group -->*/
 
 /**
  * @brief Auxiliary function that replaces standard C library function

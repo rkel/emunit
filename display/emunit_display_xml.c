@@ -8,7 +8,6 @@
  * @sa emunit_display_xml_group
  */
 #include <inttypes.h>
-#include <avr/pgmspace.h>
 #include "../emunit.h"
 #include "emunit_display_xml.h"
 
@@ -113,7 +112,7 @@ static void emunit_display_xml_cleanp_cdata_str(char * p_start, size_t len)
 	static const size_t cdata_len =
 		sizeof(emunit_display_xml_cdata_end_pat) - 1 +
 		sizeof(emunit_display_xml_cdata_start_pat) - 1;
-	while(NULL != (p_start = strstr_P(p_start, emunit_display_xml_cdata_end_pat)))
+	while(NULL != (p_start = emunit_strstr(p_start, emunit_display_xml_cdata_end_pat)))
 	{
 		len += cdata_len;
 		if(len > EMUNIT_DISPLAY_XML_STRLEN_FINAL_LIM)
