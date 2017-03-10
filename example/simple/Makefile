@@ -1,9 +1,9 @@
 # Simple test makefile
 EMUNIT_DIR = ../..
-EMUNIT_PORT = simavr
+EMUNIT_PORT = pcstdout
 EXTRAINCDIRS = c:/code/simavr_dist/include
 
-TARGET = simple
+TARGET = $(EMUNIT_PORT)_simple
 SRC = main.c
 F_CPU = 4000000
 
