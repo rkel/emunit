@@ -1,5 +1,8 @@
 # EMUnit main makefile
 
+# Define the used port
+CFLAGS = -DEMUNIT_CONF_PORT=$(EMUNIT_PORT)
+
 # EMUnit sources
 EMUNIT_SRC = \
   emunit.c \
@@ -7,7 +10,7 @@ EMUNIT_SRC = \
   emunit_port.c
 
 # Add EMUNIT sources to search path
-SEARCHPATH = $(EMUNIT_DIR)
+SEARCHPATH += $(EMUNIT_DIR)
 
 # Very simple, temporary solution for EMUnit sources
 SRC += $(EMUNIT_SRC)
