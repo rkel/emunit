@@ -38,6 +38,8 @@ void emunit_display_clear(void);
  *
  * Function called after system is restarted to show all messages registered
  * till now.
+ *
+ * This function leaves the buffer cleared.
  */
 void emunit_display_present(void);
 

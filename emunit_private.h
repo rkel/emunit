@@ -108,6 +108,15 @@ static inline bool emunit_numtype_signed_check(emunit_numtypes_t type)
 void emunit_early_init(void);
 
 /**
+ * @brief Flush display buffers
+ *
+ * Function that flushes anything that may be left in the display buffer.
+ *
+ * Should be called before @ref emunit_run.
+ */
+void emunit_flush(void);
+
+/**
  * @brief Run the EMUnit
  *
  * This function should be called when program is started.

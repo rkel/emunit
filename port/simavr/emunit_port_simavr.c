@@ -114,6 +114,7 @@ void emunit_port_simavr_tc_end(void)
 
 int main(void)
 {
+	emunit_flush();
 	emunit_run();
 }
 

@@ -278,8 +278,8 @@ static char* emunit_display_replace(char * p_start, size_t len, const char __mem
 
 void emunit_display_clear(void)
 {
+	memset(&emunit_display_status, 0, sizeof(emunit_display_status));
 	emunit_display_status.w_ptr = emunit_display_status.buffer;
-	memset(emunit_display_status.buffer, 0, sizeof(emunit_display_status.buffer));
 }
 
 
@@ -287,11 +287,16 @@ void emunit_display_present(void)
 {
 	EMUNIT_IASSERT(emunit_display_status.w_ptr >= emunit_display_status.buffer);
 	EMUNIT_IASSERT((emunit_display_status.w_ptr - emunit_display_status.buffer) <= EMUNIT_CONF_BUFFER_SIZE);
-	emunit_port_out_init();
-	emunit_port_out_write(
-		emunit_display_status.buffer,
-		emunit_display_status.w_ptr - emunit_display_status.buffer);
-	emunit_port_out_deinit();
+	/* Present only if there is anything to present */
+	if(emunit_display_status.w_ptr > emunit_display_status.buffer)
+	{
+		emunit_port_out_init();
+		emunit_port_out_write(
+			emunit_display_status.buffer,
+			emunit_display_status.w_ptr - emunit_display_status.buffer);
+		emunit_port_out_deinit();
+		emunit_display_clear();
+	}
 }
 
 

@@ -273,22 +273,21 @@ static void emunit_ts_next_switch(void)
 void emunit_early_init(void)
 {
 	emunit_port_early_init(&emunit_status.key_valid);
+	if(EMUNIT_STATUS_KEY_VALID != emunit_status.key_valid)
+	{
+		emunit_display_clear();
+		/* Status clear as the last one, because it marks key_valid */
+		emunit_status_clear();
+	}
+}
+
+void emunit_flush(void)
+{
+	emunit_display_present();
 }
 
 int emunit_run(void)
 {
-	if(EMUNIT_STATUS_KEY_VALID != emunit_status.key_valid)
-	{
-		emunit_status_clear();
-		emunit_display_clear();
-
-	}
-	else
-	{
-		emunit_display_present();
-		emunit_display_clear();
-	}
-
 	switch(emunit_status.rr)
 	{
 		case EMUNIT_RR_INIT:

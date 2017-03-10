@@ -6,16 +6,15 @@
  * @author Radosław Koppel <r.koppel\@k-el.com>
  * @date 2017
  *
- * File with EMUnit architecture for AVR simulator
- * @sa emunit_port_simavr_group
+ * File with EMUnit architecture for AVR microcontroller
+ * @sa emunit_arch_avr_group
  */
 
 /**
- * @addtogroup emunit_arch_avr_group <emunit_arch_avr> EMUnit AVR architecture
+ * @defgroup emunit_arch_avr_group <emunit_arch_avr> EMUnit AVR architecture
  * @{
  * @ingroup emunit_arch_group
  *
- * @{
  */
 
 /**
@@ -32,17 +31,27 @@
  * This macro is only used internally by the files that uses this port.
  */
 
+/* Check compiler */
+#if ( defined(__GNUC__) && (__GNUC__ >= 4) )
+
 /* Check the architecture */
 #if !(defined(__AVR__))
 #error "Unsupported architecture"
 #endif
 
-/* Check compiler */
-#if ( defined(__GNUC__) && (__GNUC__ >= 4) )
-
+#include <stddef.h>
 #include <string.h>
 #include <avr/pgmspace.h>
 #include <stdio.h>
+
+#define EMUNIT_FLASHSTR(s) \
+	(__extension__({static const __flash char __c[] = (s); &__c[0];}))
+
+#define PRIsPGM "S"
+
+#define EMUNIT_NOINIT_VAR(type, name) \
+	type name __attribute__((section(".noinit")))
+
 
 static inline void * emunit_memcpy(
 	void * p_dst,
@@ -92,14 +101,6 @@ static inline int emunit_vsnprintf(
 	return ret;
 }
 
-#define EMUNIT_FLASHSTR(s) \
-	(__extension__({static const __flash char __c[] = (s); &__c[0];}))
-
-#define PRIsPGM "S"
-
-#define EMUNIT_NOINIT_VAR(type, name) \
-	type name __attribute__((section(".noinit")))
-
 #else /* Compiler selection */
 #error "Unsupported compiler"
 #endif
@@ -114,4 +115,5 @@ static inline int emunit_vsnprintf(
 	EMUNIT_NOINIT_VAR(emunit_status_t, emunit_status);                 \
 	EMUNIT_NOINIT_VAR(emunit_display_status_t, emunit_display_status)
 
+/** @} <!-- emunit_arch_avr_group --> */
 #endif /* EMUNIT_PORT_ARCH_AVR_H_INCLUDED */
