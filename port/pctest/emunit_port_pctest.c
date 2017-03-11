@@ -174,7 +174,7 @@ void emunit_pctest_expected_set(char const * p_str)
 	int ret;
 	EMUNIT_IASSERT_MGS(!pctest_expected_pattern.ready, "Pattern already set");
 
-	ret = regcomp(&pctest_expected_pattern.re, p_str, REG_EXTENDED | REG_NOSUB | REG_NEWLINE);
+	ret = regcomp(&pctest_expected_pattern.re, p_str, REG_EXTENDED | REG_NOSUB);
 	if(0 != ret)
 	{
 		fprintf(stderr, "Cannot compile reqular expression: %d.\n", ret);
@@ -196,6 +196,7 @@ void emunit_port_pctest_out_write(char const * p_str, size_t len)
 	/* Check against pattern */
 	if(pctest_expected_pattern.ready)
 	{
+		pctest_expected_pattern.ready = false;
 		if(len != strlen(p_str))
 			pctest_error("String length does not match written length");
 		else
@@ -203,14 +204,26 @@ void emunit_port_pctest_out_write(char const * p_str, size_t len)
 			int match_ret;
 			match_ret = regexec(&pctest_expected_pattern.re, p_str, 0, NULL, REG_NOSUB);
 			if(0 != match_ret)
-				pctest_error("Pattern does not match");
+				pctest_error(
+					"Pattern does not match\n"
+					"    Output:\n"
+					"    ------------------------\n"
+					"%s"
+					"    ------------------------\n",
+					p_str);
 			else
 				pctest_success();
 		}
 	}
 	else
 	{
-		pctest_error("No pattern set");
+		pctest_error(
+			"No pattern set\n"
+			"    Output:\n"
+			"    ------------------------\n"
+			"%s"
+			"    ------------------------\n",
+			p_str);
 	}
 }
 
