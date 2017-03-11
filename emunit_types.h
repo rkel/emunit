@@ -312,6 +312,8 @@ typedef struct
 	#define EMUNIT_TS_IDX_FIRST     3 /**< First index of the real test case in the test suite */
 /** @} */
 
+#define EMUNIT_IDX_INVALID ((size_t)(-1))
+
 
 /**
  * @name Macros for creating test suite descriptors

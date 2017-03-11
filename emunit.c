@@ -409,7 +409,10 @@ size_t emunit_ts_passed_get(void)
 
 size_t emunit_tc_current_index_get(void)
 {
-	return emunit_status.tc_n_current - EMUNIT_TS_IDX_FIRST;
+	size_t tc_idx = emunit_status.tc_n_current;
+	if(tc_idx < EMUNIT_TS_IDX_FIRST)
+		return EMUNIT_IDX_INVALID;
+	return tc_idx - EMUNIT_TS_IDX_FIRST;
 }
 
 const __flash char * emunit_tc_name_get(size_t suite_idx, size_t test_idx)

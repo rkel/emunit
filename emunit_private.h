@@ -194,6 +194,9 @@ size_t emunit_ts_passed_get(void);
  * @brief Get currently running test case index
  *
  * @return The zero based index of the current test suite.
+ *         May return @ref EMUNIT_IDX_INVALID.
+ *
+ * @sa EMUNIT_IDX_INVALID
  */
 size_t emunit_tc_current_index_get(void);
 /**
