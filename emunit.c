@@ -322,8 +322,8 @@ int emunit_run(void)
 				/* If tc_n_current is 0, the test suite header should be generated */
 				emunit_display_ts_start();
 				/* First test index */
-				emunit_status.tc_n_current = EMUNIT_TS_IDX_FIRST;
-				emunit_restart(EMUNIT_RR_RUN);
+				emunit_status.tc_n_current = EMUNIT_TS_IDX_FIRST-1;
+				emunit_restart(EMUNIT_RR_RUNNEXT);
 			}
 			const __flash emunit_test_desc_t * p_tc;
 			p_tc = emunit_tc_current_get();
