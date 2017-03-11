@@ -2,21 +2,21 @@
 #define EMUNIT_PORT_PCSTDOUT_H_INCLUDED
 /**
  * @file
- * @brief EMUnit pcstdout simulator port
+ * @brief EMUnit pcstdout port
  * @author Radosław Koppel <r.koppel\@k-el.com>
  * @date 2016
  *
- * File with EMUnit port for pcstdout simulator.
+ * File with EMUnit port for pcstdout.
  * @sa emunit_port_pcstdout_group
  */
-#include "emunit_types.h"
-#include "../arch/emunit_arch_pc.h"
+#include <emunit_types.h>
+#include "emunit_port_pcstdout_arch.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 
 /**
- * @defgroup emunit_port_pcstdout_group <emunit_port_pcstdout> EMUnit SimAVR port
+ * @defgroup emunit_port_pcstdout_group <emunit_port_pcstdout> EMUnit PC stdout port
  * @{
  * @ingroup emunit_port_group
  *

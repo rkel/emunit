@@ -9,7 +9,7 @@
  */
 #include "config_emunit_simavr.h"
 #include "emunit_port_simavr.h"
-#include "emunit_private.h"
+#include <emunit_private.h>
 #include <avr/io.h>
 #include <avr/wdt.h>
 #include "emunit_port_simavr_mmcu.c"

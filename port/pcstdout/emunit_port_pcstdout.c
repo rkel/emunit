@@ -8,7 +8,7 @@
  * @sa emunit_port_pcstdout_group
  */
 #include "emunit_port_pcstdout.h"
-#include "emunit_private.h"
+#include <emunit_private.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <pthread.h>
