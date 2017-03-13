@@ -301,15 +301,14 @@ typedef struct
  * Any change here would require update in @ref UT_DESC_TS_BEGIN macro.
  * @{
  */
-	#define EMUNIT_TS_IDX_INITFIRST 0 /**< The index of the first initialisation function */
-	#define EMUNIT_TS_IDX_INIT      1 /**< The index of the test initialisation function  */
-	#define EMUNIT_TS_IDX_CLEANUP   2 /**< The index of the test cleanup function         */
+	#define EMUNIT_TS_IDX_SUITEINIT    0 /**< The index of the suite initialisation function - it is called once when suite starts. */
+	#define EMUNIT_TS_IDX_SUITECLEANUP 1 /**< The index of the suite cleanup function - it is called once when the whole suite finishes */
+	#define EMUNIT_TS_IDX_INIT         2 /**< The index of the test initialisation function  */
+	#define EMUNIT_TS_IDX_CLEANUP      3 /**< The index of the test cleanup function         */
 
-	#define EMUNIT_TS_IDX_NAME      2 /**< The index of the name of the test suite */
-	#define EMUNIT_TS_IDX_NULL1     0 /**< The index of the first NULL mark        */
-	#define EMUNIT_TS_IDX_NULL2     1 /**< The index of the second NULL mark       */
+	#define EMUNIT_TS_IDX_NAME      3 /**< The index of the name of the test suite */
 
-	#define EMUNIT_TS_IDX_FIRST     3 /**< First index of the real test case in the test suite */
+	#define EMUNIT_TS_IDX_FIRST     4 /**< First index of the real test case in the test suite */
 /** @} */
 
 #define EMUNIT_IDX_INVALID ((size_t)(-1))
@@ -323,7 +322,7 @@ typedef struct
  *
  * The example how to use them to create single suite:
  * @code
- * UT_DESC_TS_BEGIN(my_suite, NULL, NULL, NULL) // No comma, nor semicolon here
+ * UT_DESC_TS_BEGIN(my_suite, NULL, NULL, NULL, NULL) // No comma, nor semicolon here
  * 	UT_DESC_TC(test1)
  * 	UT_DESC_TC(test2) // No commas between elements
  * UT_DESC_TS_END();  // Semicolon on the end is mandatory.
@@ -348,21 +347,25 @@ typedef struct
 	 * This macro starts new test suite description.
 	 * Creates the array with tests and the test suite header.
 	 *
-	 * @param name           The name of created suite.
-	 *                       This name can be used then in @ref UT_TS_ARRAY_ENTRY macro.
-	 *                       Also this name would be presented in test results.
-	 * @param init_first_fnc The function called only once in all suites when
-	 *                       The suite is started (before init of the first test in the suite).
-	 *                       Can be NULL.
-	 * @param init_fnc       Function to be called before every test in the suite.
-	 * @param cleanup_fnc    Function to be called just before finishing the test in the suite.
-	 *                       This function would be called also when error in the test is detected.
+	 * @param name               The name of created suite.
+	 *                           This name can be used then in @ref UT_TS_ARRAY_ENTRY macro.
+	 *                           Also this name would be presented in test results.
+	 * @param suite_init_fnc     The function called only once in all suites when
+	 *                           The suite is started (before init of the first test in the suite).
+	 *                           After this function is called and before first test, restart from the port
+	 *                           is called.
+	 *                           Can be NULL.
+	 * @param suite_cleanup_func
+	 * @param init_fnc           Function to be called before every test in the suite.
+	 * @param cleanup_fnc        Function to be called just before finishing the test in the suite.
+	 *                           This function would be called also when error in the test is detected.
 	 */
-	#define UT_DESC_TS_BEGIN(name, init_first_fnc, init_fnc, cleanup_fnc) \
-	    emunit_test_desc_t const __flash UT_DESC_TS_VARNAME(name)[] = {   \
-	        {NULL, init_first_fnc},                                       \
-	        {NULL, init_fnc},                                             \
-	        {(const __flash char[]){EMUNIT_STR(name)}, cleanup_fnc},      \
+	#define UT_DESC_TS_BEGIN(name, suite_init_fnc, suite_cleanup_fnc, init_fnc, cleanup_fnc) \
+	    emunit_test_desc_t const __flash UT_DESC_TS_VARNAME(name)[] = {                      \
+	        {NULL, suite_init_fnc},                                                          \
+			{NULL, suite_cleanup_fnc},                                                       \
+	        {NULL, init_fnc},                                                                \
+	        {(const __flash char[]){EMUNIT_STR(name)}, cleanup_fnc},                         \
 
 
 	/**
@@ -504,6 +507,8 @@ typedef struct
 	size_t tc_n_passed;
 	/** Flag that marks that any test failed in current suite */
 	bool ts_current_failed;
+	/** Flag that marks that current test has been initialised and requires cleanup */
+	bool tc_current_cleanup_required;
 	/** @brief Reset reason internal status */
 	emunit_rr_t rr;
 }emunit_status_t;

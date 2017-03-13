@@ -102,7 +102,7 @@ void test_range_failed2(void)
 }
 
 
-UT_DESC_TS_BEGIN(my_suite, NULL, NULL, NULL)
+UT_DESC_TS_BEGIN(my_suite, NULL, NULL, NULL, NULL)
 	UT_DESC_TC(test1)
 	UT_DESC_TC(test2)
 	UT_DESC_TC(test3)

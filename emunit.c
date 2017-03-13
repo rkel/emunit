@@ -151,6 +151,71 @@ static void emunit_ts_next_switch(void)
 }
 
 /**
+ * @brief Run special function from the test suite
+ *
+ * @param sidx Suite index
+ * @param fidx Function index may be one of the values:
+ *             - @ref EMUNIT_TS_IDX_SUITEINIT
+ *             - @ref EMUNIT_TS_IDX_SUITECLEANUP
+ *             - @ref EMUNIT_TS_IDX_INIT
+ *             - @ref EMUNIT_TS_IDX_CLEANUP
+ */
+static void emunit_ts_special_run(size_t sidx, size_t fidx)
+{
+	emunit_test_desc_t const __flash * p_ts = emunit_main_ts[sidx];
+	emunit_test_fnc fnc = p_ts[fidx].p_fnc;
+	if(NULL != fnc)
+	{
+		fnc();
+	}
+}
+
+/**
+ * @brief Run suite init function of the current suite
+ *
+ * Function that should be called once when suite starts.
+ */
+static void emunit_current_suiteinit_run(void)
+{
+	emunit_ts_special_run(emunit_status.ts_n_current, EMUNIT_TS_IDX_SUITEINIT);
+}
+
+/**
+ * @brief Run suite cleanup function of the current suite
+ *
+ * Function that should be called once when suite is finished.
+ */
+static void emunit_current_suitecleanup_run(void)
+{
+	emunit_ts_special_run(emunit_status.ts_n_current, EMUNIT_TS_IDX_SUITECLEANUP);
+}
+
+
+/**
+ * @brief Run test init function
+ *
+ * Runs the init function that should run before every test in the suite.
+ */
+static void emunit_current_init_run(void)
+{
+	EMUNIT_IASSERT_MSG(!emunit_status.tc_current_cleanup_required, "New initialisation without cleanup");
+	emunit_ts_special_run(emunit_status.ts_n_current, EMUNIT_TS_IDX_INIT);
+	emunit_status.tc_current_cleanup_required = true;
+}
+
+/**
+ * @brief Run cleanup function
+ *
+ * Runs the cleanup function that should run after every test in the suite
+ */
+static void emunit_current_cleanup_run(void)
+{
+	EMUNIT_IASSERT_MSG(emunit_status.tc_current_cleanup_required, "Cleanup called when no test has been initialised");
+	emunit_status.tc_current_cleanup_required = false;
+	emunit_ts_special_run(emunit_status.ts_n_current, EMUNIT_TS_IDX_CLEANUP);
+}
+
+/**
  * @name Condition checks
  *
  * Functions that checks if asserts of named type should fail or not.
@@ -330,6 +395,7 @@ int emunit_run(void)
 				emunit_display_ts_start();
 				/* First test index */
 				emunit_status.tc_n_current = EMUNIT_TS_IDX_FIRST-1;
+				emunit_current_suiteinit_run();
 				emunit_restart(EMUNIT_RR_RUNNEXT);
 			}
 			const __flash emunit_test_desc_t * p_tc;
@@ -345,6 +411,7 @@ int emunit_run(void)
 				{
 					++emunit_status.ts_n_passed;
 				}
+				emunit_current_suitecleanup_run();
 				emunit_display_ts_end();
 				emunit_ts_next_switch();
 				emunit_restart(EMUNIT_RR_RUN);
@@ -353,8 +420,10 @@ int emunit_run(void)
 			{
 				/* Normal test run */
 				emunit_display_tc_start();
+				emunit_current_init_run();
 				p_tc->p_fnc();
 				++(emunit_status.tc_n_passed);
+				emunit_current_cleanup_run();
 				emunit_display_tc_end();
 				emunit_restart(EMUNIT_RR_RUNNEXT);
 			}
@@ -482,6 +551,8 @@ void emunit_assert_failed(void)
 	emunit_status.ts_current_failed = true;
 	/* Count failed test, switch to next and restart */
 	++(emunit_status.tc_n_failed);
+	if(emunit_status.tc_current_cleanup_required)
+		emunit_current_cleanup_run();
 	emunit_display_tc_end();
 	emunit_restart(EMUNIT_RR_RUNNEXT);
 }
