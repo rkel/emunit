@@ -288,7 +288,7 @@ static void emunit_display_xml_value(
 	EMUNIT_DISPLAY_XML_CASES(64);
 #endif
 	default:
-		EMUNIT_IASSERT_MGS(false, "ERROR: Wrong value type");
+		EMUNIT_IASSERT_MSG(false, "ERROR: Wrong value type");
 		break;
 	}
 

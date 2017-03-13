@@ -355,7 +355,7 @@ int emunit_run(void)
 			break;
 		default:
 			/* Should never happen */
-			EMUNIT_IASSERT_MGS(false, "Unexpected reset reason.");
+			EMUNIT_IASSERT_MSG(false, "Unexpected reset reason.");
 			break;
 	}
 
@@ -667,7 +667,7 @@ void ut_assert_str_msg(
 	...)
 {
 	/** @todo Implement */
-	EMUNIT_IASSERT_MGS(0, "Not implemented yet.");
+	EMUNIT_IASSERT_MSG(0, "Not implemented yet.");
 }
 
 void ut_assert_array(
@@ -675,5 +675,5 @@ void ut_assert_array(
 	const emunit_assert_array_cmp_t            p_cmp)
 {
 	/** @todo Implement */
-	EMUNIT_IASSERT_MGS(0, "Not implemented yet.");
+	EMUNIT_IASSERT_MSG(0, "Not implemented yet.");
 }

@@ -172,13 +172,13 @@ static void pctest_bill(void)
 void emunit_pctest_expected_set(char const * p_str)
 {
 	int ret;
-	EMUNIT_IASSERT_MGS(!pctest_expected_pattern.ready, "Pattern already set");
+	EMUNIT_IASSERT_MSG(!pctest_expected_pattern.ready, "Pattern already set");
 
 	ret = regcomp(&pctest_expected_pattern.re, p_str, REG_EXTENDED | REG_NOSUB);
 	if(0 != ret)
 	{
 		fprintf(stderr, "Cannot compile reqular expression: %d.\n", ret);
-		EMUNIT_IASSERT_MGS(false, "Cannot compile regular expression");
+		EMUNIT_IASSERT_MSG(false, "Cannot compile regular expression");
 	}
 	pctest_expected_pattern.ready = true;
 }

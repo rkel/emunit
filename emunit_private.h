@@ -67,7 +67,7 @@
  *       This message is here for the reader that looks in the code
  *       to search more detail about the failure.
  */
-#define EMUNIT_IASSERT_MGS(exp, msg)  EMUNIT_IASSERT(exp)
+#define EMUNIT_IASSERT_MSG(exp, msg)  EMUNIT_IASSERT(exp)
 /** @} */
 
 /**
