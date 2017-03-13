@@ -106,30 +106,6 @@ const __flash emunit_test_desc_t * emunit_tc_current_get(void)
 }
 
 /**
- * @brief Switch to the next test case
- *
- * Function changes current test case in the current test suite.
- * Test index is incremented only if current test index does not mark
- * End of List.
- */
-static void emunit_tc_next_switch(void)
-{
-	if(EMUNIT_IDX_INVALID == emunit_tc_current_index_get())
-	{
-		emunit_status.tc_n_current = EMUNIT_TS_IDX_FIRST;
-	}
-	else
-	{
-		emunit_test_desc_t const __flash * p_tc = emunit_tc_current_get();
-
-		if(!emunit_tc_eol_check(p_tc))
-		{
-			++(emunit_status.tc_n_current);
-		}
-	}
-}
-
-/**
  * @brief Prepare next test suite
  *
  * Test case is set to the first one.
@@ -147,6 +123,37 @@ static void emunit_ts_next_switch(void)
 		emunit_status.ts_current_failed = 0;
 		emunit_status.tc_n_current = 0;
 		++(emunit_status.ts_n_current);
+	}
+}
+
+/**
+ * @brief Switch to the next test case
+ *
+ * Function changes current test case in the current test suite.
+ * Test index is incremented only if current test index does not mark
+ * End of List.
+ *
+ * @note
+ * Suite is switched if current suite has been finished
+ */
+static void emunit_tc_next_switch(void)
+{
+	if(EMUNIT_IDX_INVALID == emunit_tc_current_index_get())
+	{
+		emunit_status.tc_n_current = EMUNIT_TS_IDX_FIRST;
+	}
+	else
+	{
+		emunit_test_desc_t const __flash * p_tc = emunit_tc_current_get();
+
+		if(!emunit_tc_eol_check(p_tc))
+		{
+			++(emunit_status.tc_n_current);
+		}
+		else
+		{
+			emunit_ts_next_switch();
+		}
 	}
 }
 
@@ -413,8 +420,7 @@ int emunit_run(void)
 				}
 				emunit_current_suitecleanup_run();
 				emunit_display_ts_end();
-				emunit_ts_next_switch();
-				emunit_restart(EMUNIT_RR_RUN);
+				emunit_restart(EMUNIT_RR_RUNNEXT);
 			}
 			else
 			{
