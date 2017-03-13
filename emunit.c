@@ -114,11 +114,18 @@ const __flash emunit_test_desc_t * emunit_tc_current_get(void)
  */
 static void emunit_tc_next_switch(void)
 {
-	emunit_test_desc_t const __flash * p_tc = emunit_tc_current_get();
-
-	if(!emunit_tc_eol_check(p_tc))
+	if(EMUNIT_IDX_INVALID == emunit_tc_current_index_get())
 	{
-		++(emunit_status.tc_n_current);
+		emunit_status.tc_n_current = EMUNIT_TS_IDX_FIRST;
+	}
+	else
+	{
+		emunit_test_desc_t const __flash * p_tc = emunit_tc_current_get();
+
+		if(!emunit_tc_eol_check(p_tc))
+		{
+			++(emunit_status.tc_n_current);
+		}
 	}
 }
 
