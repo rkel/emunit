@@ -224,6 +224,34 @@ static void pctest_bill(void)
 	}
 }
 
+char const * emunit_pctest_regex_esc(char * const p_dst, char const * p_src)
+{
+	char * p_esc = p_dst;
+	char c;
+	do
+	{
+		c = *p_src++;
+		switch(c)
+		{
+		case '.':
+		case '?':
+		case '\\':
+		case '+':
+		case '*':
+		case '[':
+		case '(':
+		case ')':
+			*p_esc++ = '\\';
+			break;
+		default:
+			break;
+		}
+		*p_esc++ = c;
+	}while('\0' != c);
+
+	return p_dst;
+}
+
 void emunit_pctest_expected_footer_set(char const * p_str)
 {
 	emunit_pctest_pattern_set(&pctest_expected_footer, p_str);

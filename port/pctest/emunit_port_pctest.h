@@ -37,6 +37,19 @@
 void emunit_test_prepare(void);
 
 /**
+ * @brief Escape regular expression string
+ *
+ * Auxiliary function that replaces all occurrence of special characters
+ * by its escaped version.
+ *
+ * @param[in]  p_dst Destination buffer.
+ * @param[out] p_src Source string to be escaped.
+ *
+ * @return The pointer to the destination string.
+ */
+char const * emunit_pctest_regex_esc(char * p_dst, char const * p_src);
+
+/**
  * @brief Set the expected footer pattern
  *
  * Function sets the regular expression to match the incoming footer data.
