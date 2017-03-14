@@ -82,7 +82,14 @@ void test_expect_fail(char const * pattern)
  */
 
 /**
+ * @defgroup emunit_test_xml_base_tests_init base_tests_init Test initialisation
+ * @{
  *
+ * Initialisation functions for base functionality tests
+ */
+
+/**
+ * @brief Suite initialisation
  */
 static void base_tests_sinit(void)
 {
@@ -92,6 +99,9 @@ static void base_tests_sinit(void)
 	++suite_init_calls;
 }
 
+/**
+ * @brief Suite cleanup
+ */
 static void base_tests_scleanup(void)
 {
 	const char pattern[] =
@@ -100,15 +110,22 @@ static void base_tests_scleanup(void)
 	++suite_cleanup_calls;
 }
 
+/**
+ * @brief Test initialisation
+ */
 static void test_init(void)
 {
 	++init_calls;
 }
 
+/**
+ * @brief Test cleanup
+ */
 static void test_cleanup(void)
 {
 	++cleanup_calls;
 }
+/** @} <!-- emunit_test_xml_base_tests_init --> */
 
 /**
  * @brief First test that finishes with success
@@ -168,9 +185,23 @@ static void test4(void)
 /** @} <!-- emunit_test_xml_base_tests --> */
 
 
+/**
+ * @defgroup emunit_test_xml_base_tests2 base_tests2 Base functionality tests 2
+ * @{
+ * @ingroup emunit_test_xml_tests
+ *
+ * Tests that checks if all the functions runs like expected in @ref emunit_test_xml_base_tests.
+ */
 
 /**
- * @
+ * @defgroup emunit_test_xml_base_tests2_init base_tests2_init Test initialisation
+ * @{
+ *
+ * Initialisation functions for base functionality tests 2
+ */
+
+/**
+ * @brief Suite initialisation
  */
 static void base_tests2_sinit(void)
 {
@@ -180,6 +211,9 @@ static void base_tests2_sinit(void)
 	++suite2_init_calls;
 }
 
+/**
+ * @brief Suite cleanup
+ */
 static void base_tests2_scleanup(void)
 {
 	const char pattern[] =
@@ -187,6 +221,13 @@ static void base_tests2_scleanup(void)
 	emunit_pctest_expected_set(pattern);
 }
 
+/** @} <!-- emunit_test_xml_base_tests2_init --> */
+
+/**
+ * @brief Test in second suite
+ *
+ * This tests checks all variables that counts number of calls from suite above.
+ */
 static void base_tests2_test1(void)
 {
 	const char pattern[] =
@@ -195,8 +236,11 @@ static void base_tests2_test1(void)
 	UT_ASSERT_EQUAL(1, suite_init_calls);
 	UT_ASSERT_EQUAL(1, suite2_init_calls);
 	UT_ASSERT_EQUAL(1, suite_cleanup_calls);
+	UT_ASSERT_EQUAL(4, init_calls);
+	UT_ASSERT_EQUAL(4, cleanup_calls);
 }
 
+/** @} <!-- emunit_test_xml_base_tests2 --> */
 
 
 /* Test suite 1 */
