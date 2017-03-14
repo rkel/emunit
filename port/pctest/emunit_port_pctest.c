@@ -60,6 +60,8 @@ static struct
 static const char pctest_tc_before_name[] = "BEFORE ANY CASE";
 /** The test case name used if all test cases have been finished */
 static const char pctest_tc_after_name[]  = "AFTER ALL CASES";
+/** The test case name used if not case have been started */
+static const char pctest_ts_before_name[] = "BEFORE ANY SUITE";
 /** The test suite name used if all test suites have been finished */
 static const char pctest_ts_after_name[]  = "AFTER ALL SUITES";
 /** The test case name if there is no active test suite */
@@ -76,6 +78,8 @@ static const char pctest_tc_unknown_name[] = "---";
 static char const * emunit_pctest_current_ts_name(void)
 {
 	size_t idx = emunit_ts_current_index_get();
+	if(EMUNIT_IDX_INVALID == idx)
+		return pctest_ts_before_name;
 	if(idx >= emunit_ts_total_count())
 		return pctest_ts_after_name;
 	return emunit_ts_name_get(idx);
@@ -91,7 +95,7 @@ static char const * emunit_pctest_current_ts_name(void)
 static char const * emunit_pctest_current_tc_name(void)
 {
 	size_t sidx = emunit_ts_current_index_get();
-	if(sidx >= emunit_ts_total_count())
+	if((EMUNIT_IDX_INVALID == sidx) || (sidx >= emunit_ts_total_count()))
 		return pctest_tc_unknown_name;
 	size_t idx = emunit_tc_current_index_get();
 	if(EMUNIT_IDX_INVALID == idx)

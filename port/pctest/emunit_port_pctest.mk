@@ -59,6 +59,7 @@ CDEFS +=
 #    -adhlns...: create assembler listing
 CFLAGS += $(CDEFS)
 CFLAGS += $(ALLDEFS)
+CFLAGS += -O0 -g3
 CFLAGS += -Wa,-adhlns=$(@:%.o=%.lst) # ! listing in the target folder, not in source folder
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 CFLAGS += $(CSTANDARD)

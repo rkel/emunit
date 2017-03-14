@@ -46,7 +46,10 @@ extern emunit_test_desc_t const __flash * const __flash emunit_main_ts[];
  */
 static void emunit_status_clear(void)
 {
+	EMUNIT_STATIC_ASSERT((EMUNIT_IDX_INVALID + 1U) == 0U,
+		"EMUNIT_IDX_INVALID have to be 1 before first suite for the engine to work correctly");
 	memset(&emunit_status, 0, sizeof(emunit_status));
+	emunit_status.ts_n_current = EMUNIT_IDX_INVALID;
 	emunit_status.rr = EMUNIT_RR_INIT;
 	emunit_status.key_valid = EMUNIT_STATUS_KEY_VALID;
 }
@@ -138,7 +141,12 @@ static void emunit_ts_next_switch(void)
  */
 static void emunit_tc_next_switch(void)
 {
-	if(EMUNIT_IDX_INVALID == emunit_tc_current_index_get())
+	if(EMUNIT_IDX_INVALID == emunit_ts_current_index_get())
+	{
+		emunit_status.ts_n_current = 0;
+		emunit_status.tc_n_current = 0;
+	}
+	else if(EMUNIT_IDX_INVALID == emunit_tc_current_index_get())
 	{
 		emunit_status.tc_n_current = EMUNIT_TS_IDX_FIRST;
 	}
@@ -371,7 +379,7 @@ int emunit_run(void)
 	{
 		case EMUNIT_RR_INIT:
 			emunit_display_test_start();
-			emunit_restart(EMUNIT_RR_RUN);
+			emunit_restart(EMUNIT_RR_RUNNEXT);
 			break;
 
 		case EMUNIT_RR_FINISH:
