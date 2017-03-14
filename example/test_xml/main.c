@@ -10,6 +10,8 @@
 #include "test.h"
 #include <emunit.h>
 #include <emunit_port.h>
+#include <stdarg.h>
+#include <stdio.h>
 /* Note that normal test does not include this header.
  * This test checks emunit engine itself so it needs the access to the private
  * functions. */
@@ -68,6 +70,59 @@ void test_expect_fail(char const * pattern)
 {
 	++test_cases_failed;
 	emunit_pctest_expected_set(pattern);
+}
+
+void test_expect_fail_assert_x(
+	char const * str_test,
+	char const * str_file,
+	char const * str_id,
+	char const * str_type,
+	char const * msg,
+	char const * fmt,
+	...)
+{
+	char buffer[512];
+	char * p_buffer = buffer;
+
+	char esc_filename[256];
+	(void)emunit_pctest_regex_esc(esc_filename, str_file);
+
+	p_buffer += sprintf(p_buffer,
+		"^"
+		"[[:space:]]*<testcase name=\"%s\">"
+		"[[:space:]]*<failure type=\"%s\" id=\"%s\">"
+		"[[:space:]]*<file>%s</file>"
+		"[[:space:]]*<line>[[:digit:]]+</line>"
+		,
+		str_test,
+		str_type,
+		str_id,
+		esc_filename
+		);
+	if(NULL != msg)
+	{
+		p_buffer += sprintf(p_buffer,
+			"[[:space:]]*<msg>%s</msg>",
+			msg
+			);
+	}
+
+	p_buffer += sprintf(p_buffer,
+		"[[:space:]]*<details>");
+
+	va_list vargs;
+	va_start(vargs, fmt);
+	p_buffer += vsprintf(p_buffer, fmt, vargs);
+	va_end(vargs);
+
+	p_buffer += sprintf(p_buffer,
+		"[[:space:]]*</details>"
+		"[[:space:]]*</failure>"
+		"[[:space:]]*</testcase>"
+		"[[:space:]]*"
+		"$");
+
+	test_expect_fail(buffer);
 }
 
 /**
@@ -181,7 +236,19 @@ static void test2(void)
  */
 static void test3(void)
 {
+	test_expect_fail_assert(
+		"1",
+		"ASSERT",
+		NULL,
+		"%s",
+		"[[:space:]]*<expression>false == true</expression>");
 
+	UT_ASSERT_EQUAL(1, suite_init_calls);
+	UT_ASSERT_EQUAL(0, suite_cleanup_calls);
+	UT_ASSERT_EQUAL(3, init_calls);
+	UT_ASSERT_EQUAL(2, cleanup_calls);
+
+	UT_ASSERT(false == true);
 }
 
 /**
@@ -192,7 +259,20 @@ static void test3(void)
  */
 static void test4(void)
 {
+	void * p_null = NULL;
 
+	test_expect_fail_assert(
+		"2",
+		"ASSERT",
+		NULL,
+		"[[:space:]]*<expression>\\(p_null\\) != NULL</expression>");
+
+	UT_ASSERT_EQUAL(1, suite_init_calls);
+	UT_ASSERT_EQUAL(0, suite_cleanup_calls);
+	UT_ASSERT_EQUAL(4, init_calls);
+	UT_ASSERT_EQUAL(3, cleanup_calls);
+
+	UT_ASSERT_NOT_NULL(p_null);
 }
 
 /** @} <!-- emunit_test_xml_base_tests --> */
