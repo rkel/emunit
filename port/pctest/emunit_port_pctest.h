@@ -29,12 +29,30 @@
  */
 
 /**
+ * @brief Function that would be called before test main loop
+ *
+ * This function have to be defined inside test.
+ * It should prepare pattern for the incoming test header.
+ */
+void emunit_test_prepare(void);
+
+/**
+ * @brief Set the expected footer pattern
+ *
+ * Function sets the regular expression to match the incoming footer data.
+ * This pattern would be used when test footer would be detected.
+ *
+ * @param[in] p_str String with regular expression
+ */
+void emunit_pctest_expected_footer_set(char const * p_str);
+
+/**
  * @brief Set the expected pattern
  *
  * Function sets the regular expression to match the incoming data.
  * The expression set would be matched with the nearest incoming data.
  *
- * @param p_str String with regular expression
+ * @param[in] p_str String with regular expression
  */
 void emunit_pctest_expected_set(char const * p_str);
 

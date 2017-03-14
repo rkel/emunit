@@ -10,6 +10,10 @@
 #include "test.h"
 #include <emunit.h>
 #include <emunit_port.h>
+/* Note that normal test does not include this header.
+ * This test checks emunit engine itself so it needs the access to the private
+ * functions. */
+#include <emunit_private.h>
 
 
 /**
@@ -72,6 +76,15 @@ void test_expect_fail(char const * pattern)
  *
  * Group of general tests performed.
  */
+
+/* Prepare for the test header. Function documented in the port header. */
+void emunit_test_prepare(void)
+{
+	const char pattern[] =
+		"^<\\?xml version=\"1.0\" encoding=\"UTF-8\"\\?>[[:space:]]*"
+		"<test name=\"EMUnit\">[[:space:]]*$";
+	emunit_pctest_expected_set(pattern);
+}
 
 /**
  * @defgroup emunit_test_xml_base_tests base_tests Base functionality tests
@@ -239,8 +252,64 @@ static void base_tests2_test1(void)
 	UT_ASSERT_EQUAL(4, init_calls);
 	UT_ASSERT_EQUAL(4, cleanup_calls);
 }
-
 /** @} <!-- emunit_test_xml_base_tests2 --> */
+
+/**
+ * @defgroup emunit_test_xml_base_tests_last base_tests_last Test suite that has to be executed as a last one
+ * @{
+ * @ingroup emunit_test_xml_tests
+ *
+ * This suite is here only to prepare test for the footer.
+ * It has to be placed as a last one.
+ */
+
+static void base_tests_last_sinit(void)
+{
+	const char pattern[] =
+		"^[[:space:]]*<testsuite name=\"base_tests_last\">";
+	emunit_pctest_expected_set(pattern);
+	++suite2_init_calls;
+}
+
+/**
+ * @brief Suite cleanup
+ */
+static void base_tests_last_scleanup(void)
+{
+	const char pattern[] =
+		"^[[:space:]]*</testsuite>[[:space:]]*$";
+	emunit_pctest_expected_set(pattern);
+
+	char pattern_footer[512];
+
+	sprintf(pattern_footer,
+		"^"
+		"[[:space:]]*<testsummary>"
+		"[[:space:]]*<testsuite-stat>"
+		"[[:space:]]*<total>%u</total>"
+		"[[:space:]]*<passed>%u</passed>"
+		"[[:space:]]*<failed>%u</failed>"
+		"[[:space:]]*</testsuite-stat>"
+		"[[:space:]]*<testcase-stat>"
+		"[[:space:]]*<total>%u</total>"
+		"[[:space:]]*<passed>%u</passed>"
+		"[[:space:]]*<failed>%u</failed>"
+		"[[:space:]]*</testcase-stat>"
+		"[[:space:]]*</testsummary>"
+		"[[:space:]]*</test>[[:space:]]*"
+		"$"
+		,
+		emunit_ts_total_count(),
+		emunit_ts_passed_get(),
+		emunit_ts_failed_get(),
+		emunit_tc_total_count(),
+		emunit_tc_passed_get(),
+		emunit_tc_failed_get()
+	);
+	emunit_pctest_expected_footer_set(pattern_footer);
+}
+
+/** @} */
 
 
 /* Test suite 1 */
@@ -256,10 +325,16 @@ UT_DESC_TS_BEGIN(base_tests2, base_tests2_sinit, base_tests2_scleanup, NULL, NUL
 	UT_DESC_TC(base_tests2_test1)
 UT_DESC_TS_END();
 
+/* Last test suite */
+UT_DESC_TS_BEGIN(base_tests_last, base_tests_last_sinit, base_tests_last_scleanup, NULL, NULL)
+UT_DESC_TS_END();
 
 
 /* Whole test description */
 UT_MAIN_TS_BEGIN()
 	UT_MAIN_TS_ENTRY(base_tests)
 	UT_MAIN_TS_ENTRY(base_tests2)
+
+
+	UT_MAIN_TS_ENTRY(base_tests_last)
 UT_MAIN_TS_END();
