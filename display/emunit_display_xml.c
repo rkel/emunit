@@ -446,15 +446,15 @@ void emunit_display_xml_test_end(void)
 	emunit_display_printf(
 		NULL,
 		EMUNIT_FLASHSTR(
-			"\t<testsumary>"            NEWLINE
-			"\t\t<testsute-stat>"       NEWLINE
+			"\t<testsummary>"           NEWLINE
+			"\t\t<testsuite-stat>"      NEWLINE
 			"\t\t\t<total>%u</total>"   NEWLINE
-			"\t\t\t<passed>%u</total>"  NEWLINE
+			"\t\t\t<passed>%u</passed>" NEWLINE
 			"\t\t\t<failed>%u</failed>" NEWLINE
 			"\t\t</testsuite-stat>"     NEWLINE
 			"\t\t<testcase-stat>"       NEWLINE
 			"\t\t\t<total>%u</total>"   NEWLINE
-			"\t\t\t<passed>%u</total>"  NEWLINE
+			"\t\t\t<passed>%u</passed>" NEWLINE
 			"\t\t\t<failed>%u</failed>" NEWLINE
 			"\t\t</testcase-stat>"      NEWLINE
 			"\t</testsummary>"          NEWLINE
