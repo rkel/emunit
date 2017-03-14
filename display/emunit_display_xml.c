@@ -176,9 +176,9 @@ static void emunit_display_xml_failed_header(
 	emunit_display_printf(
 		NULL,
 		EMUNIT_FLASHSTR(
-			"\t\t\t<failure type=\%"PRIsPGM" id=\"%u\">" NEWLINE
-			"\t\t\t\t<file>%"PRIsPGM"</file>"            NEWLINE
-			"\t\t\t\t<line>%u</line>"                    NEWLINE
+			"\t\t\t<failure type=\"%"PRIsPGM"\" id=\"%u\">" NEWLINE
+			"\t\t\t\t<file>%"PRIsPGM"</file>"               NEWLINE
+			"\t\t\t\t<line>%u</line>"                       NEWLINE
 		),
 		p_str_type,
 		emunit_tc_failed_get() + 1,
