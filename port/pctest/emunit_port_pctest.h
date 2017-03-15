@@ -29,6 +29,13 @@
  */
 
 /**
+ * @brief Maximum pattern length
+ *
+ * Constant that configures maximal size of the pattern string.
+ */
+#define EMUNIT_TEST_PATTERN_MAX 512
+
+/**
  * @brief Function that would be called before test main loop
  *
  * This function have to be defined inside test.

@@ -28,8 +28,9 @@ emunit_display_status_t emunit_display_status;
  */
 typedef struct
 {
-	bool    ready; /**< Pattern is set and ready */
-	regex_t re;    /**< The pattern itself */
+	bool    ready;                           /**< Pattern is set and ready */
+	regex_t re;                              /**< The pattern itself */
+	char    str_re[EMUNIT_TEST_PATTERN_MAX]; /**< Printable copy of test pattern */
 }pctest_pattern_t;
 
 /**
@@ -131,6 +132,7 @@ static char const * emunit_pctest_current_tc_name(void)
 static void emunit_pctest_pattern_set(pctest_pattern_t * p_dst, char const * pattern)
 {
 	int ret;
+	EMUNIT_IASSERT_MSG(EMUNIT_TEST_PATTERN_MAX > strlen(pattern), "Pattern string too long");
 	EMUNIT_IASSERT_MSG(!p_dst->ready, "Pattern already set");
 
 	ret = regcomp(&p_dst->re, pattern, REG_EXTENDED | REG_NOSUB);
@@ -139,6 +141,7 @@ static void emunit_pctest_pattern_set(pctest_pattern_t * p_dst, char const * pat
 		fprintf(stderr, "Cannot compile reqular expression: %d.\n", ret);
 		EMUNIT_IASSERT_MSG(false, "Cannot compile regular expression");
 	}
+	strcpy(p_dst->str_re, pattern);
 	p_dst->ready = true;
 }
 
@@ -296,10 +299,15 @@ void emunit_port_pctest_out_write(char const * p_str, size_t len)
 			if(!(emunit_pctest_pattern_check(p_pattern, p_str)))
 				pctest_error(
 					"Pattern does not match\n"
+					"    Pattern:\n"
+					"    ------------------------\n"
+					"%s"
+					"    ------------------------\n"
 					"    Output:\n"
 					"    ------------------------\n"
 					"%s"
 					"    ------------------------\n",
+					p_pattern->str_re,
 					p_str);
 			else
 				pctest_success();
