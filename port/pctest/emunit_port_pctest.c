@@ -352,10 +352,14 @@ void emunit_port_pctest_tc_end(void)
 int main(void)
 {
 	int ret;
-	emunit_early_init();
 
-	/* Prepare for the test header */
-	emunit_test_prepare();
+	/* Set long jmp temporary here is anything fails during initialisation */
+	if(0 == setjmp(pctest_test_loop_jmp))
+	{
+		emunit_early_init();
+		/* Prepare for the test header */
+		emunit_test_prepare();
+	}
 
 	/* -----------------------------------
 	 * Start of the test loop
