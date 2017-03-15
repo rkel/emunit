@@ -3,7 +3,10 @@ EMUNIT_DIR = ../..
 EMUNIT_PORT = pctest
 
 TARGET = $(EMUNIT_PORT)_simple
-SRC = main.c
+SRC = \
+	suites.c \
+	main.c \
+	test_boolean.c
 
 # Include building system
 include $(EMUNIT_DIR)/emunit.mk

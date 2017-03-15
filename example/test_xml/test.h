@@ -20,6 +20,22 @@
  */
 
 /**
+ * @brief Expect default test suite header
+ *
+ * Function creates default XML test suite header and set it as expected pattern.
+ *
+ * @param str_suite The suite name
+ */
+void test_expect_sinit_default(char const * str_suite);
+
+/**
+ * @brief Expect default test suite footer
+ *
+ * Function creates default XML test suite footer and set it as expected pattern.
+ */
+void test_expect_scleanup_default(void);
+
+/**
  * @brief Current test should finish successfully
  *
  * Function sets expected pattern and marks that current test should finish
@@ -28,6 +44,29 @@
  * @param[in] pattern The expected output pattern regular expression.
  */
 void test_expect_success(char const * pattern);
+
+/**
+ * @brief Current test should finish successfully formatted pattern
+ *
+ * This macro calls @ref test_expect_success_test_x function setting its name
+ * argument to the current function name.
+ */
+#define test_expect_success_test() \
+	test_expect_success_test_x(__func__)
+
+/**
+ * @brief Current test should finish successfully formatted pattern
+ *
+ * Function sets expected pattern and marks that current test should finish
+ * successfully.
+ *
+ * @note
+ * Do not call it directly.
+ * Use rather @ref test_expect_success_test macro.
+ *
+ * @param str_name The name of the test
+ */
+void test_expect_success_test_x(char const * str_name);
 
 /**
  * @brief Current test should fail

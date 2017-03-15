@@ -60,10 +60,38 @@ static int test_cases_failed;
 /** @} <!-- emunit_test_xml_internals --> */
 
 
+void test_expect_sinit_default(char const * str_suite)
+{
+	char buffer[512];
+
+	sprintf(
+		buffer,
+		"^[[:space:]]*<testsuite name=\"%s\">[[:space:]]*$",
+		str_suite);
+
+	emunit_pctest_expected_set(buffer);
+}
+
+void test_expect_scleanup_default(void)
+{
+	emunit_pctest_expected_set("^[[:space:]]*</testsuite>[[:space:]]*$");
+}
+
 void test_expect_success(char const * pattern)
 {
 	++test_cases_success;
 	emunit_pctest_expected_set(pattern);
+}
+
+void test_expect_success_test_x(char const * str_name)
+{
+	char buffer[512];
+
+	sprintf(
+		buffer,
+		"^[[:space:]]*<testcase name=\"%s\">[[:space:]]*</testcase>[[:space:]]*$",
+		str_name);
+	test_expect_success(buffer);
 }
 
 void test_expect_fail(char const * pattern)
@@ -161,9 +189,7 @@ void emunit_test_prepare(void)
  */
 static void base_tests_sinit(void)
 {
-	const char pattern[] =
-		"^[[:space:]]*<testsuite name=\"base_tests\">";
-	emunit_pctest_expected_set(pattern);
+	test_expect_sinit_default("base_tests");
 	++suite_init_calls;
 }
 
@@ -172,9 +198,7 @@ static void base_tests_sinit(void)
  */
 static void base_tests_scleanup(void)
 {
-	const char pattern[] =
-		"^[[:space:]]*</testsuite>[[:space:]]*$";
-	emunit_pctest_expected_set(pattern);
+	test_expect_scleanup_default();
 	++suite_cleanup_calls;
 }
 
@@ -202,9 +226,7 @@ static void test_cleanup(void)
  */
 static void test1(void)
 {
-	const char pattern[] =
-		"^[[:space:]]*<testcase name=\"test1\">[[:space:]]*</testcase>[[:space:]]*$";
-	test_expect_success(pattern);
+	test_expect_success_test();
 
 	UT_ASSERT_EQUAL(1, suite_init_calls);
 	UT_ASSERT_EQUAL(0, suite_cleanup_calls);
@@ -219,9 +241,7 @@ static void test1(void)
  */
 static void test2(void)
 {
-	const char pattern[] =
-		"^[[:space:]]*<testcase name=\"test2\">[[:space:]]*</testcase>[[:space:]]*$";
-	test_expect_success(pattern);
+	test_expect_success_test();
 
 	UT_ASSERT_EQUAL(1, suite_init_calls);
 	UT_ASSERT_EQUAL(0, suite_cleanup_calls);
@@ -298,9 +318,7 @@ static void test4(void)
  */
 static void base_tests2_sinit(void)
 {
-	const char pattern[] =
-		"^[[:space:]]*<testsuite name=\"base_tests2\">";
-	emunit_pctest_expected_set(pattern);
+	test_expect_sinit_default("base_tests2");
 	++suite2_init_calls;
 }
 
@@ -309,9 +327,7 @@ static void base_tests2_sinit(void)
  */
 static void base_tests2_scleanup(void)
 {
-	const char pattern[] =
-		"^[[:space:]]*</testsuite>[[:space:]]*$";
-	emunit_pctest_expected_set(pattern);
+	test_expect_scleanup_default();
 }
 
 /** @} <!-- emunit_test_xml_base_tests2_init --> */
@@ -323,9 +339,7 @@ static void base_tests2_scleanup(void)
  */
 static void base_tests2_test1(void)
 {
-	const char pattern[] =
-		"^[[:space:]]*<testcase name=\"base_tests2_test1\">[[:space:]]*</testcase>[[:space:]]*$";
-	test_expect_success(pattern);
+	test_expect_success_test();
 	UT_ASSERT_EQUAL(1, suite_init_calls);
 	UT_ASSERT_EQUAL(1, suite2_init_calls);
 	UT_ASSERT_EQUAL(1, suite_cleanup_calls);
@@ -345,9 +359,7 @@ static void base_tests2_test1(void)
 
 static void base_tests_last_sinit(void)
 {
-	const char pattern[] =
-		"^[[:space:]]*<testsuite name=\"base_tests_last\">";
-	emunit_pctest_expected_set(pattern);
+	test_expect_sinit_default("base_tests_last");
 	++suite2_init_calls;
 }
 
@@ -356,9 +368,7 @@ static void base_tests_last_sinit(void)
  */
 static void base_tests_last_scleanup(void)
 {
-	const char pattern[] =
-		"^[[:space:]]*</testsuite>[[:space:]]*$";
-	emunit_pctest_expected_set(pattern);
+	test_expect_scleanup_default();
 
 	char pattern_footer[512];
 
@@ -382,9 +392,9 @@ static void base_tests_last_scleanup(void)
 		emunit_ts_total_count(),
 		emunit_ts_passed_get(),
 		emunit_ts_failed_get(),
-		emunit_tc_total_count(),
-		emunit_tc_passed_get(),
-		emunit_tc_failed_get()
+		test_cases_success + test_cases_failed,
+		test_cases_success,
+		test_cases_failed
 	);
 	emunit_pctest_expected_footer_set(pattern_footer);
 }
@@ -408,13 +418,3 @@ UT_DESC_TS_END();
 /* Last test suite */
 UT_DESC_TS_BEGIN(base_tests_last, base_tests_last_sinit, base_tests_last_scleanup, NULL, NULL)
 UT_DESC_TS_END();
-
-
-/* Whole test description */
-UT_MAIN_TS_BEGIN()
-	UT_MAIN_TS_ENTRY(base_tests)
-	UT_MAIN_TS_ENTRY(base_tests2)
-
-
-	UT_MAIN_TS_ENTRY(base_tests_last)
-UT_MAIN_TS_END();
