@@ -266,7 +266,7 @@ static void emunit_display_xml_value(
 	case EMUNIT_CN2(EMUNIT_NUMTYPE_X, size):                                                       \
 		emunit_display_printf(                                                                     \
 			NULL,                                                                                  \
-			EMUNIT_FLASHSTR("%"EMUNIT_CN2(PRIx, size)),                                            \
+			EMUNIT_FLASHSTR("0x%"EMUNIT_CN2(PRIx, size)),                                            \
 			(EMUNIT_CN3(uint, size, _t))val.u);                                                    \
 		break
 
