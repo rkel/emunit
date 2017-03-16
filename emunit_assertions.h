@@ -176,7 +176,7 @@
  * @param ... Format string followed by the format values.
  *            Standard @c printf format is used.
  */
-#define UT_ASSERT_TRUE_MSG(    val, ...)
+#define UT_ASSERT_TRUE_MSG(    val, ...)  UT_ASSERT_EQUAL_BOOL_MSG(true,  (val), __VA_ARGS__)
 /**
  * @brief Expect false with message
  *
@@ -186,7 +186,7 @@
  * @param ... Format string followed by the format values.
  *            Standard @c printf format is used.
  */
-#define UT_ASSERT_FALSE_MSG(   val, ...)
+#define UT_ASSERT_FALSE_MSG(   val, ...)  UT_ASSERT_EQUAL_BOOL_MSG(false,  (val), __VA_ARGS__)
 /**
  * @brief Expect the pointer to be NULL with message
  *
@@ -196,7 +196,7 @@
  * @param ... Format string followed by the format values.
  *            Standard @c printf format is used.
  */
-#define UT_ASSERT_NULL_MSG(    ptr, ...)
+#define UT_ASSERT_NULL_MSG(    ptr, ...)  EMUNIT_CN3(UT_ASSERT_EQUAL_HEX, EMUNIT_PTR_SIZE, _MSG)((emunit_uintptr_t)NULL, (emunit_uintptr_t)(ptr), __VA_ARGS__)
 /**
  * @brief Expect the pointer not to be NULL with message
  *
@@ -206,7 +206,7 @@
  * @param ... Format string followed by the format values.
  *            Standard @c printf format is used.
  */
-#define UT_ASSERT_NOT_NULL_MSG(ptr, ...)
+#define UT_ASSERT_NOT_NULL_MSG(ptr, ...)  EMUNIT_CALL_ASSERT_MSG(EMUNIT_NUMTYPE_BOOL, ut_assert, (EMUNIT_FLASHSTR("(" #ptr ") != NULL"), ((ptr) != NULL)), __VA_ARGS__)
 /** @} <!-- emunit_assertions_bool_group --> */
 
 /**
@@ -225,7 +225,19 @@
  * @param e Expected string
  * @param a Actual string
  */
-#define UT_ASSERT_EQUAL_STR(   e, a)  EMUNIT_CALL_ASSERT(EMUNIT_NUMTYPE_STR, ut_assert_str, (e, a))
+#define UT_ASSERT_EQUAL_STR(    e, a)  EMUNIT_CALL_ASSERT(EMUNIT_NUMTYPE_STR, ut_assert_str, (e, a))
+
+/**
+ * @brief Expect two strings to be the same with message
+ *
+ * The message version of @ref UT_ASSERT_EQUAL_STR.
+ *
+ * @param e   Expected string
+ * @param a   Actual string
+ * @param ... Format string followed by the format values.
+ *            Standard @c printf format is used.
+ */
+#define UT_ASSERT_EQUAL_STR_MSG(e, a, ...) EMUNIT_CALL_ASSERT_MSG(EMUNIT_NUMTYPE_STR, ut_assert_str, (e, a), __VA_ARGS__)
 /** @} <!-- emunit_assertions_str_group --> */
 
 /** @} <!-- emunit_assertions_group --> */
