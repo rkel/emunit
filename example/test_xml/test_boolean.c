@@ -57,10 +57,138 @@ static void test_fail_assert(void)
 	UT_ASSERT(1 == 2);
 }
 
+static void test_fail_assert_msg(void)
+{
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"ASSERT",
+		"Some message: 1",
+		"%s",
+		"[[:space:]]*<expression>17 == 32</expression>");
+
+	UT_ASSERT_MSG(17 == 32, "Some message: %d", 1);
+}
+
+static void test_fail_assert_true(void)
+{
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"EQUAL",
+		NULL,
+		"%s",
+		"[[:space:]]*<expected>true</expected>"
+		"[[:space:]]*<actual>false</actual>"
+		);
+
+	UT_ASSERT_TRUE(1 != 1);
+}
+
+static void test_fail_assert_true_msg(void)
+{
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"EQUAL",
+		"SuperMessage",
+		"%s",
+		"[[:space:]]*<expected>true</expected>"
+		"[[:space:]]*<actual>false</actual>"
+		);
+
+	UT_ASSERT_TRUE_MSG(1 != 1, "%s%s", "Super", "Message");
+}
+
+static void test_fail_assert_false(void)
+{
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"EQUAL",
+		NULL,
+		"%s",
+		"[[:space:]]*<expected>false</expected>"
+		"[[:space:]]*<actual>true</actual>"
+		);
+
+	UT_ASSERT_FALSE(1 == 1);
+}
+
+static void test_fail_assert_false_msg(void)
+{
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"EQUAL",
+		"SuperFalseMessage",
+		"%s",
+		"[[:space:]]*<expected>false</expected>"
+		"[[:space:]]*<actual>true</actual>"
+		);
+
+	UT_ASSERT_FALSE_MSG(1 == 1, "%s%s%s", "Super", "False", "Message");
+}
+
+static void test_fail_assert_null(void)
+{
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"EQUAL",
+		NULL,
+		"%s",
+		"[[:space:]]*<expected>0x0</expected>"
+		"[[:space:]]*<actual>0x1234</actual>"
+		);
+	UT_ASSERT_NULL(0x1234);
+}
+
+static void test_fail_assert_null_msg(void)
+{
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"EQUAL",
+		"Message 0x12",
+		"%s",
+		"[[:space:]]*<expected>0x0</expected>"
+		"[[:space:]]*<actual>0x1234</actual>"
+		);
+	UT_ASSERT_NULL_MSG(0x1234, "Message 0x%x", 0x12);
+}
+
+static void test_fail_assert_not_null(void)
+{
+	void * ptr_3456 = NULL;
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"ASSERT",
+		NULL,
+		"%s",
+		"[[:space:]]*<expression>\\(ptr_3456\\) != NULL</expression>"
+		);
+	UT_ASSERT_NOT_NULL(ptr_3456);
+}
+
+static void test_fail_assert_not_null_msg(void)
+{
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"ASSERT",
+		"Just1Message",
+		"%s",
+		"[[:space:]]*<expression>\\(NULL\\) != NULL</expression>"
+		);
+	UT_ASSERT_NOT_NULL_MSG(NULL, "%s%dMessage", "Just", 1);
+}
+
 
 
 UT_DESC_TS_BEGIN(test_boolean_suite, suite_init, suite_cleanup, NULL, NULL)
 	UT_DESC_TC(test_all_passed)
 	UT_DESC_TC(test_all_passed_msg)
 	UT_DESC_TC(test_fail_assert)
+	UT_DESC_TC(test_fail_assert_msg)
+	UT_DESC_TC(test_fail_assert_true)
+	UT_DESC_TC(test_fail_assert_true_msg)
+	UT_DESC_TC(test_fail_assert_false)
+	UT_DESC_TC(test_fail_assert_false_msg)
+	UT_DESC_TC(test_fail_assert_null)
+	UT_DESC_TC(test_fail_assert_null_msg)
+	UT_DESC_TC(test_fail_assert_not_null)
+	UT_DESC_TC(test_fail_assert_not_null_msg)
 UT_DESC_TS_END();
