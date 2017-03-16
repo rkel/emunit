@@ -149,66 +149,6 @@ typedef struct
 }emunit_assert_head_t;
 
 /**
- * @brief The auxiliary macro to call assertion function
- *
- * This macro creates assertion header, and passes it as a first
- * argument to called assertion function.
- *
- * @param[in] nt      Numeric type
- * @param[in] func    Assertion function
- * @param[in] params  Arguments for the assertion function in brackets
- */
-#define EMUNIT_CALL_ASSERT(nt, func, params)                          \
-	do{                                                               \
-		static const __flash char emunit_ca_file[] = __FILE__;        \
-		static const __flash emunit_assert_head_t                     \
-			emunit_ca_head = {                                        \
-				.p_file = emunit_ca_file,                             \
-				.line   = __LINE__,                                   \
-				.numtype = nt                                         \
-			};                                                        \
-		func(&emunit_ca_head, EMUNIT_DEBRACKET(params));              \
-	}while(0)
-
-/**
- * @brief The auxiliary macro to call assertion function with message
- *
- * This macro creates assertion header, and passes it as a first
- * argument to called assertion function.
- *
- * @param[in] nt      Numeric type
- * @param[in] func    Assertion function
- * @param[in] params  Arguments for the assertion function in brackets
- * @param[in] fmt
- * @param[in] ...     Message format string followed by message parameters
- */
-#define EMUNIT_CALL_ASSERT_MSG(nt, func, params, ...)                         \
-	do{                                                                       \
-		static const __flash char emunit_ca_file[] = __FILE__;                \
-		static const __flash char emunit_ca_msg[] = EMUNIT_ARG1(__VA_ARGS__); \
-		static const __flash emunit_assert_head_t                             \
-			emunit_ca_head = {                                                \
-				.p_file = emunit_ca_file,                                     \
-				.line   = __LINE__,                                           \
-				.numtype = nt                                                 \
-			};                                                                \
-		EMUNIT_IF_ARGCNT1((__VA_ARGS__),                                      \
-			func ## _msg(                                                     \
-				&emunit_ca_head,                                              \
-				EMUNIT_DEBRACKET(params),                                     \
-				emunit_ca_msg                                                 \
-			)                                                                 \
-			,                                                                 \
-			func ## _msg(                                                     \
-				&emunit_ca_head,                                              \
-				EMUNIT_DEBRACKET(params),                                     \
-				emunit_ca_msg,                                                \
-				EMUNIT_ARG_AFTER1(__VA_ARGS__)                                \
-			)                                                                 \
-		);                                                                    \
-	}while(0)
-
-/**
  * @brief The array assertion header type
  *
  * Type used to describe an array.

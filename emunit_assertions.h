@@ -3,11 +3,16 @@
 #include "emunit_macros.h"
 #include "emunit_types.h"
 #include "emunit_port.h"
+
+#include "emunit_assertions_delta.h"
+#include "emunit_assertions_equal.h"
+#include "emunit_assertions_range.h"
+
 /**
  * @file
- * @brief EMUnit header
+ * @brief EMUnit header with assertions
  * @author Radosław Koppel <r.koppel\@k-el.com>
- * @date 2016
+ * @date 2017
  *
  * @sa emunit_assertions_group
  */
@@ -21,574 +26,207 @@
  */
 
 /**
- * @name Boolean assertions
+ * @defgroup emunit_assertions_int_group <emunit_assertions_int> Internal assertion macros
  *
+ * Internal macros that should not be used directly in the tests.
+ * This macros are used to construct usable assertion macros.
  * @{
  */
-
-#define UT_ASSERT(exp)            EMUNIT_CALL_ASSERT(EMUNIT_NUMTYPE_BOOL, ut_assert, (EMUNIT_FLASHSTR(#exp), (exp)))
-#define UT_ASSERT_TRUE(val)       UT_ASSERT_EQUAL_BOOL(true,  (val))
-#define UT_ASSERT_FALSE(val)      UT_ASSERT_EQUAL_BOOL(false, (val))
-#define UT_ASSERT_NULL(ptr)       EMUNIT_CN2(UT_ASSERT_EQUAL_HEX, EMUNIT_PTR_SIZE)((emunit_uintptr_t)NULL, (emunit_uintptr_t)(ptr))
-#define UT_ASSERT_NOT_NULL(ptr)   EMUNIT_CALL_ASSERT(EMUNIT_NUMTYPE_BOOL, ut_assert, (EMUNIT_FLASHSTR("(" #ptr ") != NULL"), ((ptr) != NULL)))
-/** @} */
 
 /**
- * @name Boolean assertions with messages
+ * @brief The auxiliary macro to call assertion function
  *
- * @{
+ * This macro creates assertion header, and passes it as a first
+ * argument to called assertion function.
+ *
+ * @param[in] nt      Numeric type
+ * @param[in] func    Assertion function
+ * @param[in] params  Arguments for the assertion function in brackets
  */
-#define UT_ASSERT_MSG(exp, ...)   EMUNIT_CALL_ASSERT_MSG(EMUNIT_NUMTYPE_BOOL, ut_assert, (EMUNIT_FLASHSTR(#exp), (exp)), __VA_ARGS__)
-#define UT_ASSERT_TRUE_MSG(val, ...)
-#define UT_ASSERT_FALSE_MSG(val, ...)
-#define UT_ASSERT_NULL_MSG(ptr, ...)
+#define EMUNIT_CALL_ASSERT(nt, func, params)                          \
+	do{                                                               \
+		static const __flash char emunit_ca_file[] = __FILE__;        \
+		static const __flash emunit_assert_head_t                     \
+			emunit_ca_head = {                                        \
+				.p_file = emunit_ca_file,                             \
+				.line   = __LINE__,                                   \
+				.numtype = nt                                         \
+			};                                                        \
+		func(&emunit_ca_head, EMUNIT_DEBRACKET(params));              \
+	}while(0)
+
+/**
+ * @brief The auxiliary macro to call assertion function with message
+ *
+ * This macro creates assertion header, and passes it as a first
+ * argument to called assertion function.
+ *
+ * @param[in] nt      Numeric type
+ * @param[in] func    Assertion function
+ * @param[in] params  Arguments for the assertion function in brackets
+ * @param[in] fmt
+ * @param[in] ...     Message format string followed by message parameters
+ */
+#define EMUNIT_CALL_ASSERT_MSG(nt, func, params, ...)                         \
+	do{                                                                       \
+		static const __flash char emunit_ca_file[] = __FILE__;                \
+		static const __flash char emunit_ca_msg[] = EMUNIT_ARG1(__VA_ARGS__); \
+		static const __flash emunit_assert_head_t                             \
+			emunit_ca_head = {                                                \
+				.p_file = emunit_ca_file,                                     \
+				.line   = __LINE__,                                           \
+				.numtype = nt                                                 \
+			};                                                                \
+		EMUNIT_IF_ARGCNT1((__VA_ARGS__),                                      \
+			func ## _msg(                                                     \
+				&emunit_ca_head,                                              \
+				EMUNIT_DEBRACKET(params),                                     \
+				emunit_ca_msg                                                 \
+			)                                                                 \
+			,                                                                 \
+			func ## _msg(                                                     \
+				&emunit_ca_head,                                              \
+				EMUNIT_DEBRACKET(params),                                     \
+				emunit_ca_msg,                                                \
+				EMUNIT_ARG_AFTER1(__VA_ARGS__)                                \
+			)                                                                 \
+		);                                                                    \
+	}while(0)
+
+/** @} <!-- emunit_assertions_int_group --> */
+
+
+/**
+ * @defgroup emunit_assertions_bool_group <emunit_assertions_bool> Boolean assertions
+ * @{
+ *
+ * Base assertions that operate on true and false values.
+ */
+
+/**
+ * @brief Base assertion
+ *
+ * This assertions expects the result of expression to be true.
+ * In the case of the error it usually prints the informations about the expression itself
+ * (but this may depend on the display port).
+ *
+ * @param exp The expression
+ */
+#define UT_ASSERT(         exp)  EMUNIT_CALL_ASSERT(EMUNIT_NUMTYPE_BOOL, ut_assert, (EMUNIT_FLASHSTR(#exp), (exp)))
+/**
+ * @brief Expect true
+ *
+ * Functionally very similar to the @ref UT_ASSERT.
+ * But its printing behaviour is designed to be a candy for UT_ASSERT_EQUAL_BOOL,
+ * so it does not print the infromation about the expression but rather something like:
+ *
+   @verbatim
+   Expected: TRUE
+   Actual:   FALSE
+   @endverbatim
+ *
+ * @param val The value to be checked
+ */
+#define UT_ASSERT_TRUE(    val)  UT_ASSERT_EQUAL_BOOL(true,  (val))
+/**
+ * @brief Expect false
+ *
+ * Assertion that expects the value to be false.
+ * Technically it is a candy for @ref UT_ASSERT_EQUAL_BOOL.
+ *
+ * @param val The value to be checked
+ */
+#define UT_ASSERT_FALSE(   val)  UT_ASSERT_EQUAL_BOOL(false, (val))
+/**
+ * @brief Expect the pointer to be NULL
+ *
+ * Assertion that expects the pointer to be NULL.
+ * It is constructed that way that if it fails, the actual value of the pointer
+ * is displayed.
+ *
+ * @param ptr The pointer to be checked
+ */
+#define UT_ASSERT_NULL(    ptr)  EMUNIT_CN2(UT_ASSERT_EQUAL_HEX, EMUNIT_PTR_SIZE)((emunit_uintptr_t)NULL, (emunit_uintptr_t)(ptr))
+/**
+ * @brief Expect the pointer not to be NULL
+ *
+ * Assertion that expects the pointer not to be NULL.
+ * If it fails it does not have to display the actual pointer value - it is obviously NULL.
+ *
+ * @param ptr The pointer to be checked
+ */
+#define UT_ASSERT_NOT_NULL(ptr)  EMUNIT_CALL_ASSERT(EMUNIT_NUMTYPE_BOOL, ut_assert, (EMUNIT_FLASHSTR("(" #ptr ") != NULL"), ((ptr) != NULL)))
+
+/**
+ * @brief Base assertion with message
+ *
+ * The message version of @ref UT_ASSERT.
+ *
+ * @param exp Expression to be checked
+ * @param ... Format string followed by the format values.
+ *            Standard @c printf format is used.
+ */
+#define UT_ASSERT_MSG(         exp, ...)  EMUNIT_CALL_ASSERT_MSG(EMUNIT_NUMTYPE_BOOL, ut_assert, (EMUNIT_FLASHSTR(#exp), (exp)), __VA_ARGS__)
+/**
+ * @brief Expect true with message
+ *
+ * The message version of @ref UT_ASSERT_TRUE.
+ *
+ * @param val The value to be checked
+ * @param ... Format string followed by the format values.
+ *            Standard @c printf format is used.
+ */
+#define UT_ASSERT_TRUE_MSG(    val, ...)
+/**
+ * @brief Expect false with message
+ *
+ * The message version of @ref UT_ASSERT_FALSE.
+ *
+ * @param val The value to be checked
+ * @param ... Format string followed by the format values.
+ *            Standard @c printf format is used.
+ */
+#define UT_ASSERT_FALSE_MSG(   val, ...)
+/**
+ * @brief Expect the pointer to be NULL with message
+ *
+ * The message version of @ref UT_ASSERT_NULL.
+ *
+ * @param ptr The pointer to be checked
+ * @param ... Format string followed by the format values.
+ *            Standard @c printf format is used.
+ */
+#define UT_ASSERT_NULL_MSG(    ptr, ...)
+/**
+ * @brief Expect the pointer not to be NULL with message
+ *
+ * The message version of @ref UT_ASSERT_NOT_NULL.
+ *
+ * @param ptr The pointer to be checked
+ * @param ... Format string followed by the format values.
+ *            Standard @c printf format is used.
+ */
 #define UT_ASSERT_NOT_NULL_MSG(ptr, ...)
-/** @} */
+/** @} <!-- emunit_assertions_bool_group --> */
 
 /**
- * @brief Default numeric assertions mapping
- *
- *
+ * @defgroup emunit_assertions_str_group <emunit_assertions_str> String assertions
  * @{
- */
-/**
- * @def UT_ASSERT_EQUAL(e, a)
- * @brief Default integer assertion
  *
- * This macro maps directly to @ref UT_ASSERT_EQUAL_INT
- *
- * @param[in] e Expected value
- * @param[in] a Actual value
- */
-/**
- * @def UT_ASSERT_EQUAL_INT(e, a)
- * @brief Default signed integer assertion
- *
- * Macro that checks signed integer value with maximum allowed size.
- *
- * @sa EMUNIT_CONF_NUMBER_SIZE
- *
- * @param[in] e Expected value
- * @param[in] a Actual value
- */
-/**
- * @def UT_ASSERT_EQUAL_UINT(e, a)
- * @brief Default unsigned integer assertion
- *
- * Macro that checks unsigned integer value with maximum allowed size.
- *
- * @sa EMUNIT_CONF_NUMBER_SIZE
- *
- * @param[in] e Expected value
- * @param[in] a Actual value
- */
-/**
- * @def UT_ASSERT_EQUAL_UINT(e, a)
- * @brief Default unsigned integer assertion with hexadecimal display
- *
- * @copydetails UT_ASSERT_EQUAL_UINT
- */
-
-#define UT_ASSERT_EQUAL(e, a)      UT_ASSERT_EQUAL_INT(e, a)
-#define UT_ASSERT_EQUAL_INT( e, a) EMUNIT_CN2(UT_ASSERT_EQUAL_INT,  EMUNIT_CONF_NUMBER_SIZE)(e, a)
-#define UT_ASSERT_EQUAL_UINT(e, a) EMUNIT_CN2(UT_ASSERT_EQUAL_UINT, EMUNIT_CONF_NUMBER_SIZE)(e, a)
-#define UT_ASSERT_EQUAL_HEX( e, a) EMUNIT_CN2(UT_ASSERT_EQUAL_HEX,  EMUNIT_CONF_NUMBER_SIZE)(e, a)
-
-/**
- * @def UT_ASSERT_DELTA(d, e, a)
- * @brief Default integer with delta assertion
- *
- * This macro maps directly to @ref UT_ASSERT_DELTA_INT
- *
- * @param[in] d Delta
- * @param[in] e Expected value
- * @param[in] a Actual value
- */
-/**
- * @def UT_ASSERT_DELTA_INT(d, e, a)
- * @brief Default signed integer with delta assertion
- *
- * Macro that checks signed integer value with maximum allowed size.
- *
- * @sa EMUNIT_CONF_NUMBER_SIZE
- *
- * @param[in] d Delta
- * @param[in] e Expected value
- * @param[in] a Actual value
- */
-/**
- * @def UT_ASSERT_DELTA_UINT(d, e, a)
- * @brief Default unsigned integer with delta assertion
- *
- * Macro that checks unsigned integer value with maximum allowed size.
- *
- * @sa EMUNIT_CONF_NUMBER_SIZE
- *
- * @param[in] delta
- * @param[in] e Expected value
- * @param[in] a Actual value
- */
-/**
- * @def UT_ASSERT_DELTA_UINT(e, a)
- * @brief Default unsigned integer assertion with delta - hexadecimal display
- *
- * @copydetails UT_ASSERT_DELTA_UINT
- */
-
-#define UT_ASSERT_DELTA(d, e, a)      UT_ASSERT_DELTA_INT(d, e, a)
-#define UT_ASSERT_DELTA_INT( d, e, a) EMUNIT_CN2(UT_ASSERT_DELTA_INT,  EMUNIT_CONF_NUMBER_SIZE)(d, e, a)
-#define UT_ASSERT_DELTA_UINT(d, e, a) EMUNIT_CN2(UT_ASSERT_DELTA_UINT, EMUNIT_CONF_NUMBER_SIZE)(d, e, a)
-#define UT_ASSERT_DELTA_HEX( d, e, a) EMUNIT_CN2(UT_ASSERT_DELTA_HEX,  EMUNIT_CONF_NUMBER_SIZE)(d, e, a)
-
-/**
- * @def UT_ASSERT_RANGE(min, max, a)
- * @brief Default integer in range assertion
- *
- * This macro maps directly to @ref UT_ASSERT_RANGE_INT
- *
- * @param[in] min Minimal expected value
- * @param[in] max Maximal expected value
- * @param[in] a   Actual value
- */
-/**
- * @def UT_ASSERT_RANGE_INT(min, max, a)
- * @brief Default signed integer in range assertion
- *
- * Macro that checks signed integer value with maximum allowed size.
- *
- * @sa EMUNIT_CONF_NUMBER_SIZE
- *
- * @param[in] min Minimal expected value
- * @param[in] max Maximal expected value
- * @param[in] a   Actual value
- */
-/**
- * @def UT_ASSERT_RANGE_UINT(min, max, a)
- * @brief Default unsigned integer in range assertion
- *
- * Macro that checks unsigned integer value with maximum allowed size.
- *
- * @sa EMUNIT_CONF_NUMBER_SIZE
- *
- * @param[in] min Minimal expected value
- * @param[in] max Maximal expected value
- * @param[in] a   Actual value
- */
-/**
- * @def UT_ASSERT_RANGE_UINT(min, max a)
- * @brief Default unsigned integer assertion in range - hexadecimal display
- *
- * @copydetails UT_ASSERT_RANGE_UINT
- */
-
-#define UT_ASSERT_RANGE(min, max, a)      UT_ASSERT_RANGE_INT(min, max, a)
-#define UT_ASSERT_RANGE_INT( min, max, a) EMUNIT_CN2(UT_ASSERT_RANGE_INT,  EMUNIT_CONF_NUMBER_SIZE)(min, max, a)
-#define UT_ASSERT_RANGE_UINT(min, max, a) EMUNIT_CN2(UT_ASSERT_RANGE_UINT, EMUNIT_CONF_NUMBER_SIZE)(min, max, a)
-#define UT_ASSERT_RANGE_HEX( min, max, a) EMUNIT_CN2(UT_ASSERT_RANGE_HEX,  EMUNIT_CONF_NUMBER_SIZE)(min, max, a)
-/** @} */
-
-/**
- * @name Numeric assertions
- *
- * Basic numeric assertions in a form:
- * @code
- * UT_ASSERT_<type><size>(expected, actual);
- * @endcode
- * @{
+ * Assertions that operates on strings.
  */
 
 /**
- * @brief Base equal assertion
+ * @brief Expect two strings to be the same
  *
- * This assertion is used to build any other type of equal assertions.
- * @param su       Signed or unsigned type (place s or u here).
- * @param var_t    Variable type - this type of temporary variable would be
- *                 created and would be initialised by input value.
- *                 No casting is used to get compiler warning if data loss
- *                 is possible.
- * @param nt       Numeric type to be set
- * @param expected Expected value
- * @param actual   Actual value
+ * This function checks the value of the strings.
+ * Strings may be placed in any memory (RAM, FLASH).
  *
- * @sa ut_assert_equal
- */
-#define UT_ASSERT_EQUAL_x(su, var_t, nt, expected, actual)        \
-	do{                                                           \
-		var_t UT_ASSERT_EQUAL_x_expected = (expected);            \
-		var_t UT_ASSERT_EQUAL_x_actual   = (actual);              \
-		EMUNIT_CALL_ASSERT(nt, ut_assert_equal,                   \
-			(                                                     \
-				(emunit_num_t){.su = UT_ASSERT_EQUAL_x_expected}, \
-				(emunit_num_t){.su = UT_ASSERT_EQUAL_x_actual}    \
-			)                                                     \
-		);                                                        \
-	}while(0)
-
-/**
- * @brief Base delta assertion
- *
- * This assertion is used to build any other type of delta assertions.
- * @param su       Signed or unsigned type (place s or u here).
- * @param var_t    Variable type - this type of temporary variable would be
- *                 created and would be initialised by input value.
- *                 No casting is used to get compiler warning if data loss
- *                 is possible.
- * @param nt       Numeric type to be set
- * @param delta    Allowed delta from the expected value
- * @param expected Expected value
- * @param actual   Actual value
- *
- * @sa ut_assert_delta
- */
-#define UT_ASSERT_DELTA_x(su, var_t, nt, delta, expected, actual) \
-	do{                                                           \
-		var_t  UT_ASSERT_DELTA_x_expected = (expected);           \
-		var_t  UT_ASSERT_DELTA_x_actual   = (actual);             \
-		EMUNIT_CALL_ASSERT(nt, ut_assert_delta,                   \
-			(                                                     \
-				(delta),                                          \
-				(emunit_num_t){.su = UT_ASSERT_DELTA_x_expected}, \
-				(emunit_num_t){.su = UT_ASSERT_DELTA_x_actual}    \
-			)                                                     \
-		);                                                        \
-	}while(0)
-
-/**
- * @brief Base range assertion
- *
- * This assertion is used to build any other type of range assertions.
- * @param su       Signed or unsigned type (place s or u here).
- * @param var_t    Variable type - this type of temporary variable would be
- *                 created and would be initialised by input value.
- *                 No casting is used to get compiler warning if data loss
- *                 is possible.
- * @param nt       Numeric type to be set
- * @param min      Minimal expected value
- * @param max      Maximal expected value
- * @param actual   Actual value
- *
- * @sa ut_assert_range
- */
-#define UT_ASSERT_RANGE_x(su, var_t, nt, min, max, actual)     \
-	do{                                                        \
-		var_t  UT_ASSERT_DELTA_x_min = (min);                  \
-		var_t  UT_ASSERT_DELTA_x_max = (max);                  \
-		var_t  UT_ASSERT_DELTA_x_actual   = (actual);          \
-		EMUNIT_CALL_ASSERT(nt, ut_assert_range,                \
-			(                                                  \
-				(emunit_num_t){.su = UT_ASSERT_DELTA_x_min},   \
-				(emunit_num_t){.su = UT_ASSERT_DELTA_x_max},   \
-				(emunit_num_t){.su = UT_ASSERT_DELTA_x_actual} \
-			)                                                  \
-		);                                                     \
-	}while(0)
-
-/**
- * @def UT_ASSERT_EQUAL_BOOL(e, a)
- * @brief Boolean assertion
- *
- * Checks if two selected values have the same value.
- *
- * @param[in] e Expected value
- * @param[in] a Actual value
- */
-/**
- * @def UT_ASSERT_EQUAL_INT8(e, a)
- * @brief Signed 8-bit assertion
- *
- * @copydetails UT_ASSERT_EQUAL_BOOL
- */
-/**
- * @def UT_ASSERT_EQUAL_INT16(e, a)
- * @brief Signed 16-bit assertion
- *
- * @copydetails UT_ASSERT_EQUAL_BOOL
- */
-/**
- * @def UT_ASSERT_EQUAL_INT32(e, a)
- * @brief Signed 32-bit assertion
- *
- * @copydetails UT_ASSERT_EQUAL_BOOL
- *
- *  @note This assertion may be disabled.
- *        See @ref EMUNIT_CONF_NUMBER_SIZE for details.
- */
-/**
- * @def UT_ASSERT_EQUAL_INT64(e, a)
- * @brief Signed 64-bit assertion
- *
- * @copydetails UT_ASSERT_EQUAL_INT32
- */
-
-/**
- * @def UT_ASSERT_EQUAL_UINT8(e, a)
- * @brief Unsigned 8-bit assertion
- *
- * @copydetails UT_ASSERT_EQUAL_INT8
- */
-/**
- * @def UT_ASSERT_EQUAL_UINT16(e, a)
- * @brief Unsigned 16-bit assertion
- *
- * @copydetails UT_ASSERT_EQUAL_INT16
- */
-/**
- * @def UT_ASSERT_EQUAL_UINT32(e, a)
- * @brief Unsigned 32-bit assertion
- *
- * @copydetails UT_ASSERT_EQUAL_INT32
- */
-/**
- * @def UT_ASSERT_EQUAL_UINT64(e, a)
- * @brief Unsigned 64-bit assertion
- *
- * @copydetails UT_ASSERT_EQUAL_INT64
- */
-
-/**
- * @def UT_ASSERT_EQUAL_HEX8(e, a)
- * @brief Unsigned 8-bit assertion with hexadecimal display
- *
- * @copydetails UT_ASSERT_EQUAL_INT8
- */
-/**
- * @def UT_ASSERT_EQUAL_HEX16(e, a)
- * @brief Unsigned 16-bit assertion with hexadecimal display
- *
- * @copydetails UT_ASSERT_EQUAL_INT16
- */
-/**
- * @def UT_ASSERT_EQUAL_HEX32(e, a)
- * @brief Unsigned 32-bit assertion with hexadecimal display
- *
- * @copydetails UT_ASSERT_EQUAL_INT32
- */
-/**
- * @def UT_ASSERT_EQUAL_HEX64(e, a)
- * @brief Unsigned 64-bit assertion with hexadecimal display
- *
- * @copydetails UT_ASSERT_EQUAL_INT64
- */
-
-#define UT_ASSERT_EQUAL_BOOL(  e, a)  UT_ASSERT_EQUAL_x(u, bool,     EMUNIT_NUMTYPE_BOOL,(e), (a))
-#define UT_ASSERT_EQUAL_INT8(  e, a)  UT_ASSERT_EQUAL_x(s, int8_t,   EMUNIT_NUMTYPE_S8,  (e), (a))
-#define UT_ASSERT_EQUAL_INT16( e, a)  UT_ASSERT_EQUAL_x(s, int16_t,  EMUNIT_NUMTYPE_S16, (e), (a))
-#define UT_ASSERT_EQUAL_INT32( e, a)  UT_ASSERT_EQUAL_x(s, int32_t,  EMUNIT_NUMTYPE_S32, (e), (a))
-#define UT_ASSERT_EQUAL_INT64( e, a)  UT_ASSERT_EQUAL_x(s, int64_t,  EMUNIT_NUMTYPE_S64, (e), (a))
-#define UT_ASSERT_EQUAL_UINT8( e, a)  UT_ASSERT_EQUAL_x(u, uint8_t,  EMUNIT_NUMTYPE_U8,  (e), (a))
-#define UT_ASSERT_EQUAL_UINT16(e, a)  UT_ASSERT_EQUAL_x(u, uint16_t, EMUNIT_NUMTYPE_U16, (e), (a))
-#define UT_ASSERT_EQUAL_UINT32(e, a)  UT_ASSERT_EQUAL_x(u, uint32_t, EMUNIT_NUMTYPE_U32, (e), (a))
-#define UT_ASSERT_EQUAL_UINT64(e, a)  UT_ASSERT_EQUAL_x(u, uint64_t, EMUNIT_NUMTYPE_U64, (e), (a))
-#define UT_ASSERT_EQUAL_HEX8(  e, a)  UT_ASSERT_EQUAL_x(u, uint8_t,  EMUNIT_NUMTYPE_X8,  (e), (a))
-#define UT_ASSERT_EQUAL_HEX16( e, a)  UT_ASSERT_EQUAL_x(u, uint16_t, EMUNIT_NUMTYPE_X16, (e), (a))
-#define UT_ASSERT_EQUAL_HEX32( e, a)  UT_ASSERT_EQUAL_x(u, uint32_t, EMUNIT_NUMTYPE_X32, (e), (a))
-#define UT_ASSERT_EQUAL_HEX64( e, a)  UT_ASSERT_EQUAL_x(u, uint64_t, EMUNIT_NUMTYPE_X64, (e), (a))
-
-
-/**
- * @def UT_ASSERT_DELTA_INT8(d, e, a)
- * @brief Signed 8-bit assertion with delta
- *
- * Checks if actual value is between expected +/- delta.
- *
- * @param[in] d Delta
- * @param[in] e Expected value
- * @param[in] a Actual value
- */
-/**
- * @def UT_ASSERT_DELTA_INT16(d, e, a)
- * @brief Signed 16-bit assertion with delta
- *
- * @copydetails UT_ASSERT_DELTA_INT8
- */
-/**
- * @def UT_ASSERT_DELTA_INT32(d, e, a)
- * @brief Signed 32-bit assertion with delta
- *
- * @copydetails UT_ASSERT_DELTA_BOOL
- *
- *  @note This assertion may be disabled.
- *        See @ref EMUNIT_CONF_NUMBER_SIZE for details.
- */
-/**
- * @def UT_ASSERT_DELTA_INT64(d, e, a)
- * @brief Signed 64-bit assertion with delta
- *
- * @copydetails UT_ASSERT_DELTA_INT32
- */
-
-/**
- * @def UT_ASSERT_DELTA_UINT8(d, e, a)
- * @brief Unsigned 8-bit assertion with delta
- *
- * @copydetails UT_ASSERT_DELTA_INT8
- */
-/**
- * @def UT_ASSERT_DELTA_UINT16(d, e, a)
- * @brief Unsigned 16-bit assertion with delta
- *
- * @copydetails UT_ASSERT_DELTA_INT16
- */
-/**
- * @def UT_ASSERT_DELTA_UINT32(d, e, a)
- * @brief Unsigned 32-bit assertion with delta
- *
- * @copydetails UT_ASSERT_DELTA_INT32
- */
-/**
- * @def UT_ASSERT_DELTA_UINT64(d, e, a)
- * @brief Unsigned 64-bit assertion with delta
- *
- * @copydetails UT_ASSERT_DELTA_INT64
- */
-
-/**
- * @def UT_ASSERT_DELTA_HEX8(d, e, a)
- * @brief Unsigned 8-bit assertion with delta - hexadecimal display
- *
- * @copydetails UT_ASSERT_DELTA_INT8
- */
-/**
- * @def UT_ASSERT_DELTA_HEX16(d, e, a)
- * @brief Unsigned 16-bit assertion with delta - hexadecimal display
- *
- * @copydetails UT_ASSERT_DELTA_INT16
- */
-/**
- * @def UT_ASSERT_DELTA_HEX32(d, e, a)
- * @brief Unsigned 32-bit assertion with delta - hexadecimal display
- *
- * @copydetails UT_ASSERT_DELTA_INT32
- */
-/**
- * @def UT_ASSERT_DELTA_HEX64(d, e, a)
- * @brief Unsigned 64-bit assertion with delta - hexadecimal display
- *
- * @copydetails UT_ASSERT_DELTA_INT64
- */
-
-#define UT_ASSERT_DELTA_INT8(  d, e, a)  UT_ASSERT_DELTA_x(s, int8_t,   EMUNIT_NUMTYPE_S8,  (d), (e), (a))
-#define UT_ASSERT_DELTA_INT16( d, e, a)  UT_ASSERT_DELTA_x(s, int16_t,  EMUNIT_NUMTYPE_S16, (d), (e), (a))
-#define UT_ASSERT_DELTA_INT32( d, e, a)  UT_ASSERT_DELTA_x(s, int32_t,  EMUNIT_NUMTYPE_S32, (d), (e), (a))
-#define UT_ASSERT_DELTA_INT64( d, e, a)  UT_ASSERT_DELTA_x(s, int64_t,  EMUNIT_NUMTYPE_S64, (d), (e), (a))
-#define UT_ASSERT_DELTA_UINT8( d, e, a)  UT_ASSERT_DELTA_x(u, uint8_t,  EMUNIT_NUMTYPE_U8,  (d), (e), (a))
-#define UT_ASSERT_DELTA_UINT16(d, e, a)  UT_ASSERT_DELTA_x(u, uint16_t, EMUNIT_NUMTYPE_U16, (d), (e), (a))
-#define UT_ASSERT_DELTA_UINT32(d, e, a)  UT_ASSERT_DELTA_x(u, uint32_t, EMUNIT_NUMTYPE_U32, (d), (e), (a))
-#define UT_ASSERT_DELTA_UINT64(d, e, a)  UT_ASSERT_DELTA_x(u, uint64_t, EMUNIT_NUMTYPE_U64, (d), (e), (a))
-#define UT_ASSERT_DELTA_HEX8(  d, e, a)  UT_ASSERT_DELTA_x(u, uint8_t,  EMUNIT_NUMTYPE_X8,  (d), (e), (a))
-#define UT_ASSERT_DELTA_HEX16( d, e, a)  UT_ASSERT_DELTA_x(u, uint16_t, EMUNIT_NUMTYPE_X16, (d), (e), (a))
-#define UT_ASSERT_DELTA_HEX32( d, e, a)  UT_ASSERT_DELTA_x(u, uint32_t, EMUNIT_NUMTYPE_X32, (d), (e), (a))
-#define UT_ASSERT_DELTA_HEX64( d, e, a)  UT_ASSERT_DELTA_x(u, uint64_t, EMUNIT_NUMTYPE_X64, (d), (e), (a))
-
-/**
- * @def UT_ASSERT_RANGE_INT8(min, max, a)
- * @brief Signed 8-bit assertion
- *
- * Checks if actual value is between min and max.
- *
- * @param[in] min Minimal expected value
- * @param[in] max Maximal expected value
- * @param[in] a   Actual value
- */
-/**
- * @def UT_ASSERT_RANGE_INT16(min, max, a)
- * @brief Signed 16-bit assertion
- *
- * @copydetails UT_ASSERT_RANGE_INT8
- */
-/**
- * @def UT_ASSERT_RANGE_INT32(min, max, a)
- * @brief Signed 32-bit assertion
- *
- * @copydetails UT_ASSERT_RANGE_BOOL
- *
- *  @note This assertion may be disabled.
- *        See @ref EMUNIT_CONF_NUMBER_SIZE for details.
- */
-/**
- * @def UT_ASSERT_RANGE_INT64(min, max, a)
- * @brief Signed 64-bit assertion
- *
- * @copydetails UT_ASSERT_RANGE_INT32
- */
-
-/**
- * @def UT_ASSERT_RANGE_UINT8(min, max, a)
- * @brief Unsigned 8-bit assertion
- *
- * @copydetails UT_ASSERT_RANGE_INT8
- */
-/**
- * @def UT_ASSERT_RANGE_UINT16(min, max, a)
- * @brief Unsigned 16-bit assertion
- *
- * @copydetails UT_ASSERT_RANGE_INT16
- */
-/**
- * @def UT_ASSERT_RANGE_UINT32(min, max, a)
- * @brief Unsigned 32-bit assertion
- *
- * @copydetails UT_ASSERT_RANGE_INT32
- */
-/**
- * @def UT_ASSERT_RANGE_UINT64(min, max, a)
- * @brief Unsigned 64-bit assertion
- *
- * @copydetails UT_ASSERT_RANGE_INT64
- */
-
-/**
- * @def UT_ASSERT_RANGE_HEX8(min, max, a)
- * @brief Unsigned 8-bit assertion with hexadecimal display
- *
- * @copydetails UT_ASSERT_RANGE_INT8
- */
-/**
- * @def UT_ASSERT_RANGE_HEX16(min, max, a)
- * @brief Unsigned 16-bit assertion with hexadecimal display
- *
- * @copydetails UT_ASSERT_RANGE_INT16
- */
-/**
- * @def UT_ASSERT_RANGE_HEX32(min, max, a)
- * @brief Unsigned 32-bit assertion with hexadecimal display
- *
- * @copydetails UT_ASSERT_RANGE_INT32
- */
-/**
- * @def UT_ASSERT_RANGE_HEX64(min, max, a)
- * @brief Unsigned 64-bit assertion with hexadecimal display
- *
- * @copydetails UT_ASSERT_RANGE_INT64
- */
-
-#define UT_ASSERT_RANGE_INT8(  min, max, a)  UT_ASSERT_RANGE_x(s, int8_t,   EMUNIT_NUMTYPE_S8,  min, max, a)
-#define UT_ASSERT_RANGE_INT16( min, max, a)  UT_ASSERT_RANGE_x(s, int16_t,  EMUNIT_NUMTYPE_S16, min, max, a)
-#define UT_ASSERT_RANGE_INT32( min, max, a)  UT_ASSERT_RANGE_x(s, int32_t,  EMUNIT_NUMTYPE_S32, min, max, a)
-#define UT_ASSERT_RANGE_INT64( min, max, a)  UT_ASSERT_RANGE_x(s, int64_t,  EMUNIT_NUMTYPE_S64, min, max, a)
-#define UT_ASSERT_RANGE_UINT8( min, max, a)  UT_ASSERT_RANGE_x(u, uint8_t,  EMUNIT_NUMTYPE_U8,  min, max, a)
-#define UT_ASSERT_RANGE_UINT16(min, max, a)  UT_ASSERT_RANGE_x(u, uint16_t, EMUNIT_NUMTYPE_U16, min, max, a)
-#define UT_ASSERT_RANGE_UINT32(min, max, a)  UT_ASSERT_RANGE_x(u, uint32_t, EMUNIT_NUMTYPE_U32, min, max, a)
-#define UT_ASSERT_RANGE_UINT64(min, max, a)  UT_ASSERT_RANGE_x(u, uint64_t, EMUNIT_NUMTYPE_U64, min, max, a)
-#define UT_ASSERT_RANGE_HEX8(  min, max, a)  UT_ASSERT_RANGE_x(u, uint8_t,  EMUNIT_NUMTYPE_X8,  min, max, a)
-#define UT_ASSERT_RANGE_HEX16( min, max, a)  UT_ASSERT_RANGE_x(u, uint16_t, EMUNIT_NUMTYPE_X16, min, max, a)
-#define UT_ASSERT_RANGE_HEX32( min, max, a)  UT_ASSERT_RANGE_x(u, uint32_t, EMUNIT_NUMTYPE_X32, min, max, a)
-#define UT_ASSERT_RANGE_HEX64( min, max, a)  UT_ASSERT_RANGE_x(u, uint64_t, EMUNIT_NUMTYPE_X64, min, max, a)
-
-/** @} */
-
-
-/**
- * @name String assertions
- *
- * @{
- */
-
-/**
- * @brief
+ * @param e Expected string
+ * @param a Actual string
  */
 #define UT_ASSERT_EQUAL_STR(   e, a)  EMUNIT_CALL_ASSERT(EMUNIT_NUMTYPE_STR, ut_assert_str, (e, a))
-/** @} */
+/** @} <!-- emunit_assertions_str_group --> */
 
-/** @} */
+/** @} <!-- emunit_assertions_group --> */
 #endif /* EMUNIT_ASSERTIONS_H_INCLUDED */
