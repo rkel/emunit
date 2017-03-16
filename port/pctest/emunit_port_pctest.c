@@ -301,11 +301,11 @@ void emunit_port_pctest_out_write(char const * p_str, size_t len)
 					"Pattern does not match\n"
 					"    Pattern:\n"
 					"    ------------------------\n"
-					"%s"
+					"%s\n"
 					"    ------------------------\n"
 					"    Output:\n"
 					"    ------------------------\n"
-					"%s"
+					"%s\n"
 					"    ------------------------\n",
 					p_pattern->str_re,
 					p_str);
@@ -319,7 +319,7 @@ void emunit_port_pctest_out_write(char const * p_str, size_t len)
 			"No pattern set\n"
 			"    Output:\n"
 			"    ------------------------\n"
-			"%s"
+			"%s\n"
 			"    ------------------------\n",
 			p_str);
 	}
