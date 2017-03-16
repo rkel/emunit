@@ -315,14 +315,14 @@ static void emunit_current_cleanup_run(void)
 	{
 		if(emunit_numtype_signed_check(p_head->numtype))
 		{
-			if(min.s < max.s)
+			if(min.s <= max.s)
 				return (min.s <= actual.s) && (actual.s <= max.s);
 			else
 				return (min.s <= actual.s) || (actual.s <= max.s);
 		}
 		else
 		{
-			if(min.s < max.s)
+			if(min.s <= max.s)
 				return (min.u <= actual.u) && (actual.u <= max.u);
 			else
 				return (min.u <= actual.u) || (actual.u <= max.u);
