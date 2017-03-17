@@ -64,7 +64,7 @@
  * It has to be just a number because it would be connected to create
  * default type for numeric comparations.
  */
-#define EMUNIT_CONF_NUMBER_SIZE 32
+#define EMUNIT_CONF_NUMBER_SIZE 64
 #endif
 
 #ifndef EMUNIT_CONF_STRLEN_LIMIT

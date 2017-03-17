@@ -4,7 +4,7 @@
  * @author Radosław Koppel <r.koppel\@k-el.com>
  * @date 2017
  *
- * File that contains main part of the xml output test.
+ * File that contains boolean part of the xml output test.
  * @sa emunit_test_xml
  */
 #include "test.h"
