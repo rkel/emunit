@@ -758,8 +758,19 @@ void ut_assert_str_msg(
 	const __flash char * fmt,
 	...)
 {
-	/** @todo Implement */
-	EMUNIT_IASSERT_MSG(0, "Not implemented yet.");
+	size_t err_pos;
+	if(!ut_assert_str_check(expected, actual, &err_pos))
+	{
+		va_list va;
+		va_start(va, fmt);
+		emunit_display_failed_str_msg(p_head, expected, actual, err_pos, fmt, va);
+		va_end(va);
+		emunit_assert_failed();
+	}
+	else
+	{
+		emunit_assert_passed();
+	}
 }
 
 void ut_assert_array(
