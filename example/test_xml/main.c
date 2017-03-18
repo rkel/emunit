@@ -109,7 +109,7 @@ void test_expect_fail_assert_x(
 	char const * fmt,
 	...)
 {
-	char buffer[512];
+	char buffer[EMUNIT_TEST_PATTERN_MAX];
 	char * p_buffer = buffer;
 
 	char esc_filename[256];
