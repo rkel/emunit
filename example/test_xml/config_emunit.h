@@ -54,7 +54,7 @@
  * The size of the buffer that is filled when test is ongoing.
  * This buffer would be printed out when test is finished and MCU is restarted.
  */
-#define EMUNIT_CONF_BUFFER_SIZE 512
+#define EMUNIT_CONF_BUFFER_SIZE 1024
 #endif
 
 #ifndef EMUNIT_CONF_NUMBER_SIZE

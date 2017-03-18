@@ -7,6 +7,7 @@ SRC = \
 	suites.c \
 	main.c \
 	test_boolean.c \
+	test_str.c \
 	test_equal.c
 
 # Include building system
