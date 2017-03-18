@@ -16,17 +16,13 @@
  */
 #define NEWLINE EMUNIT_CONF_DISPLAY_NL
 
-#ifndef EMUNIT_DISPLAY_XML_STRLEN_FINAL_LIM
 /**
- * @brief Final string length limit
+ * @brief String error marker pattern
  *
- * String length limit reached during preprocessing,
- * after with it would be cut.
- * The reason to provide such a setting is that theoretical string that is
- * composed only from ']]>' would grow really quickly and may overflow the buffer.
+ * This is a pattern to mark at last single string character as the first
+ * that does not match.
  */
-#define EMUNIT_DISPLAY_XML_STRLEN_FINAL_LIM (2*EMUNIT_CONF_STRLEN_LIMIT)
-#endif
+static const __flash char emunit_display_xml_strerr_pat[] = "<err>%s</err>";
 
 /**
  * @brief Pattern used to generate skip token
@@ -36,28 +32,6 @@
  * how many characters was skipped.
  */
 static const __flash char emunit_display_xml_skip_pat[] = "<skip cnt=\"%u\" />";
-
-/**
- * @brief Start CDATA section
- *
- * String used to start CDATA section.
- */
-static const __flash char emunit_display_xml_cdata_start_pat[] = "<![CDATA[>]]";
-
-/**
- * @brief End CDATA section
- *
- * String used to end CDATA section.
- */
-static const __flash char emunit_display_xml_cdata_end_pat[] = "]]>";
-
-/**
- * @brief Restart CDATA section
- *
- * String used when @ref emunit_display_xml_cdata_end_pat is detected in the string
- * to split it to 2 character data sections.
- */
-static const __flash char emunit_display_xml_cdata_restart_pat[] = "]]><![CDATA[>]]";
 
 /**
  * @brief Callback that replaces xml special characters by entities
@@ -89,57 +63,6 @@ static void emunit_display_xml_cleanup_entities(char * p_start, size_t len)
 			++p_start;
 			break;
 		}
-	}
-}
-
-/**
- * @brief Callback that fixes strings used inside CDATA section
- *
- * This function splits CDATA closing strings ']]>' injecting
- * closing and reopening CDATA just before '>'.
- *
- * It also controls the length of the newly created string.
- * If the size is too big @c skip element is generated and correction
- * finishes.
- *
- * @param p_start Start of the buffer to replace
- * @param len     Length of the buffer to replace
- *
- * @note The buffer to replace would always finish by NULL character.
- */
-static void emunit_display_xml_cleanp_cdata_str(char * p_start, size_t len)
-{
-	static const size_t cdata_len =
-		sizeof(emunit_display_xml_cdata_end_pat) - 1 +
-		sizeof(emunit_display_xml_cdata_start_pat) - 1;
-	while(NULL != (p_start = emunit_strstr(p_start, emunit_display_xml_cdata_end_pat)))
-	{
-		len += cdata_len;
-		if(len > EMUNIT_DISPLAY_XML_STRLEN_FINAL_LIM)
-		{
-			size_t skip_size;
-			/* Delete the rest of the string */
-			p_start += sizeof(emunit_display_xml_cdata_end_pat)-1;
-			skip_size = strlen(p_start);
-			p_start = emunit_display_replace(
-				p_start,
-				skip_size,
-				EMUNIT_FLASHSTR(""));
-			/* Print skip token */
-			emunit_display_printf(
-				NULL,
-				emunit_display_xml_skip_pat,
-				skip_size);
-			/* Restart cdata */
-			emunit_display_puts(
-				NULL,
-				emunit_display_xml_cdata_start_pat);
-			break;
-		}
-		p_start = emunit_display_replace(
-			p_start+sizeof(emunit_display_xml_cdata_end_pat)-2, /* Split one character before end pattern */
-			0,
-			emunit_display_xml_cdata_restart_pat);
 	}
 }
 
@@ -302,35 +225,65 @@ static void emunit_display_xml_value(
 static void emunit_display_xml_str(
 	const __flash char * p_name,
 	const __memx char * str,
-	size_t start_skip)
+	size_t start_skip,
+	size_t error_marker)
 {
+	size_t len = emunit_strlen(str);
 	emunit_display_printf(
 		NULL,
-		EMUNIT_FLASHSTR("\t\t\t\t\t<%"PRIsPGM">"),
-		p_name
+		EMUNIT_FLASHSTR("\t\t\t\t\t<%"PRIsPGM"><length>%u</length>" NEWLINE
+		                "\t\t\t\t\t\t<val>"),
+		p_name,
+		len
 	);
 
+	EMUNIT_IASSERT(start_skip < len);
 	str += start_skip;
-	size_t len = emunit_strlen(str);
+	len -= start_skip;
+	error_marker -= start_skip;
+	EMUNIT_IASSERT(error_marker <= len);
 	size_t print_len = EMUNIT_MIN(len, EMUNIT_CONF_STRLEN_LIMIT);
 	if(0 < start_skip)
 	{
 		emunit_display_printf(NULL, emunit_display_xml_skip_pat, start_skip);
 	}
 
-	emunit_display_puts(NULL, emunit_display_xml_cdata_start_pat);
+	//emunit_display_puts(NULL, emunit_display_xml_cdata_start_pat);
 	emunit_display_write(
-		emunit_display_xml_cleanp_cdata_str,
+		emunit_display_xml_cleanup_entities,
 		str,
-		print_len);
-	emunit_display_puts(NULL, emunit_display_xml_cdata_end_pat);
-	if(len > print_len)
+		error_marker);
+	len       -= error_marker;
+	print_len -= error_marker;
+	str       += error_marker;
+
+	char error_part[2] = {0, 0};
+
+	if(0 < print_len)
 	{
-		emunit_display_printf(NULL, emunit_display_xml_skip_pat, len - print_len);
+		error_part[0] = *str++;
+		--print_len;
+		--len;
+	}
+	emunit_display_printf(NULL, emunit_display_xml_strerr_pat, error_part);
+
+	if(0 < print_len)
+	{
+		emunit_display_write(
+			emunit_display_xml_cleanup_entities,
+			str,
+			print_len);
+		len -= print_len;
+		str += print_len;
+	}
+
+	if(0 < len)
+	{
+		emunit_display_printf(NULL, emunit_display_xml_skip_pat, len);
 	}
 	emunit_display_printf(
 		NULL,
-		EMUNIT_FLASHSTR("</%"PRIsPGM">" NEWLINE),
+		EMUNIT_FLASHSTR("</val></%"PRIsPGM">" NEWLINE),
 		p_name
 	);
 }
@@ -394,22 +347,16 @@ static void emunit_display_xml_failed_str_details(
 	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t<details>" NEWLINE));
 	emunit_display_printf(
 		NULL,
-		EMUNIT_FLASHSTR("\t\t\t\t\t<err_pos>%u</err_pos>" NEWLINE),
+		EMUNIT_FLASHSTR("\t\t\t\t\t<err_idx>%u</err_idx>" NEWLINE),
 		err_pos);
-	emunit_display_printf(NULL,
-		EMUNIT_FLASHSTR("\t\t\t\t\t<size_expected>%u</size_expected>" NEWLINE),
-		emunit_strlen(str_expected));
-	emunit_display_printf(NULL,
-		EMUNIT_FLASHSTR("\t\t\t\t\t<size_actual>%u</size_actual>" NEWLINE),
-		emunit_strlen(str_actual));
 
 	if(err_pos > EMUNIT_CONF_STRLEN_LIMIT)
 	{
 		skip_start = 1 + err_pos - EMUNIT_CONF_STRLEN_LIMIT;
 	}
 
-	emunit_display_xml_str(EMUNIT_FLASHSTR("expected"), str_expected, skip_start);
-	emunit_display_xml_str(EMUNIT_FLASHSTR("actual"), str_actual, skip_start);
+	emunit_display_xml_str(EMUNIT_FLASHSTR("expected"), str_expected, skip_start, err_pos);
+	emunit_display_xml_str(EMUNIT_FLASHSTR("actual"), str_actual, skip_start, err_pos);
 
 
 	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t</details>" NEWLINE));
