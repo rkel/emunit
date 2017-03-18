@@ -10,6 +10,13 @@
 #include "test.h"
 #include <emunit.h>
 
+#define REPEAT_1(a)  a
+#define REPEAT_2(a)  REPEAT_1(a) REPEAT_1(a)
+#define REPEAT_4(a)  REPEAT_2(a) REPEAT_2(a)
+#define REPEAT_8(a)  REPEAT_4(a) REPEAT_4(a)
+#define REPEAT_16(a) REPEAT_8(a) REPEAT_8(a)
+#define REPEAT_32(a) REPEAT_16(a) REPEAT_16(a)
+
 static void suite_init(void)
 {
 	test_expect_sinit_default("test_str_suite");
@@ -121,6 +128,26 @@ static void test_fail_str_lenlimend(void)
 		"0123456789abcdefghijklmnoprstuwxyzabcd");
 }
 
+static void test_fail_str_max_escape(void)
+{
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"STRING",
+		NULL,
+		"%s",
+		"[[:space:]]*<err_idx>40</err_idx>"
+		"[[:space:]]*<expected><length>40</length>"
+		"[[:space:]]*<val><skip cnt=\"9\" />(&amp;){31}<err></err></val>"
+		"[[:space:]]*</expected>"
+		"[[:space:]]*<actual><length>48</length>"
+		"[[:space:]]*<val><skip cnt=\"9\" />(&amp;){31}<err>&amp;</err><skip cnt=\"7\" /></val>"
+		"[[:space:]]*</actual>"
+		);
+	UT_ASSERT_EQUAL_STR(
+		REPEAT_32("&") REPEAT_8("&"),
+		REPEAT_32("&") REPEAT_16("&"));
+}
+
 
 UT_DESC_TS_BEGIN(test_str_suite, suite_init, suite_cleanup, NULL, NULL)
 	UT_DESC_TC(test_all_passed)
@@ -129,4 +156,5 @@ UT_DESC_TS_BEGIN(test_str_suite, suite_init, suite_cleanup, NULL, NULL)
 	UT_DESC_TC(test_fail_str_msg)
 	UT_DESC_TC(test_fail_str_lenlim)
 	UT_DESC_TC(test_fail_str_lenlimend)
+	UT_DESC_TC(test_fail_str_max_escape)
 UT_DESC_TS_END();

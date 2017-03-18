@@ -17,12 +17,20 @@
 #define NEWLINE EMUNIT_CONF_DISPLAY_NL
 
 /**
- * @brief String error marker pattern
+ * @brief String error marker start
  *
- * This is a pattern to mark at last single string character as the first
- * that does not match.
+ * This is start of a marker that marks single string character as
+ * the first that does not match.
  */
-static const __flash char emunit_display_xml_strerr_pat[] = "<err>%s</err>";
+static const __flash char emunit_display_xml_strerr_start[] = "<err>";
+
+/**
+ * @brief String error marker end
+ *
+ * This is end of a marker that marks single string character as
+ * the first that does not match.
+ */
+static const __flash char emunit_display_xml_strerr_end[] = "</err>";
 
 /**
  * @brief Pattern used to generate skip token
@@ -257,15 +265,18 @@ static void emunit_display_xml_str(
 	print_len -= error_marker;
 	str       += error_marker;
 
-	char error_part[2] = {0, 0};
-
+	emunit_display_puts(NULL, emunit_display_xml_strerr_start);
 	if(0 < print_len)
 	{
-		error_part[0] = *str++;
+		emunit_display_write(
+			emunit_display_xml_cleanup_entities,
+			str,
+			1);
+		++str;
 		--print_len;
 		--len;
 	}
-	emunit_display_printf(NULL, emunit_display_xml_strerr_pat, error_part);
+	emunit_display_puts(NULL, emunit_display_xml_strerr_end);
 
 	if(0 < print_len)
 	{
