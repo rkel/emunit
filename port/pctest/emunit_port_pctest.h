@@ -33,7 +33,7 @@
  *
  * Constant that configures maximal size of the pattern string.
  */
-#define EMUNIT_TEST_PATTERN_MAX 512
+#define EMUNIT_TEST_PATTERN_MAX 1024
 
 /**
  * @brief Function that would be called before test main loop

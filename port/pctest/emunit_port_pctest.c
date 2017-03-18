@@ -138,7 +138,9 @@ static void emunit_pctest_pattern_set(pctest_pattern_t * p_dst, char const * pat
 	ret = regcomp(&p_dst->re, pattern, REG_EXTENDED | REG_NOSUB);
 	if(0 != ret)
 	{
-		fprintf(stderr, "Cannot compile reqular expression: %d.\n", ret);
+		char err_str[512];
+		(void)regerror(ret, &p_dst->re, err_str, sizeof(err_str));
+		fprintf(stderr, "Cannot compile reqular expression (%d): %s.\n", ret, err_str);
 		EMUNIT_IASSERT_MSG(false, "Cannot compile regular expression");
 	}
 	strcpy(p_dst->str_re, pattern);
