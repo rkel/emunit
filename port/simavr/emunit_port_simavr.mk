@@ -310,7 +310,11 @@ COFFCONVERT += --change-section-address .noinit-0x800000
 COFFCONVERT += --change-section-address .eeprom-0x810000
 
 # Default target.
-all: begin gccversion sizebefore build sizeafter end
+all: begin gccversion sizebefore pre_build build post_build sizeafter end
+
+# Hooks for pre and post-build externa commands
+pre_build:
+post_build:
 
 # Change the build target to build a HEX file or a library.
 # build: elf hex bin eep eep_bin lss sym
@@ -482,11 +486,13 @@ $(OUTDIR)/%.i : %.c
 
 
 # Target: clean project.
-clean: begin clean_list end
+clean: begin clean_msg clean_list end
 
-clean_list :
+clean_msg:
 	@echo
 	@echo $(MSG_CLEANING)
+
+clean_list :
 	$(REMOVE) $(OUTDIR)/$(TARGET).hex
 	$(REMOVE) $(OUTDIR)/$(TARGET).eep
 	$(REMOVE) $(OUTDIR)/$(TARGET).cof
@@ -518,6 +524,6 @@ $(OBJ) : $(filter-out %.d,$(MAKEFILE_LIST))
 
 # Listing of phony targets.
 .PHONY : run all begin finish end sizebefore sizeafter gccversion \
-build elf hex eep lss sym coff extcoff \
-clean clean_list program debug gdb-config \
+pre_build build post_build elf hex eep lss sym coff extcoff \
+clean clean_list clean_msg program debug gdb-config \
 print_target_name

@@ -141,7 +141,11 @@ ALL_ASFLAGS  = -I. -x assembler-with-cpp $(ASFLAGS) $(GENDEPFLAGS)
 
 
 # Default target
-all: begin gccversion build end
+all: begin gccversion pre_build build post_build end
+
+# Hooks for pre and post-build externa commands
+pre_build:
+post_build:
 
 # Build the output
 build: exe
@@ -204,11 +208,13 @@ $(OUTDIR)/%.i : %.c
 
 
 # Target: clean project.
-clean: begin clean_list end
+clean: begin clean_msg clean_list end
 
-clean_list :
+clean_msg:
 	@echo
 	@echo $(MSG_CLEANING)
+
+clean_list :
 	$(REMOVE) $(OUTDIR)/$(TARGET).exe
 	$(REMOVE) $(OUTDIR)/$(TARGET).map
 	$(REMOVE) $(OUTDIR)/$(TARGET).sym
@@ -235,5 +241,5 @@ $(OBJ) : $(filter-out %.d,$(MAKEFILE_LIST))
 
 # Listing of phony targets.
 .PHONY : run all begin finish end sizebefore sizeafter gccversion \
-build exe lss sym \
-clean clean_list
+pre_build build post_build exe lss sym \
+clean clean_list clean_msg
