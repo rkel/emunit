@@ -342,8 +342,8 @@ static void emunit_display_xml_failed_delta_details(
 	emunit_num_t actual)
 {
 	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t<details>" NEWLINE));
-	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("expected"), expected);
 	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("delta"),    delta);
+	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("expected"), expected);
 	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("actual"),   actual);
 	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t</details>" NEWLINE));
 }
