@@ -1,0 +1,68 @@
+{
+	"_template": "test_delta.c",
+	"_base": [
+		{
+			"_postfix": "",
+			"_delta": "3",
+			"_expected": "0",
+			"_fail_bottom": "-4",
+			"_fail_top": "4",
+			"_ea_passed": [
+				["0", "0"],
+				["0", "3"],
+				["0", "-3"]
+			]
+		},
+		{
+			"_postfix": "_int",
+			"_delta": "3",
+			"_expected": "-250",
+			"_fail_bottom": "-254",
+			"_fail_top": "-246",
+			"_ea_passed": [
+				["250", "250"],
+				["250", "247"],
+				["250", "253"],
+				["0", "0"],
+				["-257", "-260"],
+				["-257", "-254"]
+			]
+		},
+		{
+			"_postfix": "_uint",
+			"_delta": "3",
+			"_expected": "250",
+			"_fail_bottom": "246",
+			"_fail_top": "254",
+			"_ea_passed": [
+				["250", "250"],
+				["250", "247"],
+				["250", "253"],
+				["0", "0"]
+			]
+		},
+		{
+			"_postfix": "_hex",
+			"_delta": "16",
+			"_expected": "0x9ff0",
+			"_fail_bottom": "0x9fdf",
+			"_fail_top": "0xa001",
+			"_ea_passed": [
+				["0", "0"],
+				["0", "3"],
+				["0", "-3"],
+				["0x9ff0", "0x9fe0"],
+				["0x9ff0", "0xaff0"]
+			]
+		}
+	],
+	"_delta_default": 8,
+	"_sizes": [
+		8, 16, 32, 64
+	],
+	"_modes": [
+		"int",
+		"uint",
+		"hex"
+	]
+}

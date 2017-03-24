@@ -17,6 +17,7 @@ UT_DESC_TS_EXTERN(base_tests_last);
 
 UT_DESC_TS_EXTERN(test_boolean_suite);
 UT_DESC_TS_EXTERN(test_str_suite);
+UT_DESC_TS_EXTERN(test_delta_suite);
 UT_DESC_TS_EXTERN(test_equal_suite);
 
 
@@ -27,6 +28,7 @@ UT_MAIN_TS_BEGIN()
 
 	UT_MAIN_TS_ENTRY(test_boolean_suite)
 	UT_MAIN_TS_ENTRY(test_str_suite)
+	UT_MAIN_TS_ENTRY(test_delta_suite)
 	UT_MAIN_TS_ENTRY(test_equal_suite)
 
 
