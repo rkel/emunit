@@ -41,6 +41,30 @@
 			)                                                     \
 		);                                                        \
 	}while(0)
+
+/**
+ * @brief Base delta assertionassertion with message
+ *
+ * This is message version of @ref UT_ASSERT_DELTA_x.
+ * The formated message is processed and displayed if assertion fails.
+ *
+ * @copydetails UT_ASSERT_DELTA_x
+ * @param ...   @param ... Format string followed by the format values.
+ *              Standard @c printf format is used.
+ */
+#define UT_ASSERT_DELTA_MSG_x(su, var_t, nt, delta, expected, actual, ...) \
+	do{                                                                    \
+		var_t  UT_ASSERT_DELTA_x_expected = (expected);                    \
+		var_t  UT_ASSERT_DELTA_x_actual   = (actual);                      \
+		EMUNIT_CALL_ASSERT_MSG(nt, ut_assert_delta,                        \
+			(                                                              \
+				(delta),                                                   \
+				(emunit_num_t){.su = UT_ASSERT_DELTA_x_expected},          \
+				(emunit_num_t){.su = UT_ASSERT_DELTA_x_actual}             \
+			),                                                             \
+			__VA_ARGS__                                                    \
+		);                                                                 \
+	}while(0)
 /** @} <!-- emunit_assertions_int_group --> */
 
 /**
@@ -103,6 +127,13 @@
 #define UT_ASSERT_DELTA_INT( d, e, a) EMUNIT_CN2(UT_ASSERT_DELTA_INT,  EMUNIT_CONF_NUMBER_SIZE)(d, e, a)
 #define UT_ASSERT_DELTA_UINT(d, e, a) EMUNIT_CN2(UT_ASSERT_DELTA_UINT, EMUNIT_CONF_NUMBER_SIZE)(d, e, a)
 #define UT_ASSERT_DELTA_HEX( d, e, a) EMUNIT_CN2(UT_ASSERT_DELTA_HEX,  EMUNIT_CONF_NUMBER_SIZE)(d, e, a)
+
+
+/** @todo Documentation */
+#define UT_ASSERT_DELTA_MSG(d, e, a, ...)      UT_ASSERT_DELTA_INT(d, e, a)
+#define UT_ASSERT_DELTA_INT_MSG( d, e, a, ...) EMUNIT_CN3(UT_ASSERT_DELTA_INT,  EMUNIT_CONF_NUMBER_SIZE, _MSG)(d, e, a, __VA_ARGS__)
+#define UT_ASSERT_DELTA_UINT_MSG(d, e, a, ...) EMUNIT_CN3(UT_ASSERT_DELTA_UINT, EMUNIT_CONF_NUMBER_SIZE, _MSG)(d, e, a, __VA_ARGS__)
+#define UT_ASSERT_DELTA_HEX_MSG( d, e, a, ...) EMUNIT_CN3(UT_ASSERT_DELTA_HEX,  EMUNIT_CONF_NUMBER_SIZE, _MSG)(d, e, a, __VA_ARGS__)
 /** @} <!-- emunit_assertions_delta_def_group --> */
 
 /**
@@ -199,6 +230,20 @@
 #define UT_ASSERT_DELTA_HEX16( d, e, a)  UT_ASSERT_DELTA_x(u, uint16_t, EMUNIT_NUMTYPE_X16, (d), (e), (a))
 #define UT_ASSERT_DELTA_HEX32( d, e, a)  UT_ASSERT_DELTA_x(u, uint32_t, EMUNIT_NUMTYPE_X32, (d), (e), (a))
 #define UT_ASSERT_DELTA_HEX64( d, e, a)  UT_ASSERT_DELTA_x(u, uint64_t, EMUNIT_NUMTYPE_X64, (d), (e), (a))
+
+/** @todo Documentation */
+#define UT_ASSERT_DELTA_INT8_MSG(  d, e, a, ...)  UT_ASSERT_DELTA_MSG_x(s, int8_t,   EMUNIT_NUMTYPE_S8,  (d), (e), (a), __VA_ARGS__)
+#define UT_ASSERT_DELTA_INT16_MSG( d, e, a, ...)  UT_ASSERT_DELTA_MSG_x(s, int16_t,  EMUNIT_NUMTYPE_S16, (d), (e), (a), __VA_ARGS__)
+#define UT_ASSERT_DELTA_INT32_MSG( d, e, a, ...)  UT_ASSERT_DELTA_MSG_x(s, int32_t,  EMUNIT_NUMTYPE_S32, (d), (e), (a), __VA_ARGS__)
+#define UT_ASSERT_DELTA_INT64_MSG( d, e, a, ...)  UT_ASSERT_DELTA_MSG_x(s, int64_t,  EMUNIT_NUMTYPE_S64, (d), (e), (a), __VA_ARGS__)
+#define UT_ASSERT_DELTA_UINT8_MSG( d, e, a, ...)  UT_ASSERT_DELTA_MSG_x(u, uint8_t,  EMUNIT_NUMTYPE_U8,  (d), (e), (a), __VA_ARGS__)
+#define UT_ASSERT_DELTA_UINT16_MSG(d, e, a, ...)  UT_ASSERT_DELTA_MSG_x(u, uint16_t, EMUNIT_NUMTYPE_U16, (d), (e), (a), __VA_ARGS__)
+#define UT_ASSERT_DELTA_UINT32_MSG(d, e, a, ...)  UT_ASSERT_DELTA_MSG_x(u, uint32_t, EMUNIT_NUMTYPE_U32, (d), (e), (a), __VA_ARGS__)
+#define UT_ASSERT_DELTA_UINT64_MSG(d, e, a, ...)  UT_ASSERT_DELTA_MSG_x(u, uint64_t, EMUNIT_NUMTYPE_U64, (d), (e), (a), __VA_ARGS__)
+#define UT_ASSERT_DELTA_HEX8_MSG(  d, e, a, ...)  UT_ASSERT_DELTA_MSG_x(u, uint8_t,  EMUNIT_NUMTYPE_X8,  (d), (e), (a), __VA_ARGS__)
+#define UT_ASSERT_DELTA_HEX16_MSG( d, e, a, ...)  UT_ASSERT_DELTA_MSG_x(u, uint16_t, EMUNIT_NUMTYPE_X16, (d), (e), (a), __VA_ARGS__)
+#define UT_ASSERT_DELTA_HEX32_MSG( d, e, a, ...)  UT_ASSERT_DELTA_MSG_x(u, uint32_t, EMUNIT_NUMTYPE_X32, (d), (e), (a), __VA_ARGS__)
+#define UT_ASSERT_DELTA_HEX64_MSG( d, e, a, ...)  UT_ASSERT_DELTA_MSG_x(u, uint64_t, EMUNIT_NUMTYPE_X64, (d), (e), (a), __VA_ARGS__)
 
 /** @} <!-- emunit_assertions_delta_group --> */
 #endif /* EMUNIT_ASSERTIONS_DELTA_H_INCLUDED */
