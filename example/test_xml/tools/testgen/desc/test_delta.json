@@ -43,7 +43,7 @@
 		},
 		{
 			"_postfix": "_hex",
-			"_delta": "16",
+			"_delta": "0x10",
 			"_expected": "0x9ff0",
 			"_fail_bottom": "0x9fdf",
 			"_fail_top": "0xa001",
