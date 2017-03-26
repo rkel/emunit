@@ -271,39 +271,36 @@ static void emunit_current_cleanup_run(void)
 		const emunit_num_t expected,
 		const emunit_num_t actual)
 	{
+		emunit_num_t min, max;
+		min.u = expected.u - delta;
+		max.u = expected.u + delta;
 		if(emunit_numtype_signed_check(p_head->numtype))
 		{
-			emunit_snum_t min, max;
-			min = expected.s - delta;
-			if(min > expected.s)
+			if(min.s > expected.s)
 			{
 				/* Overload */
-				min = EMUNIT_SNUM_MIN;
+				min.s = EMUNIT_SNUM_MIN;
 			}
-			max = expected.u + delta;
-			if(max < expected.u)
+			if(max.s < expected.s)
 			{
 				/* Overload */
-				max = EMUNIT_SNUM_MAX;
+				max.s = EMUNIT_SNUM_MAX;
 			}
-			return (min <= actual.s) && (actual.s <= max);
+			return (min.s <= actual.s) && (actual.s <= max.s);
 		}
 		else
 		{
-			emunit_unum_t min, max;
-			min = expected.u - delta;
-			if(min > expected.u)
+			if(min.u > expected.u)
 			{
 				/* Overload */
-				min = 0;
+				min.u = 0;
 			}
-			max = expected.u + delta;
-			if(max < expected.u)
+			if(max.u < expected.u)
 			{
 				/* Overload */
-				max = EMUNIT_UNUM_MAX;
+				max.u = EMUNIT_UNUM_MAX;
 			}
-			return (min <= actual.u) && (actual.u <= max);
+			return (min.u <= actual.u) && (actual.u <= max.u);
 		}
 	}
 
