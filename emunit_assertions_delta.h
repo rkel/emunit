@@ -130,7 +130,7 @@
 
 
 /** @todo Documentation */
-#define UT_ASSERT_DELTA_MSG(d, e, a, ...)      UT_ASSERT_DELTA_INT(d, e, a)
+#define UT_ASSERT_DELTA_MSG(d, e, a, ...)      UT_ASSERT_DELTA_INT_MSG(d, e, a, __VA_ARGS__)
 #define UT_ASSERT_DELTA_INT_MSG( d, e, a, ...) EMUNIT_CN3(UT_ASSERT_DELTA_INT,  EMUNIT_CONF_NUMBER_SIZE, _MSG)(d, e, a, __VA_ARGS__)
 #define UT_ASSERT_DELTA_UINT_MSG(d, e, a, ...) EMUNIT_CN3(UT_ASSERT_DELTA_UINT, EMUNIT_CONF_NUMBER_SIZE, _MSG)(d, e, a, __VA_ARGS__)
 #define UT_ASSERT_DELTA_HEX_MSG( d, e, a, ...) EMUNIT_CN3(UT_ASSERT_DELTA_HEX,  EMUNIT_CONF_NUMBER_SIZE, _MSG)(d, e, a, __VA_ARGS__)
