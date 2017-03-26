@@ -90,14 +90,14 @@ void emunit_display_xml_failed_range_msg(
 /** See @ref emunit_display_failed_delta documentation */
 void emunit_display_xml_failed_delta(
 	const __flash emunit_assert_head_t * p_head,
-	emunit_num_t delta,
+	emunit_unum_t delta,
 	emunit_num_t expected,
 	emunit_num_t actual);
 
 /** See @ref emunit_display_failed_delta_msg documentation */
 void emunit_display_xml_failed_delta_msg(
 	const __flash emunit_assert_head_t * p_head,
-	emunit_num_t delta,
+	emunit_unum_t delta,
 	emunit_num_t expected,
 	emunit_num_t actual,
 	const __flash char * fmt,

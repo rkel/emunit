@@ -204,7 +204,7 @@ EMUNIT_DISPLAY_MAP_ASSERT(failed_range,
 EMUNIT_DISPLAY_MAP_ASSERT(failed_delta,
 		(
 			const __flash emunit_assert_head_t * p_head,
-			emunit_num_t delta,
+			emunit_unum_t delta,
 			emunit_num_t expected,
 			emunit_num_t actual
 		),

@@ -337,12 +337,18 @@ static void emunit_display_xml_failed_range_details(
 
 static void emunit_display_xml_failed_delta_details(
 	const __flash emunit_assert_head_t * p_head,
-	emunit_num_t delta,
+	emunit_unum_t delta,
 	emunit_num_t expected,
 	emunit_num_t actual)
 {
+	emunit_numtypes_t delta_numtype =
+		emunit_numtype_hex_check(p_head->numtype)
+		?
+		EMUNIT_CN2(EMUNIT_NUMTYPE_X, EMUNIT_CONF_NUMBER_SIZE)
+		:
+		EMUNIT_CN2(EMUNIT_NUMTYPE_U, EMUNIT_CONF_NUMBER_SIZE);
 	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t<details>" NEWLINE));
-	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("delta"),    delta);
+	emunit_display_xml_value(delta_numtype,   EMUNIT_FLASHSTR("delta"),    (emunit_num_t){.u = delta });
 	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("expected"), expected);
 	emunit_display_xml_value(p_head->numtype, EMUNIT_FLASHSTR("actual"),   actual);
 	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t</details>" NEWLINE));
@@ -534,7 +540,7 @@ void emunit_display_xml_failed_range_msg(
 
 void emunit_display_xml_failed_delta(
 	const __flash emunit_assert_head_t * p_head,
-	emunit_num_t delta,
+	emunit_unum_t delta,
 	emunit_num_t expected,
 	emunit_num_t actual)
 {
@@ -545,7 +551,7 @@ void emunit_display_xml_failed_delta(
 
 void emunit_display_xml_failed_delta_msg(
 	const __flash emunit_assert_head_t * p_head,
-	emunit_num_t delta,
+	emunit_unum_t delta,
 	emunit_num_t expected,
 	emunit_num_t actual,
 	const __flash char * fmt,

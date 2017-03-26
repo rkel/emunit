@@ -97,6 +97,32 @@ static inline bool emunit_numtype_signed_check(emunit_numtypes_t type)
 }
 
 /**
+ * @brief Check if giben numeric type is hexadecimal or not
+ *
+ * @param type Type to be checked
+ *
+ * @retval true  Type is hexadecimal
+ * @retval false Type is not hexadecimal
+ */
+static inline bool emunit_numtype_hex_check(emunit_numtypes_t type)
+{
+	switch(type)
+		{
+		case EMUNIT_NUMTYPE_X8:
+		case EMUNIT_NUMTYPE_X16:
+	#if (EMUNIT_CONF_NUMBER_SIZE > 16) || defined(__DOXYGEN__)
+		case EMUNIT_NUMTYPE_X32:
+	#endif
+	#if (EMUNIT_CONF_NUMBER_SIZE > 32) || defined(__DOXYGEN__)
+		case EMUNIT_NUMTYPE_X64:
+	#endif
+			return true;
+		default:
+			return false;
+		}
+}
+
+/**
  * @brief Early test initialisation
  *
  * Function that has to be called at the very beginning of the program.

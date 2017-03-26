@@ -653,7 +653,7 @@ void ut_assert_delta(
 	{
 		emunit_display_failed_delta(
 			p_head,
-			(emunit_num_t){.u = delta},
+			delta,
 			expected,
 			actual);
 		emunit_assert_failed();
@@ -678,7 +678,7 @@ void ut_assert_delta_msg(
 		va_start(va, fmt);
 		emunit_display_failed_delta_msg(
 			p_head,
-			(emunit_num_t){.u = delta},
+			delta,
 			expected,
 			actual,
 			fmt,
