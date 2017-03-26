@@ -57,8 +57,8 @@ static void suite_cleanup(void)
 		);
 
 	/* Should pass */
-	{%- for passed in test._ea_passed %}
-	{{ ut_assert }}({{ test._delta}}, {{ passed[0] }}, {{ passed[1] }});
+	{%- for passed in test._passed %}
+	{{ ut_assert }}({{ passed|join(', ')}});
 	{%- endfor %}
 	/* Should fail*/
 	{{ ut_assert }}({{ test._delta }}, {{ test._expected }}, {{ test._fail_bottom }});
@@ -74,8 +74,8 @@ static void suite_cleanup(void)
 		);
 
 	/* Should pass */
-	{%- for passed in test._ea_passed %}
-	{{ ut_assert }}({{ test._delta}}, {{ passed[0] }}, {{ passed[1] }});
+	{%- for passed in test._passed %}
+	{{ ut_assert }}({{ passed|join(', ')}});
 	{%- endfor %}
 	/* Should fail*/
 	{{ ut_assert }}({{ test._delta }}, {{ test._expected }}, {{ test._fail_top }});
@@ -89,7 +89,7 @@ static void suite_cleanup(void)
 		"Message for {{ test._postfix }}",
 		TEST_DELTA_EXP({{ test._delta }}, {{ test._expected }}, {{ test._fail_top }})
 		);
-	{{ ut_assert }}_MSG({{ test._delta }}, {{ test._expected }}, {{ test._fail_bottom }}, "Message for %s", "{{ test._postfix }}");
+	{{ ut_assert }}_MSG({{ test._delta }}, {{ test._expected }}, {{ test._fail_top }}, "Message for %s", "{{ test._postfix }}");
 }
 
 {% endfor -%}{# _base -#}
