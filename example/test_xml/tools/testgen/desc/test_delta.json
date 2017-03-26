@@ -3,6 +3,7 @@
 	"_base": [
 		{
 			"_postfix": "",
+			"_val_type": "s",
 			"_delta": "3",
 			"_expected": "0",
 			"_fail_bottom": "-4",
@@ -15,6 +16,7 @@
 		},
 		{
 			"_postfix": "_int",
+			"_val_type": "s",
 			"_delta": "3",
 			"_expected": "-250",
 			"_fail_bottom": "-254",
@@ -31,6 +33,7 @@
 		},
 		{
 			"_postfix": "_uint",
+			"_val_type": "u",
 			"_delta": "3",
 			"_expected": "250",
 			"_fail_bottom": "246",
@@ -45,6 +48,7 @@
 		},
 		{
 			"_postfix": "_hex",
+			"_val_type": "u",
 			"_delta": "0x10",
 			"_expected": "0x9ff0",
 			"_fail_bottom": "0x9fdf",

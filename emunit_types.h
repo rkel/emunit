@@ -56,6 +56,11 @@ typedef union
 #define EMUNIT_UNUM_MAX EMUNIT_CN3(UINT, EMUNIT_CONF_NUMBER_SIZE, _MAX)
 
 /**
+ * @brief Minimum value for unsigned numericc
+ */
+#define EMUNIT_UNUM_MIN 0U
+
+/**
  * @brief Minimum value for biggest signed numeric
  */
 #define EMUNIT_SNUM_MIN EMUNIT_CN3(INT, EMUNIT_CONF_NUMBER_SIZE, _MIN)

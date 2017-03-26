@@ -92,6 +92,12 @@ static void suite_cleanup(void)
 	{{ ut_assert }}_MSG({{ test._delta }}, {{ test._expected }}, {{ test._fail_top }}, "Message for %s", "{{ test._postfix }}");
 }
 
+{{ test_func(test._postfix + '_big_delta')}}
+{
+	test_expect_success_test();
+	{{ ut_assert }}(EMUNIT_UNUM_MAX, EMUNIT_{{ test._val_type|upper }}NUM_MIN, EMUNIT_{{ test._val_type|upper }}NUM_MAX);
+	{{ ut_assert }}(EMUNIT_UNUM_MAX, EMUNIT_{{ test._val_type|upper }}NUM_MAX, EMUNIT_{{ test._val_type|upper }}NUM_MIN);
+}
 {% endfor -%}{# _base -#}
 
 {% for size in _sizes -%}
@@ -125,9 +131,10 @@ static void suite_cleanup(void)
 	{% set val_postfix = 'u' -%}
 {% endif -%}
 {% set delta = _delta_default -%}
+{% set delta_max = (2 ** (size)) - 1 -%}
 {# Macro that prints the value with correct postfix #}
 {% macro ut_val(val) -%}
-{{ val }}{{ val_postfix -}}
+{{ current_format|format(val) + val_postfix -}}
 {% endmacro -%}
 {{ test_func(postfix + '_bottom')}}
 {
@@ -223,6 +230,39 @@ static void suite_cleanup(void)
 	{{ ut_assert }}_MSG({{ ut_val(delta)}}, {{ ut_val(expected) }}, {{ ut_val(fail_actual) }}, "Message %s", "{{ postfix }}");
 }
 
+{{ test_func(postfix + '_only_max_fail')}}
+{
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"DELTA",
+		NULL,
+		TEST_DELTA_EXP({{ current_format|format(delta_max-1) }}, {{ current_format|format(val_min) }}, {{ current_format|format(val_max) }})
+		);
+	/* Should pass */
+	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_min) }}, {{ ut_val(val_max-1) }});
+	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_min+1) }}, {{ ut_val(val_max) }});
+	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_max) }}, {{ ut_val(val_min+1) }});
+	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_max-1) }}, {{ ut_val(val_min) }});
+	/* Should fail */
+	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_min) }}, {{ ut_val(val_max) }});
+}
+
+{{ test_func(postfix + '_only_min_fail')}}
+{
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"DELTA",
+		NULL,
+		TEST_DELTA_EXP({{ current_format|format(delta_max-1) }}, {{ current_format|format(val_max) }}, {{ current_format|format(val_min) }})
+		);
+	/* Should pass */
+	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_min) }}, {{ ut_val(val_max-1) }});
+	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_min+1) }}, {{ ut_val(val_max) }});
+	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_max) }}, {{ ut_val(val_min+1) }});
+	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_max-1) }}, {{ ut_val(val_min) }});
+	/* Should fail */
+	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_max) }}, {{ ut_val(val_min) }});
+}
 {% endfor -%}{# _modes -#}
 {% endfor -%}{# _sizes -#}
 
