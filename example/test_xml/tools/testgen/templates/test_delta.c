@@ -264,7 +264,7 @@ static void suite_cleanup(void)
 	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_max) }}, {{ ut_val(val_min) }});
 }
 {% endfor -%}{# _modes -#}
-{% endfor -%}{# _sizes -#}
+{% endfor -%}{# _sizes #}
 
 UT_DESC_TS_BEGIN(test_delta_suite, suite_init, suite_cleanup, NULL, NULL)
 {%- for test_name in test_list %}
