@@ -43,14 +43,7 @@ def main(argv):
         undefined=j2.StrictUndefined)
     ctemplate = j2env.get_template(test_config['_template']);
     
-    render_params = {
-        '_sizes': test_config['_sizes'],
-        '_modes': test_config['_modes'],
-        '_base':  test_config['_base'],
-        '_delta_default': test_config['_delta_default']
-    }
-    
-    args.output.write(ctemplate.render(**render_params))
+    args.output.write(ctemplate.render(test_config))
 
 # Call main function    
 if __name__ == '__main__':
