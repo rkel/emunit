@@ -54,7 +54,7 @@ static void test_parameters(void)
 
 static void test_fail_str(void)
 {
-	test_expect_fail_assert(
+	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"STRING",
 		NULL,

@@ -47,31 +47,29 @@ static void test_all_passed_msg(void)
 
 static void test_fail_assert(void)
 {
-	test_expect_fail_assert(
+	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"ASSERT",
 		NULL,
 		"%s",
 		"[[:space:]]*<expression>1 == 2</expression>");
-
 	UT_ASSERT(1 == 2);
 }
 
 static void test_fail_assert_msg(void)
 {
-	test_expect_fail_assert(
+	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"ASSERT",
 		"Some message: 1",
 		"%s",
 		"[[:space:]]*<expression>17 == 32</expression>");
-
 	UT_ASSERT_MSG(17 == 32, "Some message: %d", 1);
 }
 
 static void test_fail_assert_true(void)
 {
-	test_expect_fail_assert(
+	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"EQUAL",
 		NULL,
@@ -79,13 +77,12 @@ static void test_fail_assert_true(void)
 		"[[:space:]]*<expected>true</expected>"
 		"[[:space:]]*<actual>false</actual>"
 		);
-
 	UT_ASSERT_TRUE(1 != 1);
 }
 
 static void test_fail_assert_true_msg(void)
 {
-	test_expect_fail_assert(
+	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"EQUAL",
 		"SuperMessage",
@@ -93,13 +90,12 @@ static void test_fail_assert_true_msg(void)
 		"[[:space:]]*<expected>true</expected>"
 		"[[:space:]]*<actual>false</actual>"
 		);
-
 	UT_ASSERT_TRUE_MSG(1 != 1, "%s%s", "Super", "Message");
 }
 
 static void test_fail_assert_false(void)
 {
-	test_expect_fail_assert(
+	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"EQUAL",
 		NULL,
@@ -107,13 +103,12 @@ static void test_fail_assert_false(void)
 		"[[:space:]]*<expected>false</expected>"
 		"[[:space:]]*<actual>true</actual>"
 		);
-
 	UT_ASSERT_FALSE(1 == 1);
 }
 
 static void test_fail_assert_false_msg(void)
 {
-	test_expect_fail_assert(
+	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"EQUAL",
 		"SuperFalseMessage",
@@ -121,13 +116,12 @@ static void test_fail_assert_false_msg(void)
 		"[[:space:]]*<expected>false</expected>"
 		"[[:space:]]*<actual>true</actual>"
 		);
-
 	UT_ASSERT_FALSE_MSG(1 == 1, "%s%s%s", "Super", "False", "Message");
 }
 
 static void test_fail_assert_null(void)
 {
-	test_expect_fail_assert(
+	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"EQUAL",
 		NULL,
@@ -140,7 +134,7 @@ static void test_fail_assert_null(void)
 
 static void test_fail_assert_null_msg(void)
 {
-	test_expect_fail_assert(
+	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"EQUAL",
 		"Message 0x12",
@@ -154,7 +148,7 @@ static void test_fail_assert_null_msg(void)
 static void test_fail_assert_not_null(void)
 {
 	void * ptr_3456 = NULL;
-	test_expect_fail_assert(
+	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"ASSERT",
 		NULL,
@@ -166,7 +160,7 @@ static void test_fail_assert_not_null(void)
 
 static void test_fail_assert_not_null_msg(void)
 {
-	test_expect_fail_assert(
+	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"ASSERT",
 		"Just1Message",

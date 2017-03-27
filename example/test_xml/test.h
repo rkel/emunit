@@ -85,6 +85,13 @@ void test_expect_fail(char const * pattern);
 #define TEST_STR_ID_ANY "[[:digit:]]+"
 
 /**
+ * @brief The value for any valid line number matching
+ *
+ * The value may be used in @ref test_expect_fail_assert_x for any line number matching.
+ */
+#define TEST_LINE_ANY (0u)
+
+/**
  * @brief Current test should fail formatted pattern
  *
  * Function sets expected pattern and marks that current test should fail.
@@ -109,7 +116,48 @@ void test_expect_fail(char const * pattern);
  * @param ...      Detailed part format string followed by format arguments.
  */
 #define test_expect_fail_assert(str_id, str_type, msg, ...) \
-	test_expect_fail_assert_x(__func__, __FILE__, str_id, str_type, msg, __VA_ARGS__)
+	test_expect_fail_assert_x(__func__, __FILE__, TEST_LINE_ANY, str_id, str_type, msg, __VA_ARGS__)
+
+/**
+ * @brief Current test should fail in the very next line
+ *
+ * Function sets expected pattern to fail in the next line
+ *
+ * How to use it:
+ * Normally the line when setting parameters inside @ref test_expect_fail_assert_here
+ * would split across multiple lines.
+ * Below is an example how to handle it:
+ *
+ * @code
+   test_expect_fail_assert_here(
+		TEST_STR_ID_ANY,
+		"ASSERT",
+		NULL,
+		"%s",
+		"[[:space:]]*<expression>1 == 2</expression>"); //< This would be the line inside test_expect_fail_assert_here macro
+	UT_ASSERT(1 == 2);
+ * @endcode
+ *
+ * If the tested macro requires to be split into multiple lines it is simpler
+ * to use less demanding @ref test_expect_fail_assert macro.
+ *
+ * @note
+ * It uses @ref test_expect_fail_assert_x function internally.
+ *
+ * @note
+ * This macro sets expected file to fail and expected test based on the
+ * current file and current function name.
+ *
+ * @param str_id   Expected failure id.
+ *                 The string @ref TEST_STR_ID_ANY may be used for any valid ID
+ *                 matching.
+ * @param str_type Type of the assertion that fails.
+ *                 Used in <failure type="str_type">.
+ * @param msg      Message or NULL if none.
+ * @param ...      Detailed part format string followed by format arguments.
+ */
+#define test_expect_fail_assert_here(str_id, str_type, msg, ...) \
+	test_expect_fail_assert_x(__func__, __FILE__, __LINE__+1, str_id, str_type, msg, __VA_ARGS__)
 
 /**
  * @brief Current should fail formatted pattern internal function
@@ -120,7 +168,8 @@ void test_expect_fail(char const * pattern);
  *
  * @param str_func The test name
  * @param str_file The file where failure should be expected
- * @param str_id   The failure identifer.
+ * @param line     The line number. @ref TEST_LINE_ANY may be used.
+ * @param str_id   The failure identifier. @ref TEST_STR_ID_ANY may be used.
  * @param str_type The type of the assertion that fails
  * @param msg      The message or NULL if none.
  * @param fmt      Details format string.
@@ -129,6 +178,7 @@ void test_expect_fail(char const * pattern);
 void test_expect_fail_assert_x(
 	char const * str_func,
 	char const * str_file,
+	unsigned int line,
 	char const * str_id,
 	char const * str_type,
 	char const * msg,

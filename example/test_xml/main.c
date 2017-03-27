@@ -103,6 +103,7 @@ void test_expect_fail(char const * pattern)
 void test_expect_fail_assert_x(
 	char const * str_test,
 	char const * str_file,
+	unsigned int line,
 	char const * str_id,
 	char const * str_type,
 	char const * msg,
@@ -120,13 +121,26 @@ void test_expect_fail_assert_x(
 		"[[:space:]]*<testcase name=\"%s\">"
 		"[[:space:]]*<failure type=\"%s\" id=\"%s\">"
 		"[[:space:]]*<file>%s</file>"
-		"[[:space:]]*<line>[[:digit:]]+</line>"
 		,
 		str_test,
 		str_type,
 		str_id,
 		esc_filename
 		);
+	if(line == TEST_LINE_ANY)
+	{
+		p_buffer += sprintf(p_buffer,
+			"%s",
+			"[[:space:]]*<line>[[:digit:]]+</line>"
+			);
+	}
+	else
+	{
+		p_buffer += sprintf(p_buffer,
+			"[[:space:]]*<line>%u</line>",
+			line);
+	}
+
 	if(NULL != msg)
 	{
 		p_buffer += sprintf(p_buffer,
@@ -256,18 +270,17 @@ static void test2(void)
  */
 static void test3(void)
 {
-	test_expect_fail_assert(
-		"1",
-		"ASSERT",
-		NULL,
-		"%s",
-		"[[:space:]]*<expression>false == true</expression>");
-
 	UT_ASSERT_EQUAL(1, suite_init_calls);
 	UT_ASSERT_EQUAL(0, suite_cleanup_calls);
 	UT_ASSERT_EQUAL(3, init_calls);
 	UT_ASSERT_EQUAL(2, cleanup_calls);
 
+	test_expect_fail_assert_here(
+		"1",
+		"ASSERT",
+		NULL,
+		"%s",
+		"[[:space:]]*<expression>false == true</expression>");
 	UT_ASSERT(false == true);
 }
 
@@ -281,17 +294,16 @@ static void test4(void)
 {
 	void * p_null = NULL;
 
-	test_expect_fail_assert(
-		"2",
-		"ASSERT",
-		NULL,
-		"[[:space:]]*<expression>\\(p_null\\) != NULL</expression>");
-
 	UT_ASSERT_EQUAL(1, suite_init_calls);
 	UT_ASSERT_EQUAL(0, suite_cleanup_calls);
 	UT_ASSERT_EQUAL(4, init_calls);
 	UT_ASSERT_EQUAL(3, cleanup_calls);
 
+	test_expect_fail_assert_here(
+		"2",
+		"ASSERT",
+		NULL,
+		"[[:space:]]*<expression>\\(p_null\\) != NULL</expression>");
 	UT_ASSERT_NOT_NULL(p_null);
 }
 
