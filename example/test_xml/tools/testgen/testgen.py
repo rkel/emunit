@@ -45,6 +45,6 @@ def main(argv):
     
     args.output.write(ctemplate.render(test_config))
 
-# Call main function    
+# Call main function
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
