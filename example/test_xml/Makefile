@@ -17,7 +17,11 @@ GEN_TESTS = \
 
 #################################################
 # Test generator script
-TESTGEN = python ./tools/testgen/testgen.py
+
+# The path to the script itself
+TESTGEN_SCRIPT = ./tools/testgen/testgen.py
+# Instruction to cal to execute test script
+TESTGEN = python $(TESTGEN_SCRIPT)
 # The directory with test descriptions (JSON files)
 TESTGEN_DESC_DIR = ./tools/testgen/desc
 # The directory with test templates
@@ -51,6 +55,9 @@ clean_list: clean_gen
 # The rule to clean the files
 clean_gen:
 	$(REMOVE) $(GEN_TESTS_FILES)
+
+# Mark the relation between generated test file and generation tool
+$(GEN_TESTS_FILES) : $(TESTGEN_SCRIPT)
 
 # Mark the relation between generated test file and template file
 $(GEN_TESTS_FILES) : $(GEN_DIR)/%.c : $(TESTGEN_TEMPLATE_DIR)/%.c
