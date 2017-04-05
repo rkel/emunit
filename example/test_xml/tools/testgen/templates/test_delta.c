@@ -1,9 +1,5 @@
-{% set test_list = [] -%}
-{% macro test_func( postfix ) -%}
-{% set fn_name = 'test_delta' + postfix -%}
-{% if test_list.append( fn_name ) -%}{% endif -%}
-static void {{ fn_name }}(void)
-{%- endmacro -%}
+{% import "test.tpl" as test_helper -%}
+{{ test_helper.prefix_set('test_delta') -}}
 /**
  * @file
  * @brief Delta assertions xml test file
@@ -45,14 +41,11 @@ static void suite_cleanup(void)
 	test_expect_scleanup_default();
 }
 
-{%- for test in _base %}
+{% for test in _base %}
 {% set ut_assert = 'UT_ASSERT_DELTA' + test._postfix|upper -%}
-{{ test_func(test._postfix + '_bottom')}}
+{{ test_helper.func(test._postfix + '_bottom')}}
 {
-	/* Should pass */
-	{%- for passed in test._passed %}
-	{{ ut_assert }}({{ passed|join(', ')}});
-	{%- endfor %}
+	{{ test_helper.passed_list(ut_assert, test._passed ) }}
 	/* Should fail*/
 	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
@@ -63,12 +56,9 @@ static void suite_cleanup(void)
 	{{ ut_assert }}({{ test._delta }}, {{ test._expected }}, {{ test._fail_bottom }});
 }
 
-{{ test_func(test._postfix + '_top')}}
+{{ test_helper.func(test._postfix + '_top')}}
 {
-	/* Should pass */
-	{%- for passed in test._passed %}
-	{{ ut_assert }}({{ passed|join(', ')}});
-	{%- endfor %}
+	{{ test_helper.passed_list(ut_assert, test._passed ) }}
 	/* Should fail*/
 	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
@@ -79,7 +69,7 @@ static void suite_cleanup(void)
 	{{ ut_assert }}({{ test._delta }}, {{ test._expected }}, {{ test._fail_top }});
 }
 
-{{ test_func(test._postfix + '_msg')}}
+{{ test_helper.func(test._postfix + '_msg')}}
 {
 	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
@@ -90,7 +80,7 @@ static void suite_cleanup(void)
 	{{ ut_assert }}_MSG({{ test._delta }}, {{ test._expected }}, {{ test._fail_top }}, "Message for %s", "{{ test._postfix }}");
 }
 
-{{ test_func(test._postfix + '_big_delta')}}
+{{ test_helper.func(test._postfix + '_big_delta')}}
 {
 	test_expect_success_test();
 	{{ ut_assert }}(EMUNIT_UNUM_MAX, EMUNIT_{{ test._val_type|upper }}NUM_MIN, EMUNIT_{{ test._val_type|upper }}NUM_MAX);
@@ -134,7 +124,7 @@ static void suite_cleanup(void)
 {% macro ut_val(val) -%}
 {{ current_format|format(val) + val_postfix -}}
 {% endmacro -%}
-{{ test_func(postfix + '_bottom')}}
+{{ test_helper.func(postfix + '_bottom')}}
 {
 	{%- set expected = val_min + delta -%}
 	{%- set fail_actual = expected + delta + 1 -%}
@@ -155,7 +145,7 @@ static void suite_cleanup(void)
 }
 
 /* Test what happens if expected with delta underruns minimum value */
-{{ test_func(postfix + '_underrun')}}
+{{ test_helper.func(postfix + '_underrun')}}
 {
 	{%- set expected = val_min + (delta/2)|int -%}
 	{%- set fail_actual = val_max -%}
@@ -175,7 +165,7 @@ static void suite_cleanup(void)
 	{{ ut_assert }}({{ ut_val(delta)}}, {{ ut_val(expected) }}, {{ ut_val(fail_actual) }});
 }
 
-{{ test_func(postfix + '_top')}}
+{{ test_helper.func(postfix + '_top')}}
 {
 	{%- set expected = val_max - delta -%}
 	{%- set fail_actual = expected - delta - 1 -%}
@@ -196,7 +186,7 @@ static void suite_cleanup(void)
 }
 
 /* Test what happens if expected with delta overruns maximum value */
-{{ test_func(postfix + '_overrun')}}
+{{ test_helper.func(postfix + '_overrun')}}
 {
 	{%- set expected = val_max - (delta/2)|int -%}
 	{%- set fail_actual = val_min -%}
@@ -216,7 +206,7 @@ static void suite_cleanup(void)
 }
 
 /* Test message version */
-{{ test_func(postfix + '_msg')}}
+{{ test_helper.func(postfix + '_msg')}}
 {
 	{%- set expected = val_max -%}
 	{%- set fail_actual = val_min -%}
@@ -231,7 +221,7 @@ static void suite_cleanup(void)
 	{{ ut_assert }}_MSG({{ ut_val(delta)}}, {{ ut_val(expected) }}, {{ ut_val(fail_actual) }}, "Message %s", "{{ postfix }}");
 }
 
-{{ test_func(postfix + '_only_max_fail')}}
+{{ test_helper.func(postfix + '_only_max_fail')}}
 {
 	/* Should pass */
 	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_min) }}, {{ ut_val(val_max-1) }});
@@ -248,7 +238,7 @@ static void suite_cleanup(void)
 	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_min) }}, {{ ut_val(val_max) }});
 }
 
-{{ test_func(postfix + '_only_min_fail')}}
+{{ test_helper.func(postfix + '_only_min_fail')}}
 {
 	/* Should pass */
 	{{ ut_assert }}({{ ut_val(delta_max-1) }}, {{ ut_val(val_min) }}, {{ ut_val(val_max-1) }});
@@ -268,7 +258,5 @@ static void suite_cleanup(void)
 {% endfor -%}{# _sizes #}
 
 UT_DESC_TS_BEGIN(test_delta_suite, suite_init, suite_cleanup, NULL, NULL)
-{%- for test_name in test_list %}
-	UT_DESC_TC({{ test_name }})
-{%- endfor %}
+{{- test_helper.suite_desc() }}
 UT_DESC_TS_END();
