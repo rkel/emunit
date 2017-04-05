@@ -61,6 +61,7 @@ $(GEN_TESTS_FILES) : $(TESTGEN_SCRIPT)
 
 # Mark the relation between generated test file and test macros template file
 $(GEN_TESTS_FILES) : $(TESTGEN_TEMPLATE_DIR)/test.tpl
+$(GEN_TESTS_FILES) : $(TESTGEN_TEMPLATE_DIR)/vartest.tpl
 
 # Mark the relation between generated test file and template file
 $(GEN_TESTS_FILES) : $(GEN_DIR)/%.c : $(TESTGEN_TEMPLATE_DIR)/%.c
