@@ -88,8 +88,8 @@ static void suite_cleanup(void)
 }
 {% endfor -%}{# _base -#}
 
-{% from "vartest.tpl" import for_each_smtest -%}
-{% call(test) for_each_smtest(_sizes, _modes) %}
+
+{% call(test) test_helper.each_test(_sizes, _modes) %}
 {% set ut_assert = 'UT_ASSERT_DELTA' + test.postfix|upper -%}
 {% set delta = _delta_default -%}
 {% set delta_max = (2 ** (test.size)) - 1 -%}
