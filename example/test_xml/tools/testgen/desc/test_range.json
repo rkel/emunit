@@ -1,0 +1,64 @@
+{
+	"_template": "test_range.c",
+	"_base": [
+		{
+			"_postfix": "",
+			"_val_type": "s",
+			"_min": "-10",
+			"_max": "100",
+			"_outfmt": "%d",
+			"_infmt": "%d",
+			"_passed": [
+				["EMUNIT_SNUM_MIN", "EMUNIT_SNUM_MAX", "0"],
+				["EMUNIT_SNUM_MIN", "EMUNIT_SNUM_MAX", "EMUNIT_SNUM_MAX"],
+				["EMUNIT_SNUM_MIN", "EMUNIT_SNUM_MAX", "EMUNIT_SNUM_MIN"]
+			]
+		},
+		{
+			"_postfix": "_int",
+			"_val_type": "s",
+			"_min": "-16000",
+			"_max": "8000",
+			"_outfmt": "%d",
+			"_infmt": "%d",
+			"_passed": [
+				["EMUNIT_SNUM_MIN", "EMUNIT_SNUM_MAX", "0"],
+				["EMUNIT_SNUM_MIN", "EMUNIT_SNUM_MAX", "EMUNIT_SNUM_MAX"],
+				["EMUNIT_SNUM_MIN", "EMUNIT_SNUM_MAX", "EMUNIT_SNUM_MIN"]
+			]
+		},
+		{
+			"_postfix": "_uint",
+			"_val_type": "u",
+			"_min": "1234",
+			"_max": "2000",
+			"_outfmt": "%u",
+			"_infmt": "%uu",
+			"_passed": [
+				["EMUNIT_UNUM_MIN", "EMUNIT_UNUM_MAX", "EMUNIT_UNUM_MAX"],
+				["EMUNIT_UNUM_MIN", "EMUNIT_UNUM_MAX", "EMUNIT_UNUM_MIN"]
+			]
+		},
+		{
+			"_postfix": "_hex",
+			"_val_type": "u",
+			"_min": "0x1234",
+			"_max": "0xabcd",
+			"_outfmt": "0x%x",
+			"_infmt": "%uu",
+			"_passed": [
+				["EMUNIT_SNUM_MIN", "EMUNIT_SNUM_MAX", "0"],
+				["EMUNIT_SNUM_MIN", "EMUNIT_SNUM_MAX", "EMUNIT_SNUM_MAX"],
+				["EMUNIT_SNUM_MIN", "EMUNIT_SNUM_MAX", "EMUNIT_SNUM_MIN"]
+			]
+		}
+	],
+	"_sizes": [
+		8, 16, 32, 64
+	],
+	"_modes": [
+		"int",
+		"uint",
+		"hex"
+	]
+}

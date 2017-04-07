@@ -19,6 +19,7 @@ UT_DESC_TS_EXTERN(test_boolean_suite);
 UT_DESC_TS_EXTERN(test_str_suite);
 UT_DESC_TS_EXTERN(test_delta_suite);
 UT_DESC_TS_EXTERN(test_equal_suite);
+UT_DESC_TS_EXTERN(test_range_suite);
 
 
 /* Whole test description */
@@ -30,6 +31,7 @@ UT_MAIN_TS_BEGIN()
 	UT_MAIN_TS_ENTRY(test_str_suite)
 	UT_MAIN_TS_ENTRY(test_delta_suite)
 	UT_MAIN_TS_ENTRY(test_equal_suite)
+	UT_MAIN_TS_ENTRY(test_range_suite)
 
 
 	/* This test suite has to be the last one */

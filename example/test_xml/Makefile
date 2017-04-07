@@ -13,7 +13,8 @@ SRC = \
 
 # The name (without extension) of the generated test files
 GEN_TESTS = \
-	test_delta
+	test_delta \
+	test_range
 
 #################################################
 # Test generator script
