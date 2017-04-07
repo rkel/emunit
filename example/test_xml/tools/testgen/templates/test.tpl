@@ -40,31 +40,31 @@ static void {{ fn_name }}(void)
 {% for size in sizes -%}
 {% for mode in modes -%}
 {% set tparams = {
-	'size': size,
-	'mode': mode,
-	'postfix': '_' + mode + size|string,
-	'outfmt': val_ofmt_table[mode],
-	'signes': val_sign_table[mode]}
+	'_size': size,
+	'_mode': mode,
+	'_postfix': '_' + mode + size|string,
+	'_outfmt': val_ofmt_table[mode],
+	'_signes': val_sign_table[mode]}
 -%}
-{% if tparams.signes -%}
+{% if tparams._signes -%}
 	{% set _ = tparams.update({
-		'val_min': -(2 ** (tparams.size - 1)),
-		'val_max':  (2 ** (tparams.size - 1)) - 1
-	})%}
-	{% if tparams.size == 64 -%}
+		'_min': -(2 ** (tparams._size - 1)),
+		'_max':  (2 ** (tparams._size - 1)) - 1
+	}) -%}
+	{% if tparams._size == 64 -%}
 		{# Special fix for warning: integer constant is so large that it is unsigned -#}
-		{% set _ = tparams.update({ 'infmt': tparams.get('outfmt') + 'u' }) %}
-	{% else %}
-		{% set _ = tparams.update({ 'infmt': tparams.get('outfmt') }) %}
+		{% set _ = tparams.update({ '_infmt': tparams.get('_outfmt') + 'u' }) -%}
+	{% else -%}
+		{% set _ = tparams.update({ '_infmt': tparams.get('_outfmt') }) -%}
 	{% endif -%}
 {% else -%}
 	{% set _ = tparams.update({
-		'val_min': 0,
-		'val_max': (2 ** (tparams.size)) - 1,
-		'infmt': tparams.get('outfmt') + 'u'
-	})%}
+		'_min': 0,
+		'_max': (2 ** (tparams._size)) - 1,
+		'_infmt': tparams.get('_outfmt') + 'u'
+	}) -%}
 {% endif -%}
 {{ caller(tparams) }}
 {% endfor -%}{# modes -#}
-{% endfor -%}{# sizes #}
+{% endfor -%}{# sizes -#}
 {% endmacro -%}

@@ -90,16 +90,16 @@ static void suite_cleanup(void)
 
 
 {% call(test) test_helper.each_test(_sizes, _modes) %}
-{% set ut_assert = 'UT_ASSERT_DELTA' + test.postfix|upper -%}
+{% set ut_assert = 'UT_ASSERT_DELTA' + test._postfix|upper -%}
 {% set delta = _delta_default -%}
-{% set delta_max = (2 ** (test.size)) - 1 -%}
+{% set delta_max = (2 ** (test._size)) - 1 -%}
 {# Macro that prints the value with correct postfix #}
 {% macro ut_val(test, val) -%}
-{{ test.infmt|format(val) -}}
+{{ test._infmt|format(val) -}}
 {% endmacro -%}
-{{ test_helper.func(test.postfix + '_bottom')}}
+{{ test_helper.func(test._postfix + '_bottom')}}
 {
-	{%- set expected = test.val_min + delta -%}
+	{%- set expected = test._min + delta -%}
 	{%- set fail_actual = expected + delta + 1 -%}
 
 	/* Should pass */
@@ -112,19 +112,19 @@ static void suite_cleanup(void)
 		TEST_STR_ID_ANY,
 		"DELTA",
 		NULL,
-		TEST_DELTA_EXP({{ test.outfmt|format(delta) }}, {{ test.outfmt|format(expected) }}, {{ test.outfmt|format(fail_actual) }})
+		TEST_DELTA_EXP({{ test._outfmt|format(delta) }}, {{ test._outfmt|format(expected) }}, {{ test._outfmt|format(fail_actual) }})
 		);
 	{{ ut_assert }}({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, fail_actual) }});
 }
 
 /* Test what happens if expected with delta underruns minimum value */
-{{ test_helper.func(test.postfix + '_underrun')}}
+{{ test_helper.func(test._postfix + '_underrun')}}
 {
-	{%- set expected = test.val_min + (delta/2)|int -%}
-	{%- set fail_actual = test.val_max -%}
+	{%- set expected = test._min + (delta/2)|int -%}
+	{%- set fail_actual = test._max -%}
 
 	/* Should pass */
-	{{ ut_assert }}({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, test.val_min) }});
+	{{ ut_assert }}({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, test._min) }});
 	{{ ut_assert }}({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, expected+delta) }});
 	{{ ut_assert }}({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, expected) }});
 
@@ -133,14 +133,14 @@ static void suite_cleanup(void)
 		TEST_STR_ID_ANY,
 		"DELTA",
 		NULL,
-		TEST_DELTA_EXP({{ test.outfmt|format(delta) }}, {{ test.outfmt|format(expected) }}, {{ test.outfmt|format(fail_actual) }})
+		TEST_DELTA_EXP({{ test._outfmt|format(delta) }}, {{ test._outfmt|format(expected) }}, {{ test._outfmt|format(fail_actual) }})
 		);
 	{{ ut_assert }}({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, fail_actual) }});
 }
 
-{{ test_helper.func(test.postfix + '_top')}}
+{{ test_helper.func(test._postfix + '_top')}}
 {
-	{%- set expected = test.val_max - delta -%}
+	{%- set expected = test._max - delta -%}
 	{%- set fail_actual = expected - delta - 1 -%}
 
 	/* Should pass */
@@ -153,18 +153,18 @@ static void suite_cleanup(void)
 		TEST_STR_ID_ANY,
 		"DELTA",
 		NULL,
-		TEST_DELTA_EXP({{ test.outfmt|format(delta) }}, {{ test.outfmt|format(expected) }}, {{ test.outfmt|format(fail_actual) }})
+		TEST_DELTA_EXP({{ test._outfmt|format(delta) }}, {{ test._outfmt|format(expected) }}, {{ test._outfmt|format(fail_actual) }})
 		);
 	{{ ut_assert }}({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, fail_actual) }});
 }
 
 /* Test what happens if expected with delta overruns maximum value */
-{{ test_helper.func(test.postfix + '_overrun')}}
+{{ test_helper.func(test._postfix + '_overrun')}}
 {
-	{%- set expected = test.val_max - (delta/2)|int -%}
-	{%- set fail_actual = test.val_min -%}
+	{%- set expected = test._max - (delta/2)|int -%}
+	{%- set fail_actual = test._min -%}
 	/* Should pass */
-	{{ ut_assert }}({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, test.val_max) }});
+	{{ ut_assert }}({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, test._max) }});
 	{{ ut_assert }}({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, expected-delta) }});
 	{{ ut_assert }}({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, expected) }});
 
@@ -173,59 +173,59 @@ static void suite_cleanup(void)
 		TEST_STR_ID_ANY,
 		"DELTA",
 		NULL,
-		TEST_DELTA_EXP({{ test.outfmt|format(delta) }}, {{ test.outfmt|format(expected) }}, {{ test.outfmt|format(fail_actual) }})
+		TEST_DELTA_EXP({{ test._outfmt|format(delta) }}, {{ test._outfmt|format(expected) }}, {{ test._outfmt|format(fail_actual) }})
 		);
 	{{ ut_assert }}({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, fail_actual) }});
 }
 
 /* Test message version */
-{{ test_helper.func(test.postfix + '_msg')}}
+{{ test_helper.func(test._postfix + '_msg')}}
 {
-	{%- set expected = test.val_max -%}
-	{%- set fail_actual = test.val_min -%}
+	{%- set expected = test._max -%}
+	{%- set fail_actual = test._min -%}
 
 	/* Should fail */
 	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"DELTA",
-		"Message {{ test.postfix }}",
-		TEST_DELTA_EXP({{ test.outfmt|format(delta) }}, {{ test.outfmt|format(expected) }}, {{ test.outfmt|format(fail_actual) }})
+		"Message {{ test._postfix }}",
+		TEST_DELTA_EXP({{ test._outfmt|format(delta) }}, {{ test._outfmt|format(expected) }}, {{ test._outfmt|format(fail_actual) }})
 		);
-	{{ ut_assert }}_MSG({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, fail_actual) }}, "Message %s", "{{ test.postfix }}");
+	{{ ut_assert }}_MSG({{ ut_val(test, delta)}}, {{ ut_val(test, expected) }}, {{ ut_val(test, fail_actual) }}, "Message %s", "{{ test._postfix }}");
 }
 
-{{ test_helper.func(test.postfix + '_only_max_fail')}}
+{{ test_helper.func(test._postfix + '_only_max_fail')}}
 {
 	/* Should pass */
-	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test.val_min) }}, {{ ut_val(test, test.val_max-1) }});
-	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test.val_min+1) }}, {{ ut_val(test, test.val_max) }});
-	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test.val_max) }}, {{ ut_val(test, test.val_min+1) }});
-	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test.val_max-1) }}, {{ ut_val(test, test.val_min) }});
+	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test._min) }}, {{ ut_val(test, test._max-1) }});
+	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test._min+1) }}, {{ ut_val(test, test._max) }});
+	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test._max) }}, {{ ut_val(test, test._min+1) }});
+	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test._max-1) }}, {{ ut_val(test, test._min) }});
 	/* Should fail */
 	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"DELTA",
 		NULL,
-		TEST_DELTA_EXP({{ test.outfmt|format(delta_max-1) }}, {{ test.outfmt|format(test.val_min) }}, {{ test.outfmt|format(test.val_max) }})
+		TEST_DELTA_EXP({{ test._outfmt|format(delta_max-1) }}, {{ test._outfmt|format(test._min) }}, {{ test._outfmt|format(test._max) }})
 		);
-	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test.val_min) }}, {{ ut_val(test, test.val_max) }});
+	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test._min) }}, {{ ut_val(test, test._max) }});
 }
 
-{{ test_helper.func(test.postfix + '_only_min_fail')}}
+{{ test_helper.func(test._postfix + '_only_min_fail')}}
 {
 	/* Should pass */
-	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test.val_min) }}, {{ ut_val(test, test.val_max-1) }});
-	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test.val_min+1) }}, {{ ut_val(test, test.val_max) }});
-	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test.val_max) }}, {{ ut_val(test, test.val_min+1) }});
-	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test.val_max-1) }}, {{ ut_val(test, test.val_min) }});
+	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test._min) }}, {{ ut_val(test, test._max-1) }});
+	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test._min+1) }}, {{ ut_val(test, test._max) }});
+	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test._max) }}, {{ ut_val(test, test._min+1) }});
+	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test._max-1) }}, {{ ut_val(test, test._min) }});
 	/* Should fail */
 	test_expect_fail_assert_here(
 		TEST_STR_ID_ANY,
 		"DELTA",
 		NULL,
-		TEST_DELTA_EXP({{ test.outfmt|format(delta_max-1) }}, {{ test.outfmt|format(test.val_max) }}, {{ test.outfmt|format(test.val_min) }})
+		TEST_DELTA_EXP({{ test._outfmt|format(delta_max-1) }}, {{ test._outfmt|format(test._max) }}, {{ test._outfmt|format(test._min) }})
 		);
-	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test.val_max) }}, {{ ut_val(test, test.val_min) }});
+	{{ ut_assert }}({{ ut_val(test, delta_max-1) }}, {{ ut_val(test, test._max) }}, {{ ut_val(test, test._min) }});
 }
 {% endcall -%}
 
