@@ -319,7 +319,7 @@ static void emunit_current_cleanup_run(void)
 		}
 		else
 		{
-			if(min.s <= max.s)
+			if(min.u <= max.u)
 				return (min.u <= actual.u) && (actual.u <= max.u);
 			else
 				return (min.u <= actual.u) || (actual.u <= max.u);
