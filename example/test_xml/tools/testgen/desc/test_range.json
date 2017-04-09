@@ -47,9 +47,9 @@
 			"_outfmt": "0x%x",
 			"_infmt": "%uu",
 			"_passed": [
-				["EMUNIT_SNUM_MIN", "EMUNIT_SNUM_MAX", "0"],
-				["EMUNIT_SNUM_MIN", "EMUNIT_SNUM_MAX", "EMUNIT_SNUM_MAX"],
-				["EMUNIT_SNUM_MIN", "EMUNIT_SNUM_MAX", "EMUNIT_SNUM_MIN"]
+				["EMUNIT_UNUM_MIN", "EMUNIT_UNUM_MAX", "0"],
+				["EMUNIT_UNUM_MIN", "EMUNIT_UNUM_MAX", "EMUNIT_UNUM_MAX"],
+				["EMUNIT_UNUM_MIN", "EMUNIT_UNUM_MAX", "EMUNIT_UNUM_MIN"]
 			]
 		}
 	],

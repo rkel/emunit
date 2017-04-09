@@ -200,7 +200,7 @@ static void suite_cleanup(void)
 	{{ call_assert(test._min, test._max, test._min) }}
 	{{ call_assert(test._min, test._max, test._max) }}
 	{{ call_assert(test._min, test._max, ((test._max + test._min) / 2 ) ) }}
-	{{ call_assert(test._min, test._max - 1, test._max) }}
+	{{ call_assert(test._min, test._max - 1, test._max - 1) }}
 
 	/* Should fail */
 	test_expect_fail_assert_here(
