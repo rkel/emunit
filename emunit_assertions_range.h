@@ -42,6 +42,31 @@
 			)                                                  \
 		);                                                     \
 	}while(0)
+
+/**
+ * @brief Base range assertion with message
+ *
+ * This is message version of @ref UT_ASSERT_RANGE_x.
+ * The formated message is processed and displayed if assertion fails.
+ *
+ * @copydetails UT_ASSERT_RANGE_x
+ * @param ...   @param ... Format string followed by the format values.
+ *              Standard @c printf format is used.
+ */
+#define UT_ASSERT_RANGE_MSG_x(su, var_t, nt, min, max, actual, ...) \
+	do{                                                             \
+		var_t  UT_ASSERT_DELTA_x_min    = (min);                    \
+		var_t  UT_ASSERT_DELTA_x_max    = (max);                    \
+		var_t  UT_ASSERT_DELTA_x_actual = (actual);                 \
+		EMUNIT_CALL_ASSERT_MSG(nt, ut_assert_range,                 \
+			(                                                       \
+				(emunit_num_t){.su = UT_ASSERT_DELTA_x_min},        \
+				(emunit_num_t){.su = UT_ASSERT_DELTA_x_max},        \
+				(emunit_num_t){.su = UT_ASSERT_DELTA_x_actual}      \
+			),                                                      \
+			__VA_ARGS__                                             \
+		);                                                          \
+	}while(0)
 /** @} <!-- emunit_assertions_int_group --> */
 
 /**
@@ -115,6 +140,14 @@
 #define UT_ASSERT_RANGE_INT( min, max, a) EMUNIT_CN2(UT_ASSERT_RANGE_INT,  EMUNIT_CONF_NUMBER_SIZE)(min, max, a)
 #define UT_ASSERT_RANGE_UINT(min, max, a) EMUNIT_CN2(UT_ASSERT_RANGE_UINT, EMUNIT_CONF_NUMBER_SIZE)(min, max, a)
 #define UT_ASSERT_RANGE_HEX( min, max, a) EMUNIT_CN2(UT_ASSERT_RANGE_HEX,  EMUNIT_CONF_NUMBER_SIZE)(min, max, a)
+
+/** @todo Documentation */
+
+#define UT_ASSERT_RANGE_MSG(min, max, a, ...)      UT_ASSERT_RANGE_INT_MSG(min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_INT_MSG( min, max, a, ...) EMUNIT_CN3(UT_ASSERT_RANGE_INT,  EMUNIT_CONF_NUMBER_SIZE, _MSG)(min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_UINT_MSG(min, max, a, ...) EMUNIT_CN3(UT_ASSERT_RANGE_UINT, EMUNIT_CONF_NUMBER_SIZE, _MSG)(min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_HEX_MSG( min, max, a, ...) EMUNIT_CN3(UT_ASSERT_RANGE_HEX,  EMUNIT_CONF_NUMBER_SIZE, _MSG)(min, max, a, __VA_ARGS__)
+
 /** @} <!-- emunit_assertions_range_def_group --> */
 
 /**
@@ -211,6 +244,21 @@
 #define UT_ASSERT_RANGE_HEX16( min, max, a)  UT_ASSERT_RANGE_x(u, uint16_t, EMUNIT_NUMTYPE_X16, min, max, a)
 #define UT_ASSERT_RANGE_HEX32( min, max, a)  UT_ASSERT_RANGE_x(u, uint32_t, EMUNIT_NUMTYPE_X32, min, max, a)
 #define UT_ASSERT_RANGE_HEX64( min, max, a)  UT_ASSERT_RANGE_x(u, uint64_t, EMUNIT_NUMTYPE_X64, min, max, a)
+
+/** @todo Documentation */
+
+#define UT_ASSERT_RANGE_INT8_MSG(  min, max, a, ...)  UT_ASSERT_RANGE_MSG_x(s, int8_t,   EMUNIT_NUMTYPE_S8,  min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_INT16_MSG( min, max, a, ...)  UT_ASSERT_RANGE_MSG_x(s, int16_t,  EMUNIT_NUMTYPE_S16, min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_INT32_MSG( min, max, a, ...)  UT_ASSERT_RANGE_MSG_x(s, int32_t,  EMUNIT_NUMTYPE_S32, min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_INT64_MSG( min, max, a, ...)  UT_ASSERT_RANGE_MSG_x(s, int64_t,  EMUNIT_NUMTYPE_S64, min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_UINT8_MSG( min, max, a, ...)  UT_ASSERT_RANGE_MSG_x(u, uint8_t,  EMUNIT_NUMTYPE_U8,  min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_UINT16_MSG(min, max, a, ...)  UT_ASSERT_RANGE_MSG_x(u, uint16_t, EMUNIT_NUMTYPE_U16, min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_UINT32_MSG(min, max, a, ...)  UT_ASSERT_RANGE_MSG_x(u, uint32_t, EMUNIT_NUMTYPE_U32, min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_UINT64_MSG(min, max, a, ...)  UT_ASSERT_RANGE_MSG_x(u, uint64_t, EMUNIT_NUMTYPE_U64, min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_HEX8_MSG(  min, max, a, ...)  UT_ASSERT_RANGE_MSG_x(u, uint8_t,  EMUNIT_NUMTYPE_X8,  min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_HEX16_MSG( min, max, a, ...)  UT_ASSERT_RANGE_MSG_x(u, uint16_t, EMUNIT_NUMTYPE_X16, min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_HEX32_MSG( min, max, a, ...)  UT_ASSERT_RANGE_MSG_x(u, uint32_t, EMUNIT_NUMTYPE_X32, min, max, a, __VA_ARGS__)
+#define UT_ASSERT_RANGE_HEX64_MSG( min, max, a, ...)  UT_ASSERT_RANGE_MSG_x(u, uint64_t, EMUNIT_NUMTYPE_X64, min, max, a, __VA_ARGS__)
 
 /** @} <!-- emunit_assertions_range_group --> */
 #endif /* EMUNIT_ASSERTIONS_RANGE_H_INCLUDED */
