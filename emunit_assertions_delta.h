@@ -43,7 +43,7 @@
 	}while(0)
 
 /**
- * @brief Base delta assertionassertion with message
+ * @brief Base delta assertion with message
  *
  * This is message version of @ref UT_ASSERT_DELTA_x.
  * The formated message is processed and displayed if assertion fails.
