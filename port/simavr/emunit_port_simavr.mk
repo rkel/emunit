@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
-# WinAVR Makefile Template written by Eric B. Weddington, J�rg Wunsch, et al.
+# WinAVR Makefile Template written by Eric B. Weddington, Jorg Wunsch, et al.
 #
 # Released to the Public Domain
 #
