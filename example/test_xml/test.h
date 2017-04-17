@@ -1,4 +1,4 @@
-#ifndef TEST_H_INCLUDED
+#ifndef TEST_XML_H_INCLUDED
 #define TEST_XML_H_INCLUDED
 /* EMUnit embedded unit test engine - Copyright (C) 2017 Radoslaw Koppel
  *
