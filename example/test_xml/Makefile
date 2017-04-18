@@ -24,7 +24,7 @@ EMUNIT_DIR = ../..
 GEN_DIR = $(OBJDIR)/_gen
 EMUNIT_PORT = pctest
 
-TARGET = $(EMUNIT_PORT)_simple
+TARGET = $(EMUNIT_PORT)_test
 SRC = \
 	suites.c \
 	main.c \
