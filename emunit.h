@@ -233,19 +233,6 @@ void ut_assert_str_msg(
 	const __flash char * fmt,
 	...);
 
-/**
- * @brief Assert arrays
- *
- * Complex assertion that uses comparator defined in array head.
- * It gives an possibility to compare any kind of structurized data.
- *
- * @param p_head  Array assertion header
- * @param p_cmp   Structure with the data about compared arrays.
- */
-void ut_assert_array(
-	const __flash emunit_assert_array_head_t * p_head,
-	const emunit_assert_array_cmp_t            p_cmp);
-
 /** @} */
 
 /** @} */

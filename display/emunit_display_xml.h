@@ -140,11 +140,5 @@ void emunit_display_xml_failed_str_msg(
 	const __flash char * fmt,
 	va_list va_args);
 
-/** See @ref emunit_display_failed_array documentation */
-void emunit_display_xml_failed_array(
-	const __flash emunit_assert_array_head_t * p_head,
-	const emunit_assert_array_cmp_t            p_cmp,
-	size_t                                     err_pos);
-
 /** @} */
 #endif /* EMUNIT_DISPLAY_XML_H_INCLUDED */

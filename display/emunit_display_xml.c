@@ -608,13 +608,3 @@ void emunit_display_xml_failed_str_msg(
 	emunit_display_xml_failed_str_details(p_head, str_expected, str_actual, err_pos);
 	emunit_display_xml_failed_footer(p_head);
 }
-
-void emunit_display_xml_failed_array(
-	const __flash emunit_assert_array_head_t * p_head,
-	const emunit_assert_array_cmp_t            p_cmp,
-	size_t                                     err_pos)
-{
-	emunit_display_xml_failed_header(&p_head->head, EMUNIT_FLASHSTR("ARRAY"));
-	/** @todo Display details of an array */
-	emunit_display_xml_failed_footer(&p_head->head);
-}

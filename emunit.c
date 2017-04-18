@@ -790,11 +790,3 @@ void ut_assert_str_msg(
 		emunit_assert_passed();
 	}
 }
-
-void ut_assert_array(
-	const __flash emunit_assert_array_head_t * p_head,
-	const emunit_assert_array_cmp_t            p_cmp)
-{
-	/** @todo Implement */
-	EMUNIT_IASSERT_MSG(0, "Not implemented yet.");
-}

@@ -259,26 +259,6 @@ EMUNIT_DISPLAY_MAP_ASSERT(failed_str,
 			err_pos
 		)
 	)
-
-/**
- * @brief Display array comparison assertion failed
- *
- * @param p_head     Array assertion header.
- * @param p_expected Array comparison parameters.
- * @param err_pos    Index of the first mismatched character.
- */
-EMUNIT_DISPLAY_MAP_VFUNC(failed_array,
-		(
-			const __flash emunit_assert_array_head_t * p_head,
-			const emunit_assert_array_cmp_t            p_cmp,
-			size_t                                     err_pos
-		),
-		(
-			p_head,
-			p_cmp,
-			err_pos
-		)
-	)
 /** @} */
 
 /** @} */

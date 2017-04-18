@@ -175,69 +175,6 @@ typedef struct
 }emunit_assert_head_t;
 
 /**
- * @brief The array assertion header type
- *
- * Type used to describe an array.
- */
-typedef struct emunit_assert_array_head_s emunit_assert_array_head_t;
-
-
-/**
- * @brief Array object comparison function
- *
- * This function should compare two objects.
- * It would be used by the array comparison function and gives it maximum
- * functionality and flexibility.
- *
- * @param[in] p_a Pointer to the first argument for comparison
- * @param[in] p_b Pointer to the second argument for comparison
- *
- * @retval true  Arguments are equal
- * @retval false Arguments are not equal
- */
-typedef bool (*emunit_assert_obj_cmp_func)(const __memx void * p_a, const __memx void * p_b);
-
-/**
- * @brief Array object printing function
- *
- * This function should print given object value.
- *
- * @param[in] p_obj  Pointer to the object to be printed
- * @param[in] p_head The array header - some printing functions may use it
- *                   to alternate output printing format (Hex, Dec, Unsigned...).
- */
-typedef void (*emunit_assert_obj_print_func)(
-		const __memx void *p_obj,
-		const __flash emunit_assert_array_head_t * p_head);
-
-/**
- * @brief The structure that describes array prepared for comparison
- *
- * This type is used to describe the array type for checking and printing.
- */
-struct emunit_assert_array_head_s
-{
-	emunit_assert_head_t         head;      //!< Standard assertion header
-	emunit_assert_obj_cmp_func   cmp_fnc;   //!< Single item comparing function
-	emunit_assert_obj_print_func print_fnc; //!< Single item printing function
-	size_t                       item_size; //!< The size of single array item
-};
-
-/**
- * @brief The variable part of for comparison
- *
- * Part describing the part of an arrays that can be placed in RAM during comparison.
- * It means that the informations here can be variable.
- */
-
-typedef struct
-{
-	const __memx void * p_expected; //!< Expected array
-	const __memx void * p_actual;   //!< Actual array
-	const size_t        item_cnt;   //!< Number of items to compare
-}emunit_assert_array_cmp_t;
-
-/**
  * @brief Test function
  *
  * The pointer to any test function.
