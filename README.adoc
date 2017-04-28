@@ -1,0 +1,567 @@
+= EMUnit Embedded Unit Testing Engine
+Radoslaw Koppel <https://github.com/rkel>
+:doctype: article
+:lang: en
+
+EMUnit is another Unit Testing Engine.
+It was designed to best fit in embedded application.
+
+Most of the code is written in pure ANSI C99, only typical embedded extensions are required to:
+
+- Access data in FLASH memory
+- Access not initialized section - the EMUnit state is kept in a data section that is not cleared when CPU restarts.
+
+
+== What makes EMUnit well suited for embedded?
+
+Main principles that makes the EMUnit well suited for embedded testing:
+
+- After every test case the whole CPU is restarted. When this behaviour is impossible, for example for PC target, test thread would be restarted.
+- Output port is only initialized and data is printed out only just after restart.
+- When test is in progress all the results are stored in a buffer.
+- Test can fail inside interrupt.
+- Configurable integer size for internal calculations: 16, 32 or 64 bits.
+
+
+== Well tested testing engine
+
+Inside the /example/test_xml folder is a test that checks EMUnit functionality.
+A test inside a test engine!
+Seems crazy but having testing tools well tested is crucial for the quality of the development.
+
+The internal test uses quite simple solution: port is replaced by the element that expects
+the output data from the test to match specific pattern.
+Patterns are described by regular expressions.
+**More than 300 test cases** are prepared currently.
+
+
+== Naming convention
+
+EMUnit uses two types of the prefix:
+
+EMUNIT_ or emunit_::
+For all internal macros, functions and variables of the test engine other than asserts used in tests.
+
+EMUNIT_DISPLAY_ or emunit_display_::
+Everything related to presentation layer.
+
+EMUNIT_PORT_ or emunit_port_::
+Every details related to the selected port (AVR, PC, ...).
+
+
+UT_ASSERT_ or ut_assert_::
+For all assertion functions and macros.
+Macros that begins with UT_ASSERT_ are provided to be directly used in test cases.
+
+
+== EMUnit structure
+
+=== Directories
+
+Most of the EMUnit source is placed in the project root folder.
+
+Presentation layer is placed in _display_ folder.
+
+Port for the selected machine are placed in subdirectories inside _port_ directory.
+
+And last but not least _example_ folder contains some examples of the EMUnit usage.
+
+[[ch_sources]]
+=== Sources
+
+The EMUnit source code contains 3 important source files:
+
+emunit.c::
+The main source file with the whole engine.
+There are all the assertion functions that are called by assertion macros.
+The header file for the main source file is divided into _emunit.h_ and _emunit_private.h_.
+First one would be included into your tests.
+Second one is used only when writing new port or display driver.
+
+emunit_display.c::
+There are two parts of presentation layer.
+First is common and indepdendent from the selected display driver.
+It is display state and functions that operates directly on the buffer.
+Then there is an inclusion of selected __display/emunit_display_[mode].c__ file
+witch implements functions that prints current state and result of the test into the internal buffer.
+
+emunit_port.c::
+This file just includes the selected port implementation - the __port/[port]/emunit_port_[port].c__ file.
+
+=== Headers
+
+From the user point of view the only important header to include is __emunit.h__.
+It includes all the headers required for the test.
+
+If you wish to check all the assertion macros aviable see into __emunit_assertions.h__
+and __emunit_assertions_[type].h__ files.
+
+To avoid multiple inclusion problem there are a few additional files that you may be interested in
+while writting any internal part (port or display )for the EMUnit:
+
+emunit_macros.h::
+Contains lots of universal macros used by the port internally.
+
+emunit_types.h::
+contains all the types used inside the test.
+Some of the macros that are tightly coupled with the types ale also present here.
+
+emunit_private.h::
+Contains some internal API that is not used when creating test (like accessing current test index
+or other statistics).
+
+
+=== Makefiles
+Inside the EMUnit the simple makefile build system is predefined.
+The EMUnit makefile is placed in EMUnit root directory and named __emunit.mk__.
+It contains only the definiton of few variables and then the port makefile is included.
+It is port makefile that declares all the compilation rules.
+
+Follow the examples to see how to use the make to build the test.
+
+
+=== Internal state
+
+There are two structures that holds the state of the EMUnit test.
+One for the test engine itself and the second one for the presentation layer.
+It is important tha the state of this variables has not to change when machine restarts.
+Becouse declaring such a variable is compiller dependent the state variables are declared
+inside port files.
+
+
+==== Test Engine state
+
+The state of the whole test engine is hold in the __emunit_status__ variable.
+It contains the test suite and case that was just finished and the status
+(number of suites and test cases that failed or passed).
+
+
+==== Display state
+
+The state of the presentation layer contains mainly the display buffer.
+If anything was printed into the buffer while previous test run,
+it can be flushed now.
+
+
+=== Port
+
+The port files are located in a directories inside port directory.
+
+All port functions are mapped to the port specific inside __emunit_port.h__ file in the root directory.
+There is special _arch_ directory that is not a real target.
+There are files for specified architecture that are included into specific ports.
+
+
+=== Display
+
+The display files are located inside display directory.
+Every display format implements just 2 files: __emunit_display_[mode].c__ and __emunit_display_[mode].h__ file.
+
+All display functions are mapped inside __emunit_display.h__ file in the root directory.
+
+
+=== Examples
+
+All the examples are placed in the __example__ directory.
+
+Currently there are following examples aviable:
+
+simple::
+Just a small example with only one suite.
+The whole source is placed in single file.
+It is prepared to smoke test of any created port.
+It is easy to change the example to any port:
+Open the makefile and change the *EMUNIT_PORT* variable.
+The compiled output code would contain the port name.
+
+test_xml::
+The predefined test of the whole XML presentation layer.
+It does not generate the output in the EMUnit format.
+Instead it uses *regex* patterns to check if the flushed data matches the expected pattern.
+This way more than 300 test are created.
+Currently supports only PC target.
+
+
+== Usage
+
+Every test is composed from test suites.
+Test suites are composed from test cases.
+Every test suite contains two types of and cleanup functions.
+One for suite and one for test.
+
+suite initialisation and cleanup functions::
+Suite initialisation and cleanup functions are called before the whole suite starts (before first test case)
+and just after the whole suite ends (after last test case).
+
+test initialisation and cleanup functions::
+Test initialisation and cleanup functions are called before and after every test case.
+
+
+The best tutorial how to use the EMUnit is inside __example__ directory.
+
+
+=== Declaring and defining the tests
+
+==== Test Case
+
+Test case is just a void function without parameters.
+Inside Test Case assertions are placed.
+Assertion macros begins with UT_ASSERT prefix.
+If any assertion inside the test fails - the test case function is interrupted and failed result is presented.
+
+Example test function may be seen below:
+[source,c]
+------------------------
+void test1(void)
+{
+	UT_ASSERT(true);
+	UT_ASSERT_EQUAL(7, 4+3);
+	UT_ASSERT_EQUAL(7, 4);
+	UT_ASSERT(false);
+}
+------------------------
+
+It fails in third assertion printing test result below:
+
+[source,xml]
+-----------------------
+<testcase name="test1">
+  <failure type="EQUAL" id="1">
+    <file>main.c</file>
+    <line>23</line>
+    <details>
+      <expected>7</expected>
+      <actual>4</actual>
+    </details>
+  </failure>
+</testcase>
+-----------------------
+
+
+==== Test Suite
+
+Test Suite is a collection of Test Cases that are intended to test some common set of behaviours.
+Suite contains a set of special functions:
+
+suite_init::
+Function that is called once when starting suite.
+It is called before the first Test Case in the Test Suite.
+
+suite_cleanup::
+Function taht is called once after test suite is finished.
+It is called after the last Test Case in the Test Suite.
+
+test_init::
+Function called before every single Test Case function.
+
+test_cleanup::
+Function called after every single Test Case function.
+
+Test Suite is described, like below, by Test Suite descriptor array created by special set of macros.
+
+[source,c]
+-----------------------
+UT_DESC_TS_BEGIN(my_suite, suite_init, suite_cleanup, test_init, test_cleanup)
+	UT_DESC_TC(test1)
+	UT_DESC_TC(test2)
+	UT_DESC_TC(test3)
+UT_DESC_TS_END();
+-----------------------
+
+Code above creates Test Suite descriptor named __my_suite__.
+Before suite is started __suite_init__ function would be called.
+After suite is finished __suite_cleanup__ function would be called.
+The function __test_init__ would be called before every Test Suite function.
+The function __test_cleanup__ would be called after every Test Suite function.
+
+Whole suite above is contains 3 Test Cases:
+
+- __test1__
+- __test2__
+- __test3__
+
+
+==== Main Test descriptor
+
+Main test descriptor creates global array with all the test suites.
+It contains all the Test Suites.
+
+[source,c]
+------------------
+UT_MAIN_TS_BEGIN()
+	UT_MAIN_TS_ENTRY(my_suite1)
+	UT_MAIN_TS_ENTRY(my_suite2)
+	UT_MAIN_TS_ENTRY(my_suite3)
+UT_MAIN_TS_END();
+------------------
+
+This would create test with 3 suites: __my_suite1__, __my_suite2__, __my_suite3__.
+
+There are 2 possibilities for the Main Test descriptor: simple and complex case.
+Botch are described in the sections below.
+
+
+==== Simple case
+
+In simple case there is rather limited number of Test Suites and all are declared in single file.
+The at very bottom of the file, after all Test Case functions the Test Suite descriptors would be located.
+And the Main Test descriptor would follow:
+
+[source,c]
+---------------------------
+void test1(void)
+{
+
+}
+
+// ...
+
+UT_DESC_TS_BEGIN(my_suite1, suite1_init, suite1_cleanup, test1_init, test1_cleanup)
+	UT_DESC_TC(test1)
+	UT_DESC_TC(test2)
+	UT_DESC_TC(test3)
+UT_DESC_TS_END();
+
+UT_DESC_TS_BEGIN(my_suite2, suite2_init, suite2_cleanup, test2_init, test2_cleanup)
+	UT_DESC_TC(test4)
+	UT_DESC_TC(test5)
+	UT_DESC_TC(test6)
+UT_DESC_TS_END();
+
+UT_MAIN_TS_BEGIN()
+	UT_MAIN_TS_ENTRY(my_suite1)
+	UT_MAIN_TS_ENTRY(my_suite2)
+UT_MAIN_TS_END();
+---------------------------
+
+And this is all we need in our source files to make test functional.
+This scenario fits best simple tests.
+
+
+==== Complex case
+
+In complex scenario we have big test with many Test Cases in many Test Suites.
+It is good idea then to split the Test Suites to multiple files.
+Then at the bottom of every Test Suite file the Test Suite descriptor should be placed.
+And the Main Test descriptor would be located in separate file.
+
+This is how this may be archived:
+
+.Example file test_suite1.c
+[source,c]
+---------------------------
+void test1(void)
+{
+
+}
+
+// ...
+
+UT_DESC_TS_BEGIN(my_suite1, NULL, NULL, NULL, NULL)
+    UT_DESC_TC(test1)
+UT_DESC_TS_END;
+---------------------------
+
+.Example file suites.c
+[source,c]
+---------------------------
+UT_DESC_TS_EXTERN(my_suite1);
+UT_DESC_TS_EXTERN(my_suite2);
+
+UT_MAIN_TS_BEGIN()
+	UT_MAIN_TS_ENTRY(my_suite1)
+	UT_MAIN_TS_ENTRY(my_suite2)
+UT_MAIN_TS_END();
+---------------------------
+
+Compiling this two files (and adding another one for __my_suite2__) would allow the test to compile
+and run like expected.
+
+
+=== Building and running
+
+The test is created in such a way that it requires only adding EMUnit root path to the compiler include directory.
+Three source files are required to be added into compilation:
+
+- __emunit.c__
+- __emunit_display.c__
+- __emunit_port.c__
+
+See chapter&nbsp;<<ch_sources>> for more details about the files.
+
+Template configuration files from __config__ subdirectory should be copied and modified in the test root directory.
+Not all the config files are required.
+Some of them are required only if the specific port is going to be used.
+I think that the configuration files names are quite self explaining.
+
+Configuration files is just a bunch of macro definition.
+Thanks to #ifdef conditionals this definitions can be always overwritten by global definitions.
+This makes it quite easy to select target or display during compilation from the makefile.
+
+There is also simple makefile system to help with GCC build.
+
+See __example__ directory for details but normally simple makefile like below would allow to build the test with ++make all++ command:
+
+[source,makefile]
+--------------------------
+# Required by the EMUnit makefile
+EMUNIT_DIR = ../..
+EMUNIT_PORT = pcstdout
+TARGET = $(EMUNIT_PORT)_simple
+# Source files with the tests
+SRC = main.c
+
+# Required by the simavr port to compile
+EXTRAINCDIRS = c:/code/simavr_dist/include
+F_CPU = 4000000
+
+# Include EMUnit building system
+include $(EMUNIT_DIR)/emunit.mk
+--------------------------
+
+The output file is always a binnary generated for the target machine.
+So it would be just an *exe* file for Windows machine.
+It would be *elf* or *hex* file for bare metal embedded device.
+
+
+=== Building and running example/xml_test
+
+Current version of xml_test is prepared only to work on PC.
+For the compilation following software is required:
+
+- GCC compiler (for windows MSYS2 with MinGW64 or MinGW32 is preffered option).
+- Make (for windows use the one from MSYS2).
+- Python 2.7 - it is required to create complex tests source files basing on the templates.
+
+Go to the [emunit]/example/xml_test and run ++make++.
+
+The file __pctest_test.exe__ should be generated.
+Just execute it to see the results.
+
+
+
+== Available assertions
+
+All the assertions begins with UT_ASSERT prefix.
+Every assertion takes one argument at last - the actual value.
+If the assertion takes only one argument, it is the assertion macro name that defines the expected value.
+
+The assertion may take expected value also.
+The expected value always directly proceeds the actual value.
+
+Some assertions takes additional parameters, like delta assertions that takes also the allowed delta from the expected value.
+Parameters are always placed first, before the expected value.
+
+And last but not least, every assertion can have a message version.
+The message version of the asserton takes additional format string and variable number of arguments in *printf* like format.
+The message would be printed only if assertion fails.
+
+See __emunit_assertions.h__ and __emunit_assertions_[mode].h__ files to check all the available assertion macros.
+
+
+== Presentation layer
+
+EMUnit was designed keeping it easy to define any other, text based, output format.
+We are limited to text based format mainly because value of 0 has special meaning in the buffer.
+User defined presentation layer has only to define a functions that write text into display buffer when selected display function is called.
+The functionality of sending the buffer to the output is defined in the port.
+
+There is currenlty one presentation layer predefined.
+
+
+=== XML output format
+
+The example of the generated test output is presented below:
+
+[source,xml]
+---------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<test name="EMUnit">
+  <testsuite name="my_suite">
+    <testcase name="test_all_passed">
+    </testcase>
+    <testcase name="test1">
+      <failure type="EQUAL" id="1">
+        <file>main.c</file>
+        <line>44</line>
+        <details>
+          <expected>7</expected>
+          <actual>4</actual>
+        </details>
+      </failure>
+    </testcase>
+    <testcase name="test2">
+      <failure type="ASSERT" id="2">
+        <file>main.c</file>
+        <line>50</line>
+        <msg>Test entities: &lt;&amp;&gt; may be failed 10 times</msg>
+        <details>
+          <expression>false</expression>
+        </details>
+      </failure>
+    </testcase>
+    <testcase name="test_long_string">
+      <failure type="STRING" id="3">
+        <file>main.c</file>
+        <line>69</line>
+        <details>
+          <err_idx>34</err_idx>
+          <expected><length>35</length>
+            <val><skip cnt="3" />4567890abcdefghijklmnoprstuwvxy<err>Z</err></val></expected>
+          <actual><length>35</length>
+            <val><skip cnt="3" />4567890abcdefghijklmnoprstuwvxy<err>z</err></val></actual>
+        </details>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsummary>
+    <testsuite-stat>
+      <total>1</total>
+      <passed>0</passed>
+      <failed>1</failed>
+    </testsuite-stat>
+    <testcase-stat>
+      <total>4</total>
+      <passed>1</passed>
+      <failed>3</failed>
+    </testcase-stat>
+  </testsummary>
+</test>
+---------------------------
+
+It contains the test witch is always named "EMUnit".
+Inside we have suite in witch we have 4 tests:
+
+- The first one, named "test_all_passed" is passed - no assertion information is presented.
+- The second one: "test1" fails. Whe have "EQUAL" assertion type, so the actual value was different than the expected.
+  All the assetion information is printed here - we have assertion header first, witch contains the file name, line number and detailed section.
+  The contents of the detailed section depends on the assertion type witch failed.
+- The third test: "test2" is "ASSERT" type - it means that expression fails.
+  We have message version of the asertion, so the message section is presented in the header.
+- The last one here is string assertion with string mismatch.
+  Note the *<err>* marker inside the strings.
+  It is here to make it easy to present the results in readable form - simple XSLT script is required.
+
+The final section named "testsummary" is rather self explaining.
+
+The example above is taken partialy from the output generated by __example/simple__.
+Run it and test by yorself to check it.
+
+
+== Status
+
+Current status:
+
+- Only AVR (simavr) and PC targets are supported.
+- Only one output format is defined.
+- If test fails inside interrupt runtime the cleanup function would be called from cleanup runtime.
+
+The plans:
+
+- hardware AVR over USART support.
+- The ARM Cortex M support.
+- Delta modulo assertions.
+- More output formats.
+- C mock generator in python (create or select and officially support one).
+- Support for Keil and IAR.
+- Provide XSLT script for nice result presentation.
