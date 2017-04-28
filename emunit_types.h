@@ -266,7 +266,7 @@ typedef struct
 	#define UT_DESC_TS_BEGIN(name, suite_init_fnc, suite_cleanup_fnc, init_fnc, cleanup_fnc) \
 	    emunit_test_desc_t const __flash UT_DESC_TS_VARNAME(name)[] = {                      \
 	        {NULL, suite_init_fnc},                                                          \
-			{NULL, suite_cleanup_fnc},                                                       \
+	        {NULL, suite_cleanup_fnc},                                                       \
 	        {NULL, init_fnc},                                                                \
 	        {(const __flash char[]){EMUNIT_STR(name)}, cleanup_fnc},                         \
 
