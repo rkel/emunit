@@ -105,7 +105,7 @@ static inline size_t emunit_strlen(char const __memx * s)
 
 static inline char* emunit_strstr(char const * str1, char const __memx * str2)
 {
-	if(0 > (signed char)__builtin_avr_flash_segment(s))
+	if(0 > (signed char)__builtin_avr_flash_segment(str1))
 	{
 		return strstr(str1, str2);
 	}
