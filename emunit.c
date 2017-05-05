@@ -401,7 +401,10 @@ int emunit_run(void)
 			break;
 
 		case EMUNIT_RR_FINISH:
-			return 0;
+			EMUNIT_IASSERT_MSG(
+				(emunit_ts_failed_get() + emunit_ts_passed_get()) != 0,
+				"Unexpected test suites final status");
+			return (int)emunit_ts_failed_get();
 
 		case EMUNIT_RR_PANIC:
 			return -1;

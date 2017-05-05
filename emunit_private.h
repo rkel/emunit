@@ -168,6 +168,12 @@ void emunit_flush(void);
  *
  * This function should be called when program is started.
  * Should be called from main, directly after @ref emunit_early_init.
+ *
+ * @return If EMUnit testing was finished properly it would return number
+ *         of failed suites.
+ *         The value (-1) would be returned if test fails internally
+ *         (because of internal assertion or unexpected state).
+ *         The 0 value always means that everything finishes successfully.
  */
 int emunit_run(void);
 

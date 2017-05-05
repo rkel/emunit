@@ -404,5 +404,7 @@ int main(void)
 	 * End of the test loop
 	 * --------------------------------- */
 	pctest_bill();
-	return ret;
+	(void)ret;
+	/* Return number of tests failed */
+	return pctest_failed;
 }
