@@ -169,6 +169,59 @@ static void test_fail_str_max_escape(void)
 		REPEAT_32("&") REPEAT_16("&"));
 }
 
+static void test_pass_nstr(void)
+{
+	static const char p_pattern[] = "12345678abcd";
+
+	test_expect_success_test();
+	UT_ASSERT_EQUAL_NSTR(4, "1234", p_pattern);
+	UT_ASSERT_EQUAL_NSTR(4, "5678", p_pattern+4);
+	UT_ASSERT_EQUAL_NSTR(6, "abcd", p_pattern+8);
+}
+
+static void test_fail_nstr(void)
+{
+	static const char p_pattern[] = "12345678abcd";
+
+	UT_ASSERT_EQUAL_NSTR(4, "1234", p_pattern);
+	UT_ASSERT_EQUAL_NSTR(4, "5678", p_pattern+4);
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"STRING",
+		NULL,
+		"%s",
+		"[[:space:]]*<err_idx>5</err_idx>"
+		"[[:space:]]*<expected><length>5</length>"
+		"[[:space:]]*<val>abcd<err>e</err></val>"
+		"[[:space:]]*</expected>"
+		"[[:space:]]*<actual><length>4</length>"
+		"[[:space:]]*<val>abcd<err></err></val>"
+		"[[:space:]]*</actual>"
+		);
+	UT_ASSERT_EQUAL_NSTR(6, "abcde", p_pattern+8);
+}
+
+static void test_fail_nstr_msg(void)
+{
+	static const char p_pattern[] = "12345678abcd";
+
+	UT_ASSERT_EQUAL_NSTR_MSG(4, "1234", p_pattern  , "Dummy message");
+	UT_ASSERT_EQUAL_NSTR_MSG(4, "5678", p_pattern+4, "Dummy message");
+	test_expect_fail_assert(
+		TEST_STR_ID_ANY,
+		"STRING",
+		"Some message",
+		"%s",
+		"[[:space:]]*<err_idx>5</err_idx>"
+		"[[:space:]]*<expected><length>5</length>"
+		"[[:space:]]*<val>abcd<err>e</err></val>"
+		"[[:space:]]*</expected>"
+		"[[:space:]]*<actual><length>4</length>"
+		"[[:space:]]*<val>abcd<err></err></val>"
+		"[[:space:]]*</actual>"
+		);
+	UT_ASSERT_EQUAL_NSTR_MSG(6, "abcde", p_pattern+8, "Some %s", "message");
+}
 
 UT_DESC_TS_BEGIN(test_str_suite, suite_init, suite_cleanup, NULL, NULL)
 	UT_DESC_TC(test_all_passed)
@@ -178,4 +231,7 @@ UT_DESC_TS_BEGIN(test_str_suite, suite_init, suite_cleanup, NULL, NULL)
 	UT_DESC_TC(test_fail_str_lenlim)
 	UT_DESC_TC(test_fail_str_lenlimend)
 	UT_DESC_TC(test_fail_str_max_escape)
+	UT_DESC_TC(test_pass_nstr)
+	UT_DESC_TC(test_fail_nstr)
+	UT_DESC_TC(test_fail_nstr_msg)
 UT_DESC_TS_END();
