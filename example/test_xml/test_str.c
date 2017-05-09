@@ -190,7 +190,7 @@ static void test_fail_nstr(void)
 		"STRING",
 		NULL,
 		"%s",
-		"[[:space:]]*<err_idx>5</err_idx>"
+		"[[:space:]]*<err_idx>4</err_idx>"
 		"[[:space:]]*<expected><length>5</length>"
 		"[[:space:]]*<val>abcd<err>e</err></val>"
 		"[[:space:]]*</expected>"
@@ -212,15 +212,15 @@ static void test_fail_nstr_msg(void)
 		"STRING",
 		"Some message",
 		"%s",
-		"[[:space:]]*<err_idx>5</err_idx>"
-		"[[:space:]]*<expected><length>5</length>"
-		"[[:space:]]*<val>abcd<err>e</err></val>"
+		"[[:space:]]*<err_idx>2</err_idx>"
+		"[[:space:]]*<expected><length>3</length>"
+		"[[:space:]]*<val>ab<err>b</err></val>"
 		"[[:space:]]*</expected>"
 		"[[:space:]]*<actual><length>4</length>"
-		"[[:space:]]*<val>abcd<err></err></val>"
+		"[[:space:]]*<val>ab<err>c</err>d</val>"
 		"[[:space:]]*</actual>"
 		);
-	UT_ASSERT_EQUAL_NSTR_MSG(6, "abcde", p_pattern+8, "Some %s", "message");
+	UT_ASSERT_EQUAL_NSTR_MSG(6, "abb", p_pattern+8, "Some %s", "message");
 }
 
 UT_DESC_TS_BEGIN(test_str_suite, suite_init, suite_cleanup, NULL, NULL)
