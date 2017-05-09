@@ -92,6 +92,14 @@ typedef union
 #define EMUNIT_SNUM_MAX EMUNIT_CN3(INT, EMUNIT_CONF_NUMBER_SIZE, _MAX)
 
 /**
+ * @brief The value used for automatic checking the string size
+ *
+ * The value used for string assertion result printing
+ * if the size of the string should not be limited.
+ */
+#define EMUNIT_STRLEN_MAX (SIZE_MAX)
+
+/**
  * @brief Reset reason
  *
  * The enumerator of possible reset reasons that would be returned by the port.

@@ -251,13 +251,17 @@ static void emunit_display_xml_value(
 	);
 }
 
-static void emunit_display_xml_str(
+static void emunit_display_xml_nstr(
 	const __flash char * p_name,
+	size_t n,
 	const __memx char * str,
 	size_t start_skip,
 	size_t error_marker)
 {
 	size_t len = emunit_strlen(str);
+	if ( len > n )
+		len = n;
+
 	emunit_display_printf(
 		NULL,
 		EMUNIT_FLASHSTR("\t\t\t\t\t<%"PRIsPGM"><length>%u</length>" NEWLINE
@@ -375,8 +379,9 @@ static void emunit_display_xml_failed_delta_details(
 	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t</details>" NEWLINE));
 }
 
-static void emunit_display_xml_failed_str_details(
+static void emunit_display_xml_failed_nstr_details(
 	const __flash emunit_assert_head_t * p_head,
+	size_t n,
 	const __memx char * str_expected,
 	const __memx char * str_actual,
 	size_t err_pos)
@@ -393,8 +398,8 @@ static void emunit_display_xml_failed_str_details(
 		skip_start = 1 + err_pos - EMUNIT_CONF_STRLEN_LIMIT;
 	}
 
-	emunit_display_xml_str(EMUNIT_FLASHSTR("expected"), str_expected, skip_start, err_pos);
-	emunit_display_xml_str(EMUNIT_FLASHSTR("actual"), str_actual, skip_start, err_pos);
+	emunit_display_xml_nstr(EMUNIT_FLASHSTR("expected"), n, str_expected, skip_start, err_pos);
+	emunit_display_xml_nstr(EMUNIT_FLASHSTR("actual"),   n, str_actual,   skip_start, err_pos);
 
 
 	emunit_display_puts(NULL, EMUNIT_FLASHSTR("\t\t\t\t</details>" NEWLINE));
@@ -584,19 +589,21 @@ void emunit_display_xml_failed_delta_msg(
 	emunit_display_xml_failed_footer(p_head);
 }
 
-void emunit_display_xml_failed_str(
+void emunit_display_xml_failed_nstr(
 	const __flash emunit_assert_head_t * p_head,
+	size_t n,
 	const __memx char * str_expected,
 	const __memx char * str_actual,
 	size_t err_pos)
 {
 	emunit_display_xml_failed_header(p_head, EMUNIT_FLASHSTR("STRING"));
-	emunit_display_xml_failed_str_details(p_head, str_expected, str_actual, err_pos);
+	emunit_display_xml_failed_nstr_details(p_head, n, str_expected, str_actual, err_pos);
 	emunit_display_xml_failed_footer(p_head);
 }
 
-void emunit_display_xml_failed_str_msg(
+void emunit_display_xml_failed_nstr_msg(
 	const __flash emunit_assert_head_t * p_head,
+	size_t n,
 	const __memx char * str_expected,
 	const __memx char * str_actual,
 	size_t err_pos,
@@ -605,6 +612,6 @@ void emunit_display_xml_failed_str_msg(
 {
 	emunit_display_xml_failed_header(p_head, EMUNIT_FLASHSTR("STRING"));
 	emunit_display_xml_msg(4, fmt, va_args);
-	emunit_display_xml_failed_str_details(p_head, str_expected, str_actual, err_pos);
+	emunit_display_xml_failed_nstr_details(p_head, n, str_expected, str_actual, err_pos);
 	emunit_display_xml_failed_footer(p_head);
 }

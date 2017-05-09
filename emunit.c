@@ -347,7 +347,8 @@ static void emunit_current_cleanup_run(void)
 		}
 	}
 
-	static bool ut_assert_str_check(
+	static bool ut_assert_nstr_check(
+		size_t n,
 		const __memx char * expected,
 		const __memx char * actual,
 		size_t * p_index)
@@ -355,7 +356,7 @@ static void emunit_current_cleanup_run(void)
 		bool result = true;
 		size_t i = 0;
 		char ce, ca;
-		while(0 != ((ce = *expected++) | (ca = *actual++)))
+		while( (0 != ((ce = *expected++) | (ca = *actual++))) && (0 != n--) )
 		{
 			if(ce != ca)
 			{
@@ -755,15 +756,16 @@ void ut_assert_range_msg(
 	}
 }
 
-void ut_assert_str(
+void ut_assert_nstr(
 	const __flash emunit_assert_head_t * p_head,
+	size_t n,
 	const __memx char * expected,
 	const __memx char * actual)
 {
 	size_t err_pos;
-	if(!ut_assert_str_check(expected, actual, &err_pos))
+	if(!ut_assert_nstr_check(n, expected, actual, &err_pos))
 	{
-		emunit_display_failed_str(p_head, expected, actual, err_pos);
+		emunit_display_failed_nstr(p_head, n, expected, actual, err_pos);
 		emunit_assert_failed();
 	}
 	else
@@ -772,19 +774,20 @@ void ut_assert_str(
 	}
 }
 
-void ut_assert_str_msg(
+void ut_assert_nstr_msg(
 	const __flash emunit_assert_head_t * p_head,
+	size_t n,
 	const __memx char * expected,
 	const __memx char * actual,
 	const __flash char * fmt,
 	...)
 {
 	size_t err_pos;
-	if(!ut_assert_str_check(expected, actual, &err_pos))
+	if(!ut_assert_nstr_check(n, expected, actual, &err_pos))
 	{
 		va_list va;
 		va_start(va, fmt);
-		emunit_display_failed_str_msg(p_head, expected, actual, err_pos, fmt, va);
+		emunit_display_failed_nstr_msg(p_head, n, expected, actual, err_pos, fmt, va);
 		va_end(va);
 		emunit_assert_failed();
 	}

@@ -125,15 +125,17 @@ void emunit_display_xml_failed_delta_msg(
 	va_list va_args);
 
 /** See @ref emunit_display_failed_str documentation */
-void emunit_display_xml_failed_str(
+void emunit_display_xml_failed_nstr(
 	const __flash emunit_assert_head_t * p_head,
+	size_t n,
 	const __memx char * str_expected,
 	const __memx char * str_actual,
 	size_t err_pos);
 
 /** See @ref emunit_display_failed_str_msg documentation */
-void emunit_display_xml_failed_str_msg(
+void emunit_display_xml_failed_nstr_msg(
 	const __flash emunit_assert_head_t * p_head,
+	size_t n,
 	const __memx char * str_expected,
 	const __memx char * str_actual,
 	size_t err_pos,
