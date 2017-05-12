@@ -246,7 +246,7 @@
  * @param e Expected string
  * @param a Actual string
  */
-#define UT_ASSERT_EQUAL_STR(    e, a)  EMUNIT_CALL_ASSERT(EMUNIT_NUMTYPE_STR, ut_assert_str, (e, a))
+#define UT_ASSERT_EQUAL_STR(    e, a)  UT_ASSERT_EQUAL_NSTR(EMUNIT_STRLEN_MAX, e, a)
 
 /**
  * @brief Expect two strings to be the same with message
@@ -258,7 +258,34 @@
  * @param ... Format string followed by the format values.
  *            Standard @c printf format is used.
  */
-#define UT_ASSERT_EQUAL_STR_MSG(e, a, ...) EMUNIT_CALL_ASSERT_MSG(EMUNIT_NUMTYPE_STR, ut_assert_str, (e, a), __VA_ARGS__)
+#define UT_ASSERT_EQUAL_STR_MSG(e, a, ...)  UT_ASSERT_EQUAL_NSTR_MSG(EMUNIT_STRLEN_MAX, e, a, __VA_ARGS__)
+
+/**
+ * @brief Expect up to N characters of two strings to be the same
+ *
+ * This function checks the value of the strings.
+ * Strings may be placed in any memory (RAM, FLASH).
+ *
+ * @param n Maximum number of characters to compare
+ * @param e Expected string
+ * @param a Actual string
+ */
+#define UT_ASSERT_EQUAL_NSTR(    n, e, a)  EMUNIT_CALL_ASSERT(EMUNIT_NUMTYPE_STR, ut_assert_nstr, (n, e, a))
+
+/**
+ * @brief Expect up to N characters of two strings to be the same
+ *
+ * The message version of @ref UT_ASSERT_EQUAL_NSTR.
+ *
+ * @param n   Maximum number of characters to compare
+ * @param e   Expected string
+ * @param a   Actual string
+ * @param ... Format string followed by the format values.
+ *            Standard @c printf format is used.
+ */
+#define UT_ASSERT_EQUAL_NSTR_MSG(n, e, a, ...)  EMUNIT_CALL_ASSERT_MSG(EMUNIT_NUMTYPE_STR, ut_assert_nstr, (n, e, a), __VA_ARGS__)
+
+
 /** @} <!-- emunit_assertions_str_group --> */
 
 /** @} <!-- emunit_assertions_group --> */

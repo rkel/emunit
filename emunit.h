@@ -207,11 +207,14 @@ void ut_assert_range_msg(
  * Function checks if selected strings equals.
  *
  * @param p_head   Assertion header
+ * @param n        Maximum number of printed characters.
+ *                 For maximum value see @ref EMUNIT_STRLEN_MAX.
  * @param expected Expected string
  * @param actual   Actual string
  */
-void ut_assert_str(
+void ut_assert_nstr(
 	const __flash emunit_assert_head_t * p_head,
+	size_t n,
 	const __memx char * expected,
 	const __memx char * actual);
 
@@ -221,13 +224,16 @@ void ut_assert_str(
  * Function checks if selected strings equals.
  *
  * @param p_head   Assertion header
+ * @param n        Maximum number of printed characters.
+ *                 For maximum value see @ref EMUNIT_STRLEN_MAX.
  * @param expected Expected string
  * @param actual   Actual string
  * @param fmt      Message format string
  * @param ...      Message parameters
  */
-void ut_assert_str_msg(
+void ut_assert_nstr_msg(
 	const __flash emunit_assert_head_t * p_head,
+	size_t n,
 	const __memx char * expected,
 	const __memx char * actual,
 	const __flash char * fmt,

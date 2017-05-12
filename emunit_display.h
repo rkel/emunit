@@ -241,19 +241,23 @@ EMUNIT_DISPLAY_MAP_ASSERT(failed_delta,
  * @brief Display string comparison assertion failed
  *
  * @param p_head       Assertion header.
+ * @param n            Maximum number of printed characters.
+ *                     For maximum value see @ref EMUNIT_STRLEN_MAX.
  * @param str_expected Expected string.
  * @param str_actual   Actual string.
  * @param err_pos      Index of the first mismatched character.
  */
-EMUNIT_DISPLAY_MAP_ASSERT(failed_str,
+EMUNIT_DISPLAY_MAP_ASSERT(failed_nstr,
 		(
 			const __flash emunit_assert_head_t * p_head,
+			size_t n,
 			const __memx char * str_expected,
 			const __memx char * str_actual,
 			size_t err_pos
 		),
 		(
 			p_head,
+			n,
 			str_expected,
 			str_actual,
 			err_pos
