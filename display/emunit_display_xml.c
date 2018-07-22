@@ -270,7 +270,7 @@ static void emunit_display_xml_nstr(
 		len
 	);
 
-	EMUNIT_IASSERT(start_skip < len);
+	EMUNIT_IASSERT(start_skip <= len);
 	str += start_skip;
 	len -= start_skip;
 	error_marker -= start_skip;
