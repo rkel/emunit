@@ -29,6 +29,7 @@
  * @sa emunit_display_xml_group
  */
 #include <inttypes.h>
+#include <stdlib.h>
 #include "../emunit.h"
 #include "emunit_display_xml.h"
 
@@ -407,8 +408,11 @@ static void emunit_display_xml_failed_nstr_details(
 
 void emunit_display_xml_show_panic(
 	const __flash char * str_file,
-	const __flash char * str_line)
+	unsigned int line)
 {
+	char str_line[12];
+	ltoa(line, str_line, 10);
+
 	emunit_display_panic_puts(NEWLINE"<panic>"NEWLINE);
 	emunit_display_panic_puts("\t<file>");
 	emunit_display_panic_puts(str_file);

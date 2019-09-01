@@ -45,7 +45,7 @@
 /** See @ref emunit_display_show_panic */
 void emunit_display_xml_show_panic(
 	const __flash char * str_file,
-	const __flash char * str_line);
+	unsigned int line);
 
 /** See @ref emunit_display_test_start */
 void emunit_display_xml_test_start(void);

@@ -77,11 +77,11 @@ void emunit_display_present(void);
  * minimise processing requirements.
  *
  * @param[in] str_file The file name where the problem occurs.
- * @param[in] str_line The string with decimal line number where the problem occurs.
+ * @param[in] line     The line number where the problem occurs.
  */
 void emunit_display_panic(
 	const __flash char * str_file,
-	const __flash char * str_line);
+	unsigned int line);
 
 /**
  * @name Displaying functions
@@ -99,16 +99,16 @@ void emunit_display_panic(
  * The buffer is cleared before.
  *
  * @param[in] str_file File name.
- * @param[in] str_line Line number as a string.
+ * @param[in] line Line number.
  */
 EMUNIT_DISPLAY_MAP_VFUNC(show_panic,
 		(
 			const __flash char * str_file,
-			const __flash char * str_line
+			unsigned int line
 		),
 		(
 			str_file,
-			str_line
+			line
 		)
 	)
 

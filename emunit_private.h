@@ -70,7 +70,7 @@
 		if(!(exp)) {                                    \
 			emunit_display_panic(                       \
 				EMUNIT_FLASHSTR(__FILE__),              \
-				EMUNIT_FLASHSTR(EMUNIT_STR(__LINE__))); \
+				__LINE__);                              \
 			emunit_restart(EMUNIT_RR_PANIC);            \
 		}                                               \
 	}while(0)

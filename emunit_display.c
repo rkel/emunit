@@ -323,10 +323,10 @@ void emunit_display_present(void)
 
 void emunit_display_panic(
 	const __flash char * str_file,
-	const __flash char * str_line)
+	unsigned int line)
 {
 	emunit_display_clear();
-	EMUNIT_DISPLAY_NAME(show_panic)(str_file, str_line);
+	EMUNIT_DISPLAY_NAME(show_panic)(str_file, line);
 }
 
 /* Include the source file for selected display */
